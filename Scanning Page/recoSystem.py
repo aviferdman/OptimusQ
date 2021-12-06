@@ -33,6 +33,17 @@ class RecoSystem:
         :return: list of keywords
         """
         htmlParse, title = self.scan_landing_page(url)
+        head = htmlParse.find("head")
+        str_of_keywords = ""
+        for t in head:
+            if str(t).__contains__("keywords"):
+                if str(t).__contains__("content"):
+                    str_of_keywords = t.__getitem__("content")
+                    break
+
+        if str_of_keywords != "":
+            return str_of_keywords.split(',')
+
 
         # checks if str in part of a title or a header
         def check_if_in_title(title, str):
@@ -57,9 +68,10 @@ class RecoSystem:
         paragraph_tags = htmlParse.find_all('p')
         for p in paragraph_tags:
             paragraphs += str(p.text).lower()
-        # print(paragraphs)
 
-        kw_extractor = yake.KeywordExtractor()
+        if paragraphs == "":
+            return [title]
+
         language = "en"
         max_ngram_size = 2
         deduplication_threshold = 0.9
