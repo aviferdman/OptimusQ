@@ -1,6 +1,9 @@
+import re
 import urllib.request
 import yake as yake
 from bs4 import BeautifulSoup
+from urllib.request import Request, urlopen
+
 
 
 class RecoSystem:
@@ -18,13 +21,34 @@ class RecoSystem:
         :param url: landing page url
         :return: void
         """
+
+        # opening the url for reading and parsing the html file
+        hdr = {'User-Agent': 'Mozilla/5.0'}
+        req = Request(url, headers=hdr)
+        try:
+            page = urlopen(req)
+        except Exception as e:
+            print(e)
+            return None, e
+        soup = BeautifulSoup(page)
+        return soup, ""
+
+    def extract_title_from_landing_page(self, url):
+        """
+        purpose: extract title from  a landing page.
+        :param url: landing page url
+        :return: title
+        """
         # opening the url for reading
-        html = urllib.request.urlopen(url)
+        try:
+            html = urllib.request.urlopen(url)
+        except:
+            return None
 
         # parsing the html file
         htmlParse = BeautifulSoup(html, 'lxml')
         title = htmlParse.find('title')
-        return htmlParse, title
+        return title
 
     def extract_keywords_from_landing_page(self, url):
         """
@@ -32,11 +56,18 @@ class RecoSystem:
         :param url: landing page url
         :return: list of keywords
         """
-        htmlParse, title = self.scan_landing_page(url)
+        htmlParse, e = self.scan_landing_page(url)
+        if htmlParse is None:
+            return [e]
+        title = htmlParse.find("title")
+        # title = self.extract_title_from_landing_page(url)
+        if title is None:
+            return ["Exception: Cannot Access url"]
+
         head = htmlParse.find("head")
         str_of_keywords = ""
         for t in head:
-            if str(t).__contains__("keywords"):
+            if str(t).__contains__("name=\"keywords\"") and str(t).__contains__("meta"):
                 if str(t).__contains__("content"):
                     str_of_keywords = t.__getitem__("content")
                     break
@@ -69,8 +100,8 @@ class RecoSystem:
         for p in paragraph_tags:
             paragraphs += str(p.text).lower()
 
-        if paragraphs == "":
-            return [title]
+        if len(paragraphs) <= 5 or re.search('[a-zA-Z]', paragraphs) is None :
+            return [title.text]
 
         language = "en"
         max_ngram_size = 2
