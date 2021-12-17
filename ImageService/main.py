@@ -1,5 +1,6 @@
 import string
 import stocks
+import json
 
 def read_data():
     path = "data.txt"
@@ -41,19 +42,75 @@ list:
 """
 
 def get_images(stock, keywords, max_images, **properties):
-    ret = []
-    if stock == "pixable":
-        pixable = stocks.Pixable()
-        ret = pixable.get_pictures(keywords, max_images, **properties)
+    ret = {}
+    try:
+        if stock == "pixable":
+            pixable = stocks.Pixable()
+            if type(max_images) is int and type(keywords) is str:
+                ret[keywords] = pixable.get_pictures(keywords, max_images, **properties)
 
-    elif stock == "shutterstock":
-        shutterstock = stocks.Shutterstock()
-        ret = shutterstock.get_pictures(keywords, max_images, **properties)
+            elif type(max_images) is int and type(keywords) is list:
+                for keyword in keywords:
+                    ret[keyword] = pixable.get_pictures(keyword, max_images, **properties)
 
-    return ret
+            elif type(max_images) is list and type(keywords) is list:
+                for keyword in keywords:
+                    ret[keyword] = pixable.get_pictures(keyword, max_images[keywords.index(keyword)], **properties)
+
+        elif stock == "shutterstock":
+            shutterstock = stocks.Shutterstock()
+            if type(max_images) is int and type(keywords) is str:
+                ret[keywords] = shutterstock.get_pictures(keywords, max_images, **properties)
+
+            elif type(max_images) is int and type(keywords) is list:
+                for keyword in keywords:
+                    ret[keyword] = shutterstock.get_pictures(keyword, max_images, **properties)
+
+            elif type(max_images) is list and type(keywords) is list:
+                for keyword in keywords:
+                    ret[keyword] = shutterstock.get_pictures(keyword, max_images[keywords.index(keyword)], **properties)
+
+    except:
+        ret = {"error": "error occurred"}
+
+    json_obj = json.dumps(ret)
+    return json_obj
 
 def main():
-   print(get_images("pixable", "banana", 5, colors = "green"))
+   out =get_images("pixable", ["banana", "apple"], 5, colors = "green")
+   parsed = json.loads(out)
+   print(json.dumps(parsed, indent=4, sort_keys=True))
+
+   out = get_images("shutterstock", ["dog", "cat"], 5, colors="green")
+   parsed = json.loads(out)
+   print(json.dumps(parsed, indent=4, sort_keys=True))
+
+   out = get_images("pixable", "sun shine", 5, colors="yellow")
+   parsed = json.loads(out)
+   print(json.dumps(parsed, indent=4, sort_keys=True))
+
+   out = get_images("shutterstock", "ground", 5, colors="yellow")
+   parsed = json.loads(out)
+   print(json.dumps(parsed, indent=4, sort_keys=True))
+
+   out = get_images("pixable", ["banana", "apple"], [1, 2], colors="green")
+   parsed = json.loads(out)
+   print(json.dumps(parsed, indent=4, sort_keys=True))
+
+   out = get_images("shutterstock", ["dog", "cat"], [3, 4], colors="green")
+   parsed = json.loads(out)
+   print(json.dumps(parsed, indent=4, sort_keys=True))
+
+   out = get_images("pixable", "sun shine", 5, colors="yellow")
+   parsed = json.loads(out)
+   print(json.dumps(parsed, indent=4, sort_keys=True))
+
+   out = get_images("shutterstock", "ground", 5, colors="yellow")
+   parsed = json.loads(out)
+   print(json.dumps(parsed, indent=4, sort_keys=True))
+
+
+
 
 
 if __name__ == '__main__':

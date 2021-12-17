@@ -25,8 +25,6 @@ class Pixable:
       else:
           return response.status_code
 
-  def print_max_images(self):
-        print(str(self.max_images))
 
 class Shutterstock:
   def __init__(self):
