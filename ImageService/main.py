@@ -44,52 +44,57 @@ list:
 def main_trigger(stock, keywords, max_images, **properties):
     ret = {}
     if stock == "pixable":
-        pixable = stocks.Pixable()
         if type(max_images) is int and type(keywords) is str:
-            ans = pixable.get_pictures(keywords, max_images, **properties)
-            if type(ans) is int:
-                return "error: " + str(ans)
-            ret[keywords] = ans
+            getImagePixable(keywords, max_images, ret, **properties)
 
         elif type(max_images) is int and type(keywords) is list:
             for keyword in keywords:
-                ans = pixable.get_pictures(keyword, max_images, **properties)
-                if type(ans) is int:
-                    return "error: " + str(ans)
-                ret[keyword] = ans
+                getImagePixable(keyword, max_images, ret, **properties)
 
         elif type(max_images) is list and type(keywords) is list:
             for keyword in keywords:
-                ans = pixable.get_pictures(keyword, max_images[keywords.index(keyword)], **properties)
-                if type(ans) is int:
-                    return "error: " + str(ans)
-                ret[keyword] = ans
+                getImagePixable(keyword, max_images[keywords.index(keyword)], ret, **properties)
 
     elif stock == "shutterstock":
-        shutterstock = stocks.Shutterstock()
         if type(max_images) is int and type(keywords) is str:
-            ans = shutterstock.get_pictures(keywords, max_images, **properties)
-            if type(ans) is int:
-                return "error: " + str(ans)
-            ret[keywords] = ans
+            getImageShutterStock(keywords, max_images, ret, **properties)
 
         elif type(max_images) is int and type(keywords) is list:
             for keyword in keywords:
-                ans = shutterstock.get_pictures(keyword, max_images, **properties)
-                if type(ans) is int:
-                    return "error: " + str(ans)
-                ret[keyword] = ans
+                getImageShutterStock(keyword, max_images, ret, **properties)
 
         elif type(max_images) is list and type(keywords) is list:
             for keyword in keywords:
-                ans = shutterstock.get_pictures(keyword, max_images[keywords.index(keyword)], **properties)
-                if type(ans) is int:
-                    return "error: " + str(ans)
-                ret[keyword] = ans
+                getImageShutterStock(keyword, max_images[keywords.index(keyword)], ret, **properties)
 
 
     json_obj = json.dumps(ret)
     return json_obj
+
+def getImagePixable(keywords, max_images, ret, **properties):
+    try:
+        pixable = stocks.Pixable()
+        ans = pixable.get_pictures(keywords, max_images, **properties)
+        if type(ans) is int:
+            raise Exception("Error: " + str(ans))
+    except:
+        ret.clear()
+        ret["error"] = ans
+        return
+    ret[keywords] = ans
+
+def getImageShutterStock(keywords, max_images, ret, **properties):
+    try:
+        shutterstock = stocks.Shutterstock()
+        ans = shutterstock.get_pictures(keywords, max_images, **properties)
+        if type(ans) is int:
+            raise Exception("Error: " + str(ans))
+    except:
+        ret.clear()
+        ret["error"] = ans
+        return
+    ret[keywords] = ans
+
 
 
 def main():
