@@ -7,7 +7,7 @@ class Pixable:
       self.api_key = "24751437-3093e242edb642b02ce14bc2a"
       self.api = "https://pixabay.com/api/"
 
-  def get_pictures(self, keywords, max_images, **properties):
+  def get_pictures(self, keywords, max_images, properties):
       images = []
       req = self.api + "?key = " + self.api_key + "&q = " + keywords
       for key in properties:
@@ -32,7 +32,7 @@ class Shutterstock:
       self.secret = "G1k25v5sbDJ52iEc"
       self.api = "https://api.shutterstock.com/v2/images/search"
 
-  def get_pictures(self, keywords, max_images, **properties):
+  def get_pictures(self, keywords, max_images, properties):
      images = []
      req = self.api + "?query = " + keywords
      for key in properties:
