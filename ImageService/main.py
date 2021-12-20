@@ -47,6 +47,8 @@ stock, keywords, max_images, **properties
 def main_trigger(req: azure.functions.HttpRequest):
     ret = None
     js = json.loads(req.get_json())
+    if not js:
+        return "Empty Json"
     stock = js["stock"]
     stock = stock.translate({ord(i): None for i in string.whitespace})
     keywords = js["keywords"]
@@ -71,6 +73,8 @@ def main_trigger_json(js):
     ret = None
     # js = req.get_json()
     js = json.loads(js)
+    if not js:
+        return "Empty Json"
     stock = js["stock"]
     stock = stock.translate({ord(i): None for i in string.whitespace})
     keywords = js["keywords"]
