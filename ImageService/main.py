@@ -49,7 +49,7 @@ def main_trigger(req: azure.functions.HttpRequest):
     try:
         js = req.get_json()
     except:
-        return "Empty Body
+        return "Empty Body"
     stock = js["stock"]
     stock = stock.translate({ord(i): None for i in string.whitespace})
     keywords = js["keywords"]
