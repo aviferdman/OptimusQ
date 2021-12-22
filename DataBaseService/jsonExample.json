@@ -1,0 +1,29 @@
+{
+    "landingPage": "https://www.yahoo.com/",
+    "title": "Yahoo | Mail, Weather, Search, Politics, News, Finance, Sports & Videos",
+    "description": "Latest news coverage, email, free stock quotes, live scores and video are just the beginning. Discover more every day at Yahoo!",
+    "keywords": [
+        "yahoo",
+        "news",
+        "finance",
+        "sport",
+        "entertainment"
+    ],
+    "images": {
+        "yahoo": [
+            "https://pixabay.com/get/gd42674a523ae64b8b4f197271bac21c8bd085b83edd3bdf118e05fe90146361e2cb6a93cafd9555132c0e50f9092d4e020e27408af1035d5d6d5db06c5b82f9f_640.png"
+        ],
+        "news": [
+            "https://pixabay.com/get/g2d97c8cc6ca7a893f3fdcd790553ca96701a0ff95b448c1ec88f3c4548b55f3525db152f845a303f9c591279dc7c22fb_640.jpg"
+        ],
+        "finance": [
+            "https://pixabay.com/get/g2ffd7596e630f8c565ab402a6bf737d1acd2a48ff6abd10c191ba03f520cdd85f856a33039ce61c996838cfa746fd4a0_640.jpg"
+        ],
+        "sport": [
+            "https://pixabay.com/get/gdadede95ad2336ba26db0a238ef4199bec429730abde4a15b3e2a34f22433b4cf70fef8079acde6cd4e392e85545ac62e4081e85ab4dde1e66e3343ab9e20be3_640.jpg"
+        ],
+        "entertainment": [
+            "https://pixabay.com/get/g5e0d0bfbd36db2da7323cc301c244e4be5939adb7c70bddab38bfe60d86c4621b8916fb9126fdd32e373259776545311ecc197c3a5121cf1f6a601109ac0aca3_640.jpg"
+        ]
+    }
+}

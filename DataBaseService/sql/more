@@ -1,0 +1,63 @@
+INSERT INTO LandingPage2 (Field2)
+VALUES ("dor1");
+
+CREATE TABLE LandingPage
+(
+	ID int NOT NULL AUTO_INCREMENT,
+	Name VARCHAR
+);
+
+CREATE TABLE LandingPage
+(
+	ID int IDENTITY(1,1) PRIMARY KEY,
+	Name VARCHAR
+);
+
+CREATE TABLE "" (
+	"Field1"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+	"Field2"	INTEGER
+);
+
+CREATE TABLE "LandingPage"
+(
+	"URL" VARCHAR NOT NULL PRIMARY KEY UNIQUE,
+	"AdvertiserID" int,
+);
+
+CREATE TABLE "Advertisers"
+(
+	"ID" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+	"Name" VARCHAR
+);
+
+CREATE TABLE "TitleAndDescription"
+(
+	"LandingPageURL" VARCHAR(256),
+	"Title" VARCHAR(256),
+	"Description" VARCHAR(256),
+	PRIMARY KEY ("LandingPageURL"),
+	FOREIGN KEY ("LandingPageURL") REFERENCES [dbo].[LandingPage]("URL")
+);
+
+
+
+
+CREATE TABLE "LandingPage"
+(
+	"URL" VARCHAR(256),
+	"AdvertiserID" INTEGER,
+	PRIMARY KEY ("URL","AdvertiserID"),
+	FOREIGN KEY ("AdvertiserID") REFERENCES [dbo].[Advertisers]("ID")
+);
+
+
+
+
+CREATE TABLE "TitleAndDescription"
+(
+	"LandingPageURL" VARCHAR,
+	"Title" VARCHAR(256),
+	"Description" VARCHAR(256),
+	PRIMARY KEY ("LandingPageURL"),
+	FOREIGN KEY ("LandingPageURL") REFERENCES [dbo].[LandingPage]("URL")
+);
