@@ -1,43 +1,55 @@
-Url=""
-is_error=False
-Exception=None
-Messege=""
-Kywords=[]
-Title=""
 
 class Response:
-  def set_url(url):
-    Url=url
+  Url = ""
+  is_error = False
+  Exception = None
+  Message = ""
+  Keywords = []
+  Title = ""
+  Description = ""
 
-  def sign_error(e, Mes):
-    is_error = True
-    Exception = e
-    return None
+  def set_url(self,url):
+    self.Url=url
+    return self
 
-  def add_messegr(mes):
-    Messege = mes
-    return None
+  def get_url(self):
+    return self.Url
 
-  def add_keywords(keywords):
-    Keywords=keywords
-    return None
+  def sign_error(self,e, Mes):
+    self.is_error = True
+    self.Exception = e
+    return self
 
-  def add_title(title):
-    Title=title
-    return None
+  def set_messege(self, mes):
+    self.Message = mes
+    return self
 
-  def is_error():
-    return is_error
+  def set_keywords(self,keywords):
+    self.Keywords=keywords
+    return self
 
-  def get_exeption():
-    return Exception
+  def set_title(self,title):
+    self.Title=title
+    return self
 
-  def get_messege():
-    return Messege
+  def set_description(self, des):
+    self.Description = des
+    return self
 
-  def get_title():
-    return Title
+  def is_error(self):
+    return self.is_error
 
+  def get_exeption(self):
+    return self.Exception
 
+  def get_messege(self):
+    return self.Message
 
+  def get_title(self):
+    return self.Title
 
+  def get_description(self):
+    return self.Description
+
+  def get_keywords(self):
+    return self.Keywords

@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, flash, abort, Markup
 
 # import recoSystem
+from ScanningService import recoSystem
 from main import main_trigger
 # from recoSystem import RecoSystem
 
@@ -18,6 +19,8 @@ def hello():
 def extract_keywords_from_landing_page():
     url = str(request.form['url'])
     result =main_trigger(url)
+    # reco = recoSystem.RecoSystem()
+    # result = reco.scrap_page(url)
     if not result:
         flash("Can't extract the data from this url... working on it:)")
         return render_template("index.html")
@@ -47,8 +50,8 @@ if __name__ == '__main__':
     # reco = recoSystem.RecoSystem()
     # url = "https://finance.yahoo.com/news/meatech-3d-reports-breakthrough-cultured-130000799.htm[…]MeaTech+-+Group+3+-+Wide+-+Mobile+-+8%2F12%2F21&guccounter=1"
     # result = reco.scrap_page(url)
-    # # result = main_trigger(url)
-    # print(result)
+    # result = main_trigger(url)
+    print(result)
 
 
 # import recoSystem
