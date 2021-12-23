@@ -45,8 +45,12 @@ class RecoSystem:
         # opening the url for reading
         res = Response()
         res.set_url(url)
+        # try:
+        #     html = urllib.request.urlopen(url)
+        hdr = {'User-Agent': 'Mozilla/5.0'}
         try:
-            html = urllib.request.urlopen(url)
+            req = Request(url, headers=hdr)
+            html = urlopen(req)
         except Exception as e:
             res.sign_error(e,True)
             res.set_messege("cant open the url")

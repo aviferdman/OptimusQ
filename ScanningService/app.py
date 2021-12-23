@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, flash, abort, Markup
 
 # import recoSystem
 from ScanningService import recoSystem
+from screenshot import take_web_screenshot
 # from recoSystem import RecoSystem
 
 app = Flask(__name__)
@@ -17,6 +18,7 @@ def hello():
 @app.route("/extract_data", methods=['POST', 'GET'])
 def extract_keywords_from_landing_page():
     url = str(request.form['url'])
+    take_web_screenshot(url)
     reco = recoSystem.RecoSystem()
     result = reco.scrap_page(url)
     if not result:
