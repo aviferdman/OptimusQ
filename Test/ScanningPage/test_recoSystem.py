@@ -1,6 +1,6 @@
 import unittest
 
-from ScanningPage import recoSystem
+from ScanningService import recoSystem
 
 
 class TestRecoSystem(unittest.TestCase):

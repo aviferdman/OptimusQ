@@ -2,8 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b804d63f-b0f5-4696-9cc7-5ac5536aeba4" name="Default Changelist" comment="add errors in wrong url">
-      <change beforePath="$PROJECT_DIR$/ScanningPage/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/ScanningPage/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ScanningPage/recoSystem.py" beforeDir="false" afterPath="$PROJECT_DIR$/ScanningPage/recoSystem.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ScanningPage/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/ScanningService/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ScanningPage/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/ScanningService/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ScanningPage/recoSystem.py" beforeDir="false" afterPath="$PROJECT_DIR$/ScanningService/recoSystem.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ScanningPage/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/ScanningService/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Test/ScanningPage/test_recoSystem.py" beforeDir="false" afterPath="$PROJECT_DIR$/Test/ScanningPage/test_recoSystem.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
