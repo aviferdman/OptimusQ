@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>RecoSystem</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+
+<body>
+    <br>
+    <h1>RecoSystem</h1>
+    <p>Welcome!! Enter a landing page url:</p>
+
+    <form action="/extract_data" method="post">
+        <input type="text" name="url">
+        <br>
+
+        {% for message in get_flashed_messages() %}
+        <p>{{ message }}</p>
+        {% endfor %}
+        <br>
+        {% for link in output %}
+        <a href ="{{link}}" style="font-size:20px">image</a>
+        <br>
+        {% endfor %}
+        <br>
+        <input type="submit" value="Extract Data" name="btn1" id="greet">
+
+    </form>
+
+</body>
+
+</html>
