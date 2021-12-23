@@ -6,6 +6,8 @@ except:
     import stocks
 import json
 
+maxValidKeyword = 5
+
 def read_data():
     path = "data.txt"
     lines = []
@@ -27,7 +29,6 @@ def eliminateWhiteChars(li):
         new_elem = element.translate({ord(i): None for i in string.whitespace})
         new_li.append(new_elem)
     return new_li
-
 
 """
 Retrieve list of images according to search's keywords
@@ -104,14 +105,18 @@ def validInput(stock, keywords, max_images, properties):
     return True
 
 def getImagePixable(keywords, max_images, properties):
+    global maxValidKeyword
     ret = {}
     pixable = stocks.Pixable()
     for keyword in keywords:
+        if len(ret.keys()) >= maxValidKeyword:
+            break
         try:
             ans = pixable.get_pictures(keyword, max_images[keywords.index(keyword)], properties)
             if type(ans) is int:
                 raise Exception("Error: " + str(ans))
-            ret[keyword] = ans
+            if ans:
+                ret[keyword] = ans
 
         except:
             # need to record error in logger
@@ -120,14 +125,18 @@ def getImagePixable(keywords, max_images, properties):
     return ret
 
 def getImageShutterStock(keywords, max_images, properties):
+    global maxValidKeyword
     ret = {}
     shutterStock = stocks.Shutterstock()
     for keyword in keywords:
+        if len(ret.keys()) >= maxValidKeyword:
+            break
         try:
             ans = shutterStock.get_pictures(keyword, max_images[keywords.index(keyword)], properties)
             if type(ans) is int:
                 raise Exception("Error: " + str(ans))
-            ret[keyword] = ans
+            if ans:
+                ret[keyword] = ans
 
         except:
             # need to record error in logger
@@ -138,8 +147,8 @@ def getImageShutterStock(keywords, max_images, properties):
 def test():
     dict_1 = {
         "stock": "shutterstock",
-        "keywords": ["green banana", "apple"],
-        "maxImages": [3, 1],
+        "keywords": ["banana", "apple", "egg", "monkey"],
+        "maxImages": [5, 4, 3, 2],
         "properties": {}
     }
 
@@ -173,8 +182,8 @@ def test():
 
     dict_6 = {
         "stock": "pixable",
-        "keywords": ["sky"],
-        "maxImages": [7],
+        "keywords": ["banana"],
+        "maxImages": [5],
         "properties": {}
     }
 
@@ -212,7 +221,6 @@ def test():
         "maxImages": [7],
         "properties": {}
     }
-
 
     print("1:")
     out = main_trigger_json(dict_1)
