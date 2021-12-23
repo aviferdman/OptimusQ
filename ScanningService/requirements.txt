@@ -2,6 +2,3 @@ beautifulsoup4
 lxml
 yake
 yake-github
-
-
-

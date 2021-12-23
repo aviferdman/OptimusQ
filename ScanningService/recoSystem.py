@@ -57,7 +57,7 @@ class RecoSystem:
         title = htmlParse.find('title')
         if title is None:
            res.sign_error(None,True)
-           res.set_messege("Cannot Access url")
+           res.set_messege("Cannot extract title")
            return res
         return res.set_title(title.text)
 
@@ -78,7 +78,7 @@ class RecoSystem:
                     break
         if description == "":
             res.sign_error(None, True)
-            res.set_messege("cant extract description")
+            res.set_messege("Cannot extract description")
             return res
         else:
             return res.set_description(description)
@@ -100,7 +100,7 @@ class RecoSystem:
         title = htmlParse.find("title")
         if title is None:
             response.sign_error(None, True)
-            response.set_messege("Cannot Access url")
+            response.set_messege("Cannot extract keywords")
             return response
             # return ["Exception: Cannot Access url"]
 
@@ -178,6 +178,10 @@ class RecoSystem:
         return response.set_keywords(res)
 
     def scrap_page(self, url):
+        if url is None or url=="":
+            return {"title": "",
+                    "description": "",
+                    "keywords": []}
         response = self.extract_title_from_landing_page(url)
         if response.is_error():
             title = response.get_messege()
