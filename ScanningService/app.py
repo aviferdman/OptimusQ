@@ -36,10 +36,10 @@ def extract_keywords_from_landing_page():
 
 # check2
 if __name__ == '__main__':
-    app.run()
-    # reco = recoSystem.RecoSystem()
-    # url = "https://finance.yahoo.com/news/meatech-3d-reports-breakthrough-cultured-130000799.htm[…]MeaTech+-+Group+3+-+Wide+-+Mobile+-+8%2F12%2F21&guccounter=1"
-    # result = reco.scrap_page(url)
+    # app.run()
+    reco = recoSystem.RecoSystem()
+    url = "https://www.bloomberg.com/press-releases/2021-12-20/authoritytech-llc-authoritytech-i[…]stars-backed-optimusq-to-unveil-ai-powered-hybrid-pr-service"
+    result = reco.scrap_page(url)
     # result = main_trigger(url)
     # print(result)
 

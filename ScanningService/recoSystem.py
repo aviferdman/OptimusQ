@@ -45,15 +45,19 @@ class RecoSystem:
         # opening the url for reading
         res = Response()
         res.set_url(url)
-        try:
-            html = urllib.request.urlopen(url)
-        except Exception as e:
-            res.sign_error(e,True)
+        htmlParse, e = self.scan_landing_page(url)
+        if htmlParse is None:
+            res.sign_error(e, True)
             res.set_messege("cant open the url")
             return res
+        # try:
+        #     html = urllib.request.urlopen(url)
+        # except Exception as e:
+        #     res.sign_error(e,True)
+        #     res.set_messege("cant open the url")
+        #     return res
 
         # parsing the html file
-        htmlParse = BeautifulSoup(html, 'lxml')
         title = htmlParse.find('title')
         if title is None:
            res.sign_error(None,True)
