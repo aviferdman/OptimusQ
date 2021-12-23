@@ -155,6 +155,7 @@ class RecoSystem:
         return res
 
     def scrap_page(self, url):
+        # response =
         title = self.extract_title_from_landing_page(url)
         if title is None:
             title = ""
