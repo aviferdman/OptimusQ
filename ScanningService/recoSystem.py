@@ -92,7 +92,7 @@ class RecoSystem:
             res = str_of_keywords.split(',')
             if len(res) < 5:
                 return res
-            return res[0:5]
+            return res
 
         # checks if str in part of a title or a header
 
@@ -145,13 +145,8 @@ class RecoSystem:
 
         res_list.sort(key=key_func)
         res = []
-        count = 0
         for w in res_list:
-            if count == 5:
-                break
-            count += 1
             res.append(w[0])
-
         return res
 
     def scrap_page(self, url):
