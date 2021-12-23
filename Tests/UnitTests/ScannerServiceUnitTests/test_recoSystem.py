@@ -20,9 +20,6 @@ class TestRecoSystem(unittest.TestCase):
         # with self.assertRaises(ValueError):
         #     reco.scan_landing_page(reco, "")
 
-    def test_Scan_Rules(self):
-        self.assertEqual(True, True)
-
 
 if __name__ == '__main__':
     unittest.main()
