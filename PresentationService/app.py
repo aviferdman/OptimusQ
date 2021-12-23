@@ -51,7 +51,7 @@ if __name__ == '__main__':
     # url = "https://finance.yahoo.com/news/meatech-3d-reports-breakthrough-cultured-130000799.htm[…]MeaTech+-+Group+3+-+Wide+-+Mobile+-+8%2F12%2F21&guccounter=1"
     # result = reco.scrap_page(url)
     # result = main_trigger(url)
-    print(result)
+    # print(result)
 
 
 # import recoSystem
