@@ -1,41 +1,13 @@
-# from selenium import webdriver
-# from selenium.webdriver.common.by import By
-#
-# from time import sleep
-#
-# # driver = webdriver.Firefox()
-# # driver = webdriver.Chrome()
-# from webdriver_manager.chrome import ChromeDriverManager
-#
-# driver = webdriver.Chrome(ChromeDriverManager().install())
-#
-# driver.get('https://www.bbc.com/storyworks/clear-sky-thinking-airbus-2021/airbus-2021-clear-sky-thinking-?utm_source=taboola&utm_medium=native&tblci=GiDbJRndUImP9rc80Mls7KW1gFpDdEMCGlkTelmGFUrFzyCLjFQojKLYzprtvuKHAQ#tblciGiDbJRndUImP9rc80Mls7KW1gFpDdEMCGlkTelmGFUrFzyCLjFQojKLYzprtvuKHAQ')
-# sleep(1)
-#
-# driver.get_screenshot_as_file("screenshot.png")
-# driver.quit()
-#**********************************
-# from webdriver_manager.chrome import ChromeDriverManager
-#
-# driver = webdriver.Chrome(ChromeDriverManager().install())
-# driver.maximize_window()
-# driver.get('https://www.bbc.com/storyworks/clear-sky-thinking-airbus-2021/airbus-2021-clear-sky-thinking-?utm_source=taboola&utm_medium=native&tblci=GiDbJRndUImP9rc80Mls7KW1gFpDdEMCGlkTelmGFUrFzyCLjFQojKLYzprtvuKHAQ#tblciGiDbJRndUImP9rc80Mls7KW1gFpDdEMCGlkTelmGFUrFzyCLjFQojKLYzprtvuKHAQ')
-# scheight = .1
-# while scheight < 9.9:
-#     driver.execute_script("window.scrollTo(0, document.body.scrollHeight/%s);" % scheight)
-#     scheight += .01
-# driver.save_screenshot('screenshot.png')
-# ***********************************
 from selenium import webdriver
 from PIL import Image
-from io import StringIO, BytesIO
+from io import BytesIO
 # from cStringIO import StringIO
 from webdriver_manager.chrome import ChromeDriverManager
 
 verbose = 1
 
 browser = webdriver.Chrome(ChromeDriverManager().install())
-browser.get('https://www.ynet.co.il')
+browser.get('https://www.bbc.com/storyworks/clear-sky-thinking-airbus-2021/airbus-2021-clear-sky-thinking-?utm_source=taboola&utm_medium=native&tblci=GiDbJRndUImP9rc80Mls7KW1gFpDdEMCGlkTelmGFUrFzyCLjFQojKLYzprtvuKHAQ#tblciGiDbJRndUImP9rc80Mls7KW1gFpDdEMCGlkTelmGFUrFzyCLjFQojKLYzprtvuKHAQ')
 
 # from here http://stackoverflow.com/questions/1145850/how-to-get-height-of-entire-document-with-javascript
 js = 'return Math.max( document.body.scrollHeight, document.body.offsetHeight,  document.documentElement.clientHeight,  document.documentElement.scrollHeight,  document.documentElement.offsetHeight);'
