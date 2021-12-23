@@ -1,8 +1,8 @@
 from flask import Flask, render_template, request, flash, abort, Markup
 
-import recoSystem
+# import recoSystem
 from main import main_trigger
-from recoSystem import RecoSystem
+# from recoSystem import RecoSystem
 
 app = Flask(__name__)
 
