@@ -7,6 +7,8 @@ from bs4 import BeautifulSoup
 from urllib.request import Request, urlopen
 import json
 
+from ScanningService.response import Response
+
 
 class RecoSystem:
     def enter_landing_page_url(self):
@@ -41,20 +43,32 @@ class RecoSystem:
         :return: title
         """
         # opening the url for reading
+        res = Response()
+        res.set_url(url)
         try:
             html = urllib.request.urlopen(url)
-        except:
-            return None
+        except Exception as e:
+            res.sign_error(e,True)
+            res.set_messege("cant open the url")
+            return res
 
         # parsing the html file
         htmlParse = BeautifulSoup(html, 'lxml')
         title = htmlParse.find('title')
-        return title
+        if title is None:
+           res.sign_error(None,True)
+           res.set_messege("Cannot Access url")
+           return res
+        return res.set_title(title.text)
 
     def extract_description_from_landing_page(self, url):
+        res = Response()
+        res.set_url(url)
         htmlParse, e = self.scan_landing_page(url)
         if htmlParse is None:
-            return [e]
+            res.sign_error(e, True)
+            res.set_messege("cant open the url")
+            return res
         head = htmlParse.find("head")
         description = ""
         for t in head:
@@ -63,9 +77,11 @@ class RecoSystem:
                     description = t.__getitem__("content")
                     break
         if description == "":
-            return "Description is not exist"
+            res.sign_error(None, True)
+            res.set_messege("cant extract description")
+            return res
         else:
-            return description
+            return res.set_description(description)
 
     def extract_keywords_from_landing_page(self, url):
         """
@@ -73,12 +89,20 @@ class RecoSystem:
         :param url: landing page url
         :return: list of keywords
         """
+        response= Response()
+        response.set_url(url)
         htmlParse, e = self.scan_landing_page(url)
         if htmlParse is None:
-            return [e]
+            response.sign_error(e, True)
+            response.set_messege("cant open the url")
+            return response
+
         title = htmlParse.find("title")
         if title is None:
-            return ["Exception: Cannot Access url"]
+            response.sign_error(None, True)
+            response.set_messege("Cannot Access url")
+            return response
+            # return ["Exception: Cannot Access url"]
 
         head = htmlParse.find("head")
         str_of_keywords = ""
@@ -91,8 +115,8 @@ class RecoSystem:
         if str_of_keywords != "":
             res = str_of_keywords.split(',')
             if len(res) < 5:
-                return res
-            return res[0:5]
+                return response.set_keywords(res)
+            return response.set_keywords(response[0:5])
 
         # checks if str in part of a title or a header
 
@@ -113,14 +137,13 @@ class RecoSystem:
         # dictionary for score
         score_dict = {'title': 0.07, 'h1': 0.06, 'h2': 0.05, 'h3': 0.04,
                       'h4': 0.03, 'h5': 0.02, 'h6': 0.01}
-
         paragraphs = ""
         paragraph_tags = htmlParse.find_all('p')
         for p in paragraph_tags:
             paragraphs += str(p.text).lower()
 
         if len(paragraphs) <= 5 or re.search('[a-zA-Z]', paragraphs) is None:
-            return [title.text]
+            return response.set_keywords([title.text])
 
         language = "en"
         max_ngram_size = 2
@@ -152,21 +175,24 @@ class RecoSystem:
             count += 1
             res.append(w[0])
 
-        return res
+        return response.set_keywords(res)
 
     def scrap_page(self, url):
-        # response =
-        title = self.extract_title_from_landing_page(url)
-        if title is None:
-            title = ""
+        response = self.extract_title_from_landing_page(url)
+        if response.is_error:
+            title = response.get_messege()
         else:
-            title = title.text
-        description = self.extract_description_from_landing_page(url)
-        if description is None:
-            description = ""
-        keywords = self.extract_keywords_from_landing_page(url)
-        if keywords is None:
-            keywords = ""
+            title = response.get_title()
+        response = self.extract_description_from_landing_page(url)
+        if response.is_error:
+            description = response.get_messege()
+        else:
+            description = response.get_description()
+        response = self.extract_keywords_from_landing_page(url)
+        if response.is_error:
+            keywords = []
+        else:
+            keywords = response.get_keywords()
 
         dict = {"title": title,
                 "description": description,
@@ -229,8 +255,8 @@ class RecoSystem:
         res = []
         for k in keywords:
             url = f"https://optimusqbgu.azurewebsites.net/api/imageservice?stock={image_repos}&keywords={k}&maxImages={str(n)}"
-            response = requests.get(url)
-            list_of_images = self.parse_result(response.text)
+            res = requests.get(url)
+            list_of_images = self.parse_result(res.text)
             for p in list_of_images:
                 if p:
                     res.append(p)
