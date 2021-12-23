@@ -179,17 +179,17 @@ class RecoSystem:
 
     def scrap_page(self, url):
         response = self.extract_title_from_landing_page(url)
-        if response.is_error:
+        if response.is_error():
             title = response.get_messege()
         else:
             title = response.get_title()
         response = self.extract_description_from_landing_page(url)
-        if response.is_error:
+        if response.is_error():
             description = response.get_messege()
         else:
             description = response.get_description()
         response = self.extract_keywords_from_landing_page(url)
-        if response.is_error:
+        if response.is_error():
             keywords = []
         else:
             keywords = response.get_keywords()

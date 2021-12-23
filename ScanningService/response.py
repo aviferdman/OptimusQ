@@ -1,7 +1,7 @@
 
 class Response:
   Url = ""
-  is_error = False
+  Is_error = False
   Exception = None
   Message = ""
   Keywords = []
@@ -16,7 +16,7 @@ class Response:
     return self.Url
 
   def sign_error(self,e, Mes):
-    self.is_error = True
+    self.Is_error = True
     self.Exception = e
     return self
 
@@ -37,7 +37,7 @@ class Response:
     return self
 
   def is_error(self):
-    return self.is_error
+    return self.Is_error
 
   def get_exeption(self):
     return self.Exception
