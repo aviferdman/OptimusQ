@@ -34,28 +34,6 @@ class MyTestCase(unittest.TestCase):
         self.assertTrue(len(response["keywords"]) > 0)
         self.assertTrue(len(response["images"]) > 0)
 
-    def happy_missing_optionals_shutterstock(self):
-        data = {
-            "landingPage": "https://www.microsoft.com/en-il/",
-            "stock": "shutterstock"
-        }
-        self.httpRequestMock.get_json.return_value = data
-        response = main.main_trigger(self.httpRequestMock)
-        self.assertEqual(type(response), dict)
-        self.assertTrue(len(response["keywords"]) > 0)
-        self.assertTrue(len(response["images"]) > 0)
-
-    def happy_missing_optionals_pixable(self):
-        data = {
-            "landingPage": "https://www.microsoft.com/en-il/",
-            "stock": "pixable"
-        }
-        self.httpRequestMock.get_json.return_value = data
-        response = main.main_trigger(self.httpRequestMock)
-        self.assertEqual(type(response), dict)
-        self.assertTrue(len(response["keywords"]) > 0)
-        self.assertTrue(len(response["images"]) > 0)
-
     def bad_landingpage_shutterstock(self):
         data = {
             "landingPage": "bad",
