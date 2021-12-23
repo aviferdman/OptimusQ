@@ -3,3 +3,4 @@ lxml
 yake
 yake-github
 flask
+requests
