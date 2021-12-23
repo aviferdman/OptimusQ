@@ -13,7 +13,7 @@ connectionString = 'Driver={ODBC Driver 17 for SQL Server};Server=tcp:optimusbgu
 
 def main_trigger(request: azure.functions.HttpRequest):
     try:
-        theBody = request.get_body()
+        theBody = request.get_json()
         theJson = theBody
 
         landingPage = theJson["landingPage"]
@@ -150,10 +150,3 @@ def writeImages2db(images):
                             ImagesToKeyword(ImageURL,Keyword)
                             VALUES('{0}','{1}');
                             """.format(url, keyword))
-
-
-with open('jsonExample.json') as f:
-    jsonExample = json.load(f)
-
-req = azure.functions.HttpRequest("Get", "dgdf", body=jsonExample)
-print(main_trigger(req))
