@@ -25,9 +25,6 @@ class TestRecoSystem(unittest.TestCase):
     def test_valid_url(self):
         i = 0
         data = pd.read_excel(r'valid.xlsx')
-        # data["title"] = ""
-        # data["description"] = ""
-        # data["keywords"] = ""
 
         df = pd.DataFrame(data, columns=['url'])
         for d in df.values:
