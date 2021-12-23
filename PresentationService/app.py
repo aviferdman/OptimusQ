@@ -26,9 +26,13 @@ def extract_keywords_from_landing_page():
         return render_template("index.html")
     images = result["images"]
     list_of_images = []
-    for k in result["keywords"]:
+    # for k in result["keywords"]:
+    #     if images[k]: #todo???
+    #      list_of_images.append(images[k][0])
+    for k in images.keys():
         if images[k]: #todo???
-         list_of_images.append(images[k][0])
+             list_of_images.append(images[k][0])
+
     # if len(result) == 0:
     #     return func.HttpResponse("Can't extract the data from this url... working on it:)")
     res_txt = "<b>Title: </b><br>"
@@ -37,7 +41,11 @@ def extract_keywords_from_landing_page():
     res_txt += "<br><b>Description:</b><br>"
     res_txt += result["description"]
     res_txt += "<br><br><b>Keywords:</b><br>"
+    keywords_count = 0
     for kw in result["keywords"]:
+        if keywords_count > 4:
+            break
+        keywords_count += 1
         res_txt += kw + "<br>"
     res_txt += "<br><b>Recommended Images:</b>"
     flash(Markup(res_txt))
