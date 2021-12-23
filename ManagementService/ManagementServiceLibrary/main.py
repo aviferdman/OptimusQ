@@ -3,7 +3,7 @@ import string
 import json
 import requests
 
-ScannerURL = "https://scanneroq.azurewebsites.net/api/scannerTrigger"
+ScannerURL = "https://scanneroq.azurewebsites.net/api/scannertrigger"
 ImageServiceURL = "https://optimusqbgu.azurewebsites.net/api/imageservice"
 DataBaseServiceURL = "https://optimusqbgu.azurewebsites.net/api/databaseservice"
 DebugImageServiceURL = "http://localhost:7071/api/ImageService"
@@ -22,7 +22,10 @@ def main_trigger(req: azure.functions.HttpRequest):
         return "Empty Body"
     landingPage = request_body["landingPage"]
     stock = request_body["stock"]
-    image_service_properties = request_body["imageServiceProperties"]
+    if "imageServiceProperties" in request_body:
+        image_service_properties = request_body["imageServiceProperties"]
+    else:
+        image_service_properties = {}
     dictionary = send_post_request(ScannerURL, {"landingPage": landingPage})
     keywords = dictionary["keywords"]
     maxImages = [MaxImagesPerKeyword for i in keywords]
