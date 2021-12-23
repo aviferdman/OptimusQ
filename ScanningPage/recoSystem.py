@@ -1,9 +1,11 @@
 import re
 import urllib.request
+
+import requests
 import yake as yake
 from bs4 import BeautifulSoup
 from urllib.request import Request, urlopen
-
+import json
 
 
 class RecoSystem:
@@ -24,14 +26,13 @@ class RecoSystem:
 
         # opening the url for reading and parsing the html file
         hdr = {'User-Agent': 'Mozilla/5.0'}
-        req = Request(url, headers=hdr)
         try:
+            req = Request(url, headers=hdr)
             page = urlopen(req)
         except Exception as e:
-            print(e)
             return None, e
         soup = BeautifulSoup(page)
-        return soup, ""
+        return soup, "Success"
 
     def extract_title_from_landing_page(self, url):
         """
@@ -50,6 +51,22 @@ class RecoSystem:
         title = htmlParse.find('title')
         return title
 
+    def extract_description_from_landing_page(self, url):
+        htmlParse, e = self.scan_landing_page(url)
+        if htmlParse is None:
+            return [e]
+        head = htmlParse.find("head")
+        description = ""
+        for t in head:
+            if str(t).__contains__("name=\"description\"") and str(t).__contains__("meta"):
+                if str(t).__contains__("content"):
+                    description = t.__getitem__("content")
+                    break
+        if description == "":
+            return "Description is not exist"
+        else:
+            return description
+
     def extract_keywords_from_landing_page(self, url):
         """
         purpose: extract keywords from  a landing page.
@@ -60,7 +77,6 @@ class RecoSystem:
         if htmlParse is None:
             return [e]
         title = htmlParse.find("title")
-        # title = self.extract_title_from_landing_page(url)
         if title is None:
             return ["Exception: Cannot Access url"]
 
@@ -73,10 +89,13 @@ class RecoSystem:
                     break
 
         if str_of_keywords != "":
-            return str_of_keywords.split(',')
-
+            res = str_of_keywords.split(',')
+            if len(res) < 5:
+                return res
+            return res[0:5]
 
         # checks if str in part of a title or a header
+
         def check_if_in_title(title, str):
             if str in title:
                 return True
@@ -100,7 +119,7 @@ class RecoSystem:
         for p in paragraph_tags:
             paragraphs += str(p.text).lower()
 
-        if len(paragraphs) <= 5 or re.search('[a-zA-Z]', paragraphs) is None :
+        if len(paragraphs) <= 5 or re.search('[a-zA-Z]', paragraphs) is None:
             return [title.text]
 
         language = "en"
@@ -135,6 +154,25 @@ class RecoSystem:
 
         return res
 
+    def scrap_page(self, url):
+        title = self.extract_title_from_landing_page(url)
+        if title is None:
+            title = ""
+        else:
+            title = title.text
+        description = self.extract_description_from_landing_page(url)
+        if description is None:
+            description = ""
+        keywords = self.extract_keywords_from_landing_page(url)
+        if keywords is None:
+            keywords = ""
+
+        dict = {"title": title,
+                "description": description,
+                "keywords": keywords}
+
+        return dict
+
     def add_scraping_rule(self, new_rule):
         """
         purpose: add a new rule for scraping a landing page
@@ -167,6 +205,17 @@ class RecoSystem:
         """
         pass
 
+    def parse_result(self, text):
+        index1 = text.find('[')
+        index2 = text.find(']')
+        new_str = text[index1 + 1:index2]
+        new_str = new_str.split(',')
+        res = []
+        for s in new_str:
+            tmp = s.replace("\"", "")
+            res.append(tmp)
+        return res
+
     def recommend_n_photos_by_keywords(self, image_repos, keywords, n):
         """
         purpose: returns the most n relevant photos for the given keywords, from image_repos
@@ -176,7 +225,15 @@ class RecoSystem:
         :param image_repos: a list of image repositories API's to search from
         :return: n most relevant photos
         """
-        pass
+        res = []
+        for k in keywords:
+            url = f"https://optimusqbgu.azurewebsites.net/api/imageservice?stock={image_repos}&keywords={k}&maxImages={str(n)}"
+            response = requests.get(url)
+            list_of_images = self.parse_result(response.text)
+            for p in list_of_images:
+                if p:
+                    res.append(p)
+        return res
 
     def recommend_n_photos_by_landing_page(self, image_repos, landing_url, n):
         """
