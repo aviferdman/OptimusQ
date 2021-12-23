@@ -27,7 +27,7 @@ def extract_keywords_from_landing_page():
     images = result["images"]
     list_of_images = []
     # for k in result["keywords"]:
-    #     if images[k]: #todo???
+    #     if images[k]:
     #      list_of_images.append(images[k][0])
     for k in images.keys():
         if images[k]: #todo???
