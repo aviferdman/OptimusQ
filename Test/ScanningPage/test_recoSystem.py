@@ -1,12 +1,12 @@
 import unittest
 
-from ScanningPage import recoSystem
+from ScanningPage import main
 
 
 class TestRecoSystem(unittest.TestCase):
 
     def setUp(self):
-        self.reco = recoSystem.RecoSystem()
+        self.reco = main.RecoSystem()
 
     def test_Enter_URL(self):
         result1, e1 = self.reco.scan_landing_page("https://www.bbcgoodfood.com/howto/guide/top-10-winter-drinks")
