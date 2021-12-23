@@ -39,21 +39,10 @@ class TestRecoSystem(unittest.TestCase):
                 self.assertNotEqual(title, "cant open the url")
                 self.assertNotEqual(description, "cant open the url")
                 self.assertNotEqual(keywords, "cant open the url")
-                # data['title'].iloc[i] = dict['title']
-                # data['description'].iloc[i] = dict['description']
-                # data['keywords'].iloc[i] = dict['keywords']
-                # data.to_excel("valid.xlsx", index=False)
             except Exception as e:
                 print("index: " + str(i) + ": " + str(e))
             i = i + 1
 
-        # #check
-        # values = pd.DataFrame(data, columns=['title', 'description', 'keywords'])
-        # for v in values.values:
-        #     for val in v:
-        #         print(val)
-        #         self.assertNotEqual(val, "cant open the url")
-        #
 
 if __name__ == '__main__':
     unittest.main()
