@@ -1,14 +1,13 @@
 import unittest
 from unittest.mock import Mock, MagicMock
 from ImageService import main
-
 class MyTestCase(unittest.TestCase):
 
     def setUp(self):
         self.imageService = main
         self.httpRequestMock = MagicMock()
 
-    def test_something_1(self):
+    def test_valid_shutterstock(self):
         data = {
             "stock": "shutterstock",
             "keywords": ["banana", "apple", "egg", "monkey"],
@@ -22,7 +21,7 @@ class MyTestCase(unittest.TestCase):
             self.assertIn(keyword, data["keywords"])
         self.assertLessEqual(len(res["images"]), main.maxValidKeyword)
 
-    def test_something_2(self):
+    def test_invalidLength_1(self):
         data = {
             "stock": "shutterstock",
             "keywords": ["apple"],
@@ -34,7 +33,7 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(type(res), dict)
         self.assertEqual(bool(res["images"]), False)
 
-    def test_something_3(self):
+    def test_invalidLength_2(self):
         data = {
             "stock": "shutterstock",
             "keywords": ["banana", "apple"],
@@ -46,7 +45,7 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(type(res), dict)
         self.assertEqual(bool(res["images"]), False)
 
-    def test_something_4(self):
+    def test_invalidProperties(self):
         data = {
             "stock": "shutterstock",
             "keywords": ["banana", "apple"],
@@ -58,7 +57,7 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(type(res), dict)
         self.assertEqual(bool(res["images"]), False)
 
-    def test_something_5(self):
+    def test_emptyData(self):
         data = {
             "stock": "pixable",
             "keywords": [],
@@ -70,7 +69,7 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(type(res), dict)
         self.assertEqual(bool(res["images"]), False)
 
-    def test_something_6(self):
+    def test_valid_pixable(self):
         data = {
             "stock": "pixable",
             "keywords": ["banana"],
@@ -84,7 +83,19 @@ class MyTestCase(unittest.TestCase):
             self.assertIn(keyword, data["keywords"])
         self.assertLessEqual(len(res["images"]), main.maxValidKeyword)
 
-    def test_something_7(self):
+    def test_lessThanMaxValidKeywords(self):
+        data = {
+            "stock": "pixable",
+            "keywords": ["banana", "lemon", "pineapple", "monkey", "dog", "cat"],
+            "maxImages": [5],
+            "properties": {}
+        }
+        self.httpRequestMock.get_json.return_value = data
+        res =main.main_trigger(self.httpRequestMock)
+        self.assertEqual(type(res), dict)
+        self.assertLessEqual(len(res["images"]), main.maxValidKeyword)
+
+    def test_invalidLength_3(self):
         data = {
             "stock": "pixable",
             "keywords": ["banana", "apple"],
@@ -96,7 +107,7 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(type(res), dict)
         self.assertEqual(bool(res["images"]), False)
 
-    def test_something_8(self):
+    def test_invalidLength_4(self):
         data = {
             "stock": "pixable",
             "keywords": ["apple"],
@@ -108,10 +119,22 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(type(res), dict)
         self.assertEqual(bool(res["images"]), False)
 
-    def test_something_9(self):
+    def test_invalidLength_5(self):
         data = {
             "stock": "pixable",
             "keywords": ["apple"],
+            "maxImages": [3, 7],
+            "properties": {}
+        }
+        self.httpRequestMock.get_json.return_value = data
+        res =main.main_trigger(self.httpRequestMock)
+        self.assertEqual(type(res), dict)
+        self.assertEqual(bool(res["images"]), False)
+
+    def test_invalidMaxImagesValue(self):
+        data = {
+            "stock": "pixable",
+            "keywords": ["apple", "banana"],
             "maxImages": [3, "banana"],
             "properties": {}
         }
@@ -120,7 +143,7 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(type(res), dict)
         self.assertEqual(bool(res["images"]), False)
 
-    def test_something_10(self):
+    def test_keywordValue_1(self):
         data = {
             "stock": "pixable",
             "keywords": ["apple", 3],
@@ -132,7 +155,7 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(type(res), dict)
         self.assertEqual(bool(res["images"]), False)
 
-    def test_something_11(self):
+    def test_invalidStock(self):
         data = {
             "stock": "shoko",
             "keywords": ["sky"],
@@ -143,6 +166,34 @@ class MyTestCase(unittest.TestCase):
         res =main.main_trigger(self.httpRequestMock)
         self.assertEqual(type(res), dict)
         self.assertEqual(bool(res["images"]), False)
+
+    def test_lessThanEachMaxLength_1(self):
+        data = {
+            "stock": "pixable",
+            "keywords": ["banana", "lemon", "pineapple", "monkey", "dog", "cat"],
+            "maxImages": [5, 1, 0, 37, 2, 3],
+            "properties": {}
+        }
+        self.httpRequestMock.get_json.return_value = data
+        res =main.main_trigger(self.httpRequestMock)
+        for keyword in res["images"]:
+            x = len(res["images"][keyword])
+            y = data["maxImages"][data["keywords"].index(keyword)]
+            self.assertLessEqual(x, y)
+
+    def test_lessThanEachMaxLength_2(self):
+        data = {
+            "stock": "shutterstock",
+            "keywords": ["banana", "lemon", "pineapple", "monkey", "dog", "cat"],
+            "maxImages": [5, 1, 0, 37, 2, 3],
+            "properties": {}
+        }
+        self.httpRequestMock.get_json.return_value = data
+        res =main.main_trigger(self.httpRequestMock)
+        for keyword in res["images"]:
+            x = len(res["images"][keyword])
+            y = data["maxImages"][data["keywords"].index(keyword)]
+            self.assertLessEqual(x, y)
 
 
 if __name__ == '__main__':
