@@ -12,6 +12,8 @@ GET /api/managementservice
 Name | In | Required | Type | Description |
 | :--- | :--- | :--- | :--- | :--- | 
 
+None URI Parameters in this API.
+
 ## URI Parameters
 
 None
