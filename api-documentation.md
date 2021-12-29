@@ -37,6 +37,7 @@ Request:
 }
 ```
 Response:
+
 Status code: 200
 ```javascript
 {
