@@ -127,24 +127,24 @@ Status code: 200
         "airbus recently"
     ],
   "images": {
-        "airbus": [
-            "https://image.shutterstock.com/display_pic_with_logo/228984501/1889697850/stock-photo-zoom-photo-of-airbus-a-passenger-airplane-taking-off-in-deep-blue-sky-and-beautiful-clouds-1889697850.jpg"
-        ],
-        "hydrogen": [
-            "https://image.shutterstock.com/display_pic_with_logo/301517351/1739405825/stock-vector-hydrogen-tank-icon-simple-outline-colored-vector-of-sustainable-energy-icons-for-ui-and-ux-1739405825.jpg"
-        ],
         "global": [
-            "https://image.shutterstock.com/display_pic_with_logo/162718586/287193896/stock-photo-close-up-of-businessman-hand-showing-texture-the-world-with-digital-social-media-network-diagram-287193896.jpg"
-        ],
-        "aviation": [
-            "https://image.shutterstock.com/display_pic_with_logo/250738318/1859181214/stock-photo-wide-shot-of-engineers-assembling-an-engine-of-a-passenger-jet-at-a-hangar-1859181214.jpg"
+            "https://pixabay.com/get/g59d2167199df77c6ffbc8652ca9275ee935a4658658ccd567c872a9a6e7c47a8cf9c42b8d98760fdafb3e2f096efdcd552c2bbed0e6aa03840869f8d40dfabdd_640.jpg"
         ],
         "aircraft": [
-            "https://image.shutterstock.com/display_pic_with_logo/250738318/1859178628/stock-photo-wide-shot-of-an-engineer-repairing-the-wing-of-a-passenger-jet-at-a-hangar-1859178628.jpg"
+            "https://pixabay.com/get/ga8d5a8c3834746436ee881e00049e7889ff67506b4c8f4f547e3a7521ca16e8e93918a262de637095e6af820590fe22732675474330c006ec9142e7126d9914e_640.jpg"
+        ],
+        "industry": [
+            "https://pixabay.com/get/g354bfcd0b17c0d57c934e40df21335154a9c2acdbaf74bc7060a0b7d6b39beee3b6bbd11ddb33bf129668dfcaafb38a27a24e60b6f9fbbec8741f0e4432d12c8_640.jpg"
+        ],
+        "air": [
+            "https://pixabay.com/get/gd9a224e48b572b0b85dd1b51a1572111269b0c5d975d17fa5249de5e8843261657054168aaacf87973bd57e7f5277613bf9acf50674c7c4e0fe4fe3dfaaf9403_640.jpg"
+        ],
+        "solutions": [
+            "https://pixabay.com/get/g1b10f4570c1c95e2d14380bf730ac9afd4a790c200c579bf637b20e3623372ce74786ecb666191f925c40955932ea8384bc6418fbe7f5db26650fca264358fe6_640.jpg"
         ]
     }
-
 }
+
 ```
 
 ## Definitions
