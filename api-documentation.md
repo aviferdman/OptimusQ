@@ -86,6 +86,66 @@ Status code: 200
 }
 ```
 
+### Example 2:
+Request:
+```javascript
+  "stock": "pixable",
+  "landingPage": "https://www.bbc.com/storyworks/clear-sky-thinking-airbus-2021/airbus-2021-clear-sky-thinking-?utm_source=taboola&utm_medium=native&tblci=GiDbJRndUImP9rc80Mls7KW1gFpDdEMCGlkTelmGFUrFzyCLjFQojKLYzprtvuKHAQ#tblciGiDbJRndUImP9rc80Mls7KW1gFpDdEMCGlkTelmGFUrFzyCLjFQojKLYzprtvuKHAQ",
+  "imageServiceProperties": {
+        "colors": "yellow"
+  }
+
+```
+Response:
+
+Status code: 200
+```javascript
+{
+  "title": "Clear Sky Thinking  | Clear Sky Thinking, Airbus 2021 | BBC StoryWorks",
+  "description": "Cannot extract description",
+  "keywords": [
+        "airbus",
+        "hydrogen",
+        "global",
+        "aviation",
+        "aircraft",
+        "saf",
+        "towing vehicles",
+        "semi-robotic towing",
+        "emissions",
+        "aerospace",
+        "industry",
+        "air",
+        "solutions",
+        "energy",
+        "sustainable",
+        "sustainable aviation",
+        "airbus summit",
+        "fuel",
+        "aircraft taxi",
+        "airbus recently"
+    ],
+  "images": {
+        "airbus": [
+            "https://image.shutterstock.com/display_pic_with_logo/228984501/1889697850/stock-photo-zoom-photo-of-airbus-a-passenger-airplane-taking-off-in-deep-blue-sky-and-beautiful-clouds-1889697850.jpg"
+        ],
+        "hydrogen": [
+            "https://image.shutterstock.com/display_pic_with_logo/301517351/1739405825/stock-vector-hydrogen-tank-icon-simple-outline-colored-vector-of-sustainable-energy-icons-for-ui-and-ux-1739405825.jpg"
+        ],
+        "global": [
+            "https://image.shutterstock.com/display_pic_with_logo/162718586/287193896/stock-photo-close-up-of-businessman-hand-showing-texture-the-world-with-digital-social-media-network-diagram-287193896.jpg"
+        ],
+        "aviation": [
+            "https://image.shutterstock.com/display_pic_with_logo/250738318/1859181214/stock-photo-wide-shot-of-engineers-assembling-an-engine-of-a-passenger-jet-at-a-hangar-1859181214.jpg"
+        ],
+        "aircraft": [
+            "https://image.shutterstock.com/display_pic_with_logo/250738318/1859178628/stock-photo-wide-shot-of-an-engineer-repairing-the-wing-of-a-passenger-jet-at-a-hangar-1859178628.jpg"
+        ]
+    }
+
+}
+```
+
 ## Definitions
 
 ### Creative
