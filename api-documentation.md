@@ -157,54 +157,45 @@ description	|String 	|Suggested creative for the creative
 keywords	|String[]| 	Keywords extracted from the landing page
 images	|String[]|	Suggested images for the creative
 
-
-There are many reasons to use the Gophish API. The most common use case is to gather report information for a given campaign, so that you can build custom reports in software you're most familiar with, such as Excel or Numbers.
-
-However, automating the creation of campaigns and campaign attributes such as templates, landing pages, and more provides the ability to create a fully automated phishing simulation program. This would allow campaigns to be run throughout the year automatically. This also allows the Gophish administrator to be included in the campaigns, since they wouldn't know exactly which day it would start!
-
-## Authorization
-
-All API requests require the use of a generated API key. You can find your API key, or generate a new one, by navigating to the /settings endpoint, or clicking the “Settings” sidebar item.
-
-To authenticate an API request, you should provide your API key in the `Authorization` header.
-
-Alternatively, you may append the `api_key=[API_KEY]` as a GET parameter to authorize yourself to the API. But note that this is likely to leave traces in things like your history, if accessing the API through a browser.
-
-```http
-GET /api/campaigns/?api_key=12345678901234567890123456789012
-```
-
-| Parameter | Type | Description |
+### ImagePropertiesPixable
+Parameter | Type | Description |
 | :--- | :--- | :--- |
-| `api_key` | `string` | **Required**. Your Gophish API key |
-
-## Responses
-
-Many API endpoints return the JSON representation of the resources created or edited. However, if an invalid request is submitted, or some other error occurs, Gophish returns a JSON response in the following format:
-
-```javascript
-{
-  "message" : string,
-  "success" : bool,
-  "data"    : string
-}
-```
-
-The `message` attribute contains a message commonly used to indicate errors or, in the case of deleting a resource, success that the resource was properly deleted.
-
-The `success` attribute describes if the transaction was successful or not.
-
-The `data` attribute contains any other metadata associated with the response. This will be an escaped string containing JSON data.
-
-## Status Codes
-
-Gophish returns the following status codes in its API:
-
-| Status Code | Description |
-| :--- | :--- |
-| 200 | `OK` |
-| 201 | `CREATED` |
-| 400 | `BAD REQUEST` |
-| 404 | `NOT FOUND` |
-| 500 | `INTERNAL SERVER ERROR` |
+q |	str |	A URL encoded search term. If omitted, all images are returned. This value may not exceed 100 characters.
+Example: "yellow+flower"
+lang | str | Language code of the language to be searched in.
+Accepted values: cs, da, de, en, es, fr, id, it, hu, nl, no, pl, pt, ro, sk, fi, sv, tr, vi, th, bg, ru, el, ja, ko, zh
+Default: "en"
+id	str	Retrieve individual images by ID.
+image_type	str	Filter results by image type.
+Accepted values: "all", "photo", "illustration", "vector"
+Default: "all"
+orientation	str	Whether an image is wider than it is tall, or taller than it is wide.
+Accepted values: "all", "horizontal", "vertical"
+Default: "all"
+category	str	Filter results by category.
+Accepted values: backgrounds, fashion, nature, science, education, feelings, health, people, religion, places, animals, industry, computer, food, sports, transportation, travel, buildings, business, music
+min_width	int	Minimum image width.
+Default: "0"
+min_height	int	Minimum image height.
+Default: "0"
+colors	str	Filter images by color properties. A comma separated list of values may be used to select multiple properties.
+Accepted values: "grayscale", "transparent", "red", "orange", "yellow", "green", "turquoise", "blue", "lilac", "pink", "white", "gray", "black", "brown"
+editors_choice	bool	Select images that have received an Editor's Choice award.
+Accepted values: "true", "false"
+Default: "false"
+safesearch	bool	A flag indicating that only images suitable for all ages should be returned.
+Accepted values: "true", "false"
+Default: "false"
+order	str	How the results should be ordered.
+Accepted values: "popular", "latest"
+Default: "popular"
+page	int	Returned search results are paginated. Use this parameter to select the page number.
+Default: 1
+per_page	int	Determine the number of results per page.
+Accepted values: 3 - 200
+Default: 20
+callback	string	JSONP callback function name
+pretty	bool	Indent JSON output. This option should not be used in production.
+Accepted values: "true", "false"
+Default: "false"
 
