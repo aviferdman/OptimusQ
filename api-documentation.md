@@ -161,12 +161,13 @@ images	|String[]|	Suggested images for the creative
 Parameter | Type | Description |
 | :--- | :--- | :--- |
 q |	str |	A URL encoded search term. If omitted, all images are returned. This value may not exceed 100 characters. Example: "yellow+flower"
-lang | str | Language code of the language to be searched in. Accepted values: cs, da, de, en, es, fr, id, it, hu, nl, no, pl, pt, ro, sk, fi, sv, tr, vi, th, bg, ru, el, ja, ko, zh Default: "en"
+lang | str | Language code of the language to be searched in. Accepted values: cs, da, de, en, es, fr, id, it, hu, nl, no, pl, pt, ro, sk, fi, sv, tr, vi, th, bg, ru, el, ja, ko, zh 
+Default: "en"
 id | str | Retrieve individual images by ID.
-image_type	str	Filter results by image type.
+image_type | str | Filter results by image type.
 Accepted values: "all", "photo", "illustration", "vector"
 Default: "all"
-orientation	str	Whether an image is wider than it is tall, or taller than it is wide.
+orientation | str |	Whether an image is wider than it is tall, or taller than it is wide.
 Accepted values: "all", "horizontal", "vertical"
 Default: "all"
 category	str	Filter results by category.
