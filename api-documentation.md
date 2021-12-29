@@ -21,6 +21,14 @@ stock |	True | String |	Image repository. Must be either “pixable” or “shu
 landingPage |	True | String | Valid landing page URL
 imageServiceProperties | False | ImagePropertiesPixable / ImagePropertiesShutterstock | Any additional requirements for the images
 
+## Responses
+Name | Type | Description |
+| :--- | :--- | :--- |
+title |	String	|Suggested| title for the creative
+description	|String 	|Suggested creative for the creative
+keywords	|String[]| 	Keywords extracted from the landing page
+images	|String[]|	Suggested images for the creative
+
 
 There are many reasons to use the Gophish API. The most common use case is to gather report information for a given campaign, so that you can build custom reports in software you're most familiar with, such as Excel or Numbers.
 
