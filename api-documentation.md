@@ -18,6 +18,9 @@ None URI Parameters in this API.
 Name | Required | Type | Description |
 | :--- | :--- | :--- | :--- | 
 stock |	True | String |	Image repository. Must be either “pixable” or “shutterstock”
+landingPage |	True | String | Valid landing page URL
+imageServiceProperties | False | ImagePropertiesPixable / ImagePropertiesShutterstock | Any additional requirements for the images
+
 
 There are many reasons to use the Gophish API. The most common use case is to gather report information for a given campaign, so that you can build custom reports in software you're most familiar with, such as Excel or Numbers.
 
