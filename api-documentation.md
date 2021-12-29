@@ -9,6 +9,11 @@ GET /api/managementservice
 ```
 
 ## URI Parameters
+Name | In | Required | Type | Description |
+
+None
+
+## URI Parameters
 
 None
 
