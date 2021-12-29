@@ -17,10 +17,7 @@ None URI Parameters in this API.
 ## Request Body
 Name | Required | Type | Description |
 | :--- | :--- | :--- | :--- | 
-
-## URI Parameters
-
-None
+stock |	True | String |	Image repository. Must be either “pixable” or “shutterstock”
 
 There are many reasons to use the Gophish API. The most common use case is to gather report information for a given campaign, so that you can build custom reports in software you're most familiar with, such as Excel or Numbers.
 
