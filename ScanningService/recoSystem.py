@@ -11,6 +11,8 @@ from ScanningService.response import Response
 
 
 class RecoSystem:
+
+
     def enter_landing_page_url(self):
         """
         purpose: receives a landing page url.
@@ -36,7 +38,7 @@ class RecoSystem:
         soup = BeautifulSoup(page)
         return soup, "Success"
 
-    def extract_title_from_landing_page(self, url):
+    def extract_title_from_landing_page(self, url, htmlParse):
         """
         purpose: extract title from  a landing page.
         :param url: landing page url
@@ -45,11 +47,6 @@ class RecoSystem:
         # opening the url for reading
         res = Response()
         res.set_url(url)
-        htmlParse, e = self.scan_landing_page(url)
-        if htmlParse is None:
-            res.sign_error(e, True)
-            res.set_messege("cant open the url")
-            return res
         # try:
         #     html = urllib.request.urlopen(url)
         # except Exception as e:
@@ -65,14 +62,9 @@ class RecoSystem:
            return res
         return res.set_title(title.text)
 
-    def extract_description_from_landing_page(self, url):
+    def extract_description_from_landing_page(self, url, htmlParse):
         res = Response()
         res.set_url(url)
-        htmlParse, e = self.scan_landing_page(url)
-        if htmlParse is None:
-            res.sign_error(e, True)
-            res.set_messege("cant open the url")
-            return res
         head = htmlParse.find("head")
         description = ""
         for t in head:
@@ -87,7 +79,7 @@ class RecoSystem:
         else:
             return res.set_description(description)
 
-    def extract_keywords_from_landing_page(self, url):
+    def extract_keywords_from_landing_page(self, url, htmlParse):
         """
         purpose: extract keywords from  a landing page.
         :param url: landing page url
@@ -95,11 +87,11 @@ class RecoSystem:
         """
         response= Response()
         response.set_url(url)
-        htmlParse, e = self.scan_landing_page(url)
-        if htmlParse is None:
-            response.sign_error(e, True)
-            response.set_messege("cant open the url")
-            return response
+        # htmlParse, e = self.scan_landing_page(url)
+        # if htmlParse is None:
+        #     response.sign_error(e, True)
+        #     response.set_messege("cant open the url")
+        #     return response
 
         title = htmlParse.find("title")
         if title is None:
@@ -178,21 +170,26 @@ class RecoSystem:
         return response.set_keywords(res)
 
     def scrap_page(self, url):
-        if url is None or url=="":
+        if url is None or url == "":
             return {"title": "",
                     "description": "",
                     "keywords": []}
-        response = self.extract_title_from_landing_page(url)
+        htmlParse, e = self.scan_landing_page(url)
+        if htmlParse is None:
+            return {"title": "cant open the url",
+                    "description": "cant open the url",
+                    "keywords": []}
+        response = self.extract_title_from_landing_page(url, htmlParse)
         if response.is_error():
             title = response.get_messege()
         else:
             title = response.get_title()
-        response = self.extract_description_from_landing_page(url)
+        response = self.extract_description_from_landing_page(url, htmlParse)
         if response.is_error():
             description = response.get_messege()
         else:
             description = response.get_description()
-        response = self.extract_keywords_from_landing_page(url)
+        response = self.extract_keywords_from_landing_page(url, htmlParse)
         if response.is_error():
             keywords = []
         else:
