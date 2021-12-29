@@ -21,7 +21,9 @@ stock |	True | String |	Image repository. Must be either “pixable” or “shu
 landingPage |	True | String | Valid landing page URL
 imageServiceProperties | False | ImagePropertiesPixable / ImagePropertiesShutterstock | Any additional requirements for the images
 
-## Responses
+## Definitions
+
+### Creative
 Name | Type | Description |
 | :--- | :--- | :--- |
 title |	String	|Suggested| title for the creative
