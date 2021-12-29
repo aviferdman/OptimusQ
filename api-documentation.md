@@ -1,12 +1,16 @@
 # OPTIMUS-Q-BGU API's Documentation
 
-These docs describe how to use the (https://optimusqbgu.azurewebsites.net/api/managementservice) API. We hope you enjoy these docs.
+These docs describe how to use the https://optimusqbgu.azurewebsites.net API. We hope you enjoy these docs.
 
-{% hint style="info" %}
-**Is Python your language of choice?** If so, we have a [fully-supported Python API client](https://docs.getgophish.com/python-api-client/) that makes working with the Gophish API a piece of cake!
-{% endhint %}
+## Creative - Get
 
-## Use Cases
+```http
+GET /api/managementservice
+```
+
+## URI Parameters
+
+None
 
 There are many reasons to use the Gophish API. The most common use case is to gather report information for a given campaign, so that you can build custom reports in software you're most familiar with, such as Excel or Numbers.
 
