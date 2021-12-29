@@ -64,7 +64,7 @@ Status code: 200
         "aircraft taxi",
         "airbus recently"
     ],
-    "images": {
+  "images": {
         "airbus": [
             "https://image.shutterstock.com/display_pic_with_logo/228984501/1889697850/stock-photo-zoom-photo-of-airbus-a-passenger-airplane-taking-off-in-deep-blue-sky-and-beautiful-clouds-1889697850.jpg"
         ],
