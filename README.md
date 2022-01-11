@@ -22,5 +22,11 @@ Responsible for connecting to a remote DataBases sitting on a cloud in Azure.
 - Unit tests: The tests available are for the following services: Scanner Service, Image Service and Databases Service.
 - Integration tests: this tests testing the Management Service which is the package that connect all services.
 
+## Documentation
+contains the following:
+- Blocking-Diagram: Diagram of the principal parts of the system represented by blocks connected by lines that show the relationships of the blocks
+- ReleaseNotes
+- api-documentation
+
 
 
