@@ -1,0 +1,6 @@
+beautifulsoup4
+lxml
+yake
+yake-github
+flask
+requests
