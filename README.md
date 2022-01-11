@@ -1,5 +1,6 @@
 
 # Recommendaion System
+The main goal of the project is to create a system that allows you to analyze landing pages, extract from them the information it needs and classify the landing page in the appropriate category. Next, the system will calculate by machine learning which image, among the image repositories, is most suitable for the benefit of maximizing the landing page entries. The system will check with OptimusQ the statistics, save the data in the cloud and follow up.
 
 ## Presentation Service
 Responsible for using all services and presents them in a simple and user-friendly UI.
