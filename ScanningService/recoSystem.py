@@ -36,6 +36,7 @@ class RecoSystem:
         except Exception as e:
             return None, e
         soup = BeautifulSoup(page)
+
         return soup, "Success"
 
     def extract_title_from_landing_page(self, url, htmlParse):
