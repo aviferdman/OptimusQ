@@ -12,9 +12,9 @@ The main service. Responsible for connecting all the services. Receives URL of a
 ## Scanner Service
 Responsible for extract data from a given landing page.
 Contains the following:
--recoSystem.py: The main class that contains the functions of scraping a landing page
--response.py: Class for handling errors and returning appropriate messages to the user
--screenshot.py: Class for taking screenshot by the computer. Needs for the mission of scrap images and videos from a landing page
+- recoSystem.py: The main class that contains the functions of scraping a landing page
+- response.py: Class for handling errors and returning appropriate messages to the user
+- screenshot.py: Class for taking screenshot by the computer. Needs for the mission of scrap images and videos from a landing page
 
 ## Image Service
 Responsible for recommending the photos after scanning the page.
