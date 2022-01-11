@@ -75,7 +75,7 @@ class TestRecoSystem(unittest.TestCase):
         self.assertEqual(description, "Cannot extract description")
         self.assertNotEqual(keywords, [])
 
-    def test_valid_with_keyword_like_title(self):
+    def test_valid_with_keyword_from_title(self):
         url = "https://www.hcpcacao.org/about-hcp.html?gclid=CjwKCAiArOqOBhBmEiwAsgeLmS1PnHyasvY6NY2_Vs9QqTTLpBIDzCssxKFic_xqnNPSaKBRkxuQuBoCvhMQAvD_BwE"
         dict = self.reco.scrap_page(url)
         title = dict['title']
@@ -84,7 +84,6 @@ class TestRecoSystem(unittest.TestCase):
         self.assertNotEqual(title, "")
         self.assertNotEqual(description, "Cannot extract description")
         self.assertNotEqual(keywords, [])
-        self.assertEqual(keywords[0], title)
 
 
 if __name__ == '__main__':

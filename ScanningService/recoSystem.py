@@ -86,13 +86,8 @@ class RecoSystem:
         :param url: landing page url
         :return: list of keywords
         """
-        response= Response()
+        response = Response()
         response.set_url(url)
-        # htmlParse, e = self.scan_landing_page(url)
-        # if htmlParse is None:
-        #     response.sign_error(e, True)
-        #     response.set_messege("cant open the url")
-        #     return response
 
         title = htmlParse.find("title")
         if title is None:
@@ -111,9 +106,9 @@ class RecoSystem:
 
         if str_of_keywords != "":
             res = str_of_keywords.split(',')
-            if len(res) < 5:
-                return response.set_keywords(res)
-            return response.set_keywords(response)
+            # if len(res) < 5:
+            #     return response.set_keywords(res)
+            return response.set_keywords(res)
 
         # checks if str in part of a title or a header
 
@@ -140,7 +135,9 @@ class RecoSystem:
             paragraphs += str(p.text).lower()
 
         if len(paragraphs) <= 5 or re.search('[a-zA-Z]', paragraphs) is None:
-            return response.set_keywords([title.text])
+            paragraphs = title.text
+            print("hay!")
+            # return response.set_keywords([title.text])
 
         language = "en"
         max_ngram_size = 2
