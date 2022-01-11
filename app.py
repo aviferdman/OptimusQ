@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, flash, abort, Markup
 
 # import recoSystem
 from ScanningService import recoSystem
-from main import main_trigger
+from PresentationService.main import main_trigger
 
 # from recoSystem import RecoSystem
 
