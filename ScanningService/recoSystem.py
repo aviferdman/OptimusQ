@@ -12,6 +12,7 @@ from ScanningService.response import Response
 
 class RecoSystem:
 
+
     def scan_landing_page(self, url):
         """
         purpose: scan a landing page url.
