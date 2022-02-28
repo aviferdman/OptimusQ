@@ -7,6 +7,10 @@ class Pixable:
       self.api_key = "24751437-3093e242edb642b02ce14bc2a"
       self.api = "https://pixabay.com/api/"
 
+  # q = " | ".join(self.kw)
+  # get_url = f"https://pixabay.com/api/?key={self.key}&q={q}&image_type=photo"
+
+
   def get_pictures(self, keywords, max_images, properties):
       images = []
       req = self.api + "?key = " + self.api_key + "&q = " + keywords
@@ -24,7 +28,6 @@ class Pixable:
           return images
       else:
           return response.status_code
-
 
 class Shutterstock:
   def __init__(self):
@@ -48,6 +51,7 @@ class Shutterstock:
              images.append(image["assets"]["preview"]["url"])
          return images
      else:
+        print(response.status_code)
         return response.status_code
 
 

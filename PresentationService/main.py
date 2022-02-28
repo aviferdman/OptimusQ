@@ -1,7 +1,6 @@
 import requests
 import json
 
-
 ImageServicePropertiesURL = "https://optimusqbgu.azurewebsites.net/api/ManagementService"
 
 def send_post_request(url, body):
