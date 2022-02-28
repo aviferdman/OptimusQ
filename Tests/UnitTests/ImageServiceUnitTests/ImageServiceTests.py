@@ -20,7 +20,8 @@ class MyTestCase(unittest.TestCase):
         res = main.main_trigger(self.httpRequestMock)
         self.assertEqual(type(res), dict)
         for keyword in res["images"]:
-            self.assertIn(keyword, data["keywords"])
+            if keyword != "OR Keywords":
+                self.assertIn(keyword, data["keywords"])
         self.assertLessEqual(len(res["images"]), main.maxValidKeyword)
 
     def test_invalidLength_1(self):
@@ -82,7 +83,8 @@ class MyTestCase(unittest.TestCase):
         res = main.main_trigger(self.httpRequestMock)
         self.assertEqual(type(res), dict)
         for keyword in res["images"]:
-            self.assertIn(keyword, data["keywords"])
+            if keyword != "OR Keywords":
+                self.assertIn(keyword, data["keywords"])
         self.assertLessEqual(len(res["images"]), main.maxValidKeyword)
 
     def test_lessThanMaxValidKeywords(self):
@@ -180,7 +182,10 @@ class MyTestCase(unittest.TestCase):
         res = main.main_trigger(self.httpRequestMock)
         for keyword in res["images"]:
             x = len(res["images"][keyword])
-            y = data["maxImages"][data["keywords"].index(keyword)]
+            if keyword == "OR Keywords":
+                y = main.maxValidKeyword
+            else:
+                y = data["maxImages"][data["keywords"].index(keyword)]
             self.assertLessEqual(x, y)
 
     def test_lessThanEachMaxLength_2(self):
@@ -194,7 +199,10 @@ class MyTestCase(unittest.TestCase):
         res = main.main_trigger(self.httpRequestMock)
         for keyword in res["images"]:
             x = len(res["images"][keyword])
-            y = data["maxImages"][data["keywords"].index(keyword)]
+            if keyword == "OR Keywords":
+                y = main.maxValidKeyword
+            else:
+                y = data["maxImages"][data["keywords"].index(keyword)]
             self.assertLessEqual(x, y)
 
 
