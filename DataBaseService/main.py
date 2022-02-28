@@ -6,147 +6,255 @@ import json
 #####################
 # Basic Parameters  #
 #####################
-password = '{avidorgilTheBest2022}'
-connectionString = 'Driver={ODBC Driver 17 for SQL Server};Server=tcp:optimusbgudb.database.windows.net,1433;Database=Optimus-BGU-db;Uid=Optimus-BGU-db;Pwd=' + \
-    password + ';Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;'
+# password = '{avidorgilTheBest2022}'
+# connectionString = 'Driver={ODBC Driver 17 for SQL Server};Server=tcp:optimusbgudb.database.windows.net,1433;Database=Optimus-BGU-db;Uid=Optimus-BGU-db;Pwd=' + \
+#     password + ';Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;'
 
 
-def main_trigger(request: azure.functions.HttpRequest):
-    try:
-        theBody = request.get_json()
-        theJson = theBody
 
-        landingPage = theJson["landingPage"]
-        keyWords = theJson["keywords"]
-        description = theJson["description"]
-        title = theJson["title"]
-        images = theJson["images"]
+class DataBaseController:
+    def __init__(self):
+        self.password='{avidorgilTheBest2022}'
+        self.connectionString='Driver={ODBC Driver 17 for SQL Server};Server=tcp:optimusbgudb.database.windows.net,1433;Database=Optimus-BGU-db;Uid=Optimus-BGU-db;Pwd=' + \
+        self.password + ';Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;'
 
-        DEVELOPERS_ID = 1
+    def TriggerTransaction(self,request: azure.functions.HttpRequest):
+        try:
+            theBody = request.get_json()
+            theJson = theBody
 
-        writIDconnection2db(DEVELOPERS_ID)
-        writeLandingPage2db(landingPage, DEVELOPERS_ID)
-        writeKeywords2db(keyWords)
-        writeDescription2db(landingPage, title, description)
-        writeLandingPageToKeyWord(landingPage, keyWords)
-        writeImages2db(images)
-        return "OK"
+            landingPage = theJson["landingPage"]
+            keyWords = theJson["keywords"]
+            description = theJson["description"]
+            title = theJson["title"]
+            images = theJson["images"]
 
-    except Exception as e:
-        print(str(e))
-        return "Empty body"
+            DEVELOPERS_ID = 1
+
+            self.writIDconnection2db(DEVELOPERS_ID)
+            self.writeLandingPage2db(landingPage, DEVELOPERS_ID)
+            self.writeKeywords2db(keyWords)
+            self.writeDescription2db(landingPage, title, description)
+            self.writeLandingPageToKeyWord(landingPage, keyWords)
+            self.writeImages2db(images)
+            return "OK"
+
+        except Exception as e:
+            print(str(e))
+            return "Empty body"
+
+    ######################################################################
+    #  Advertisers
+    ######################################################################
+    def getAdvertisersIDs(self):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                                SELECT ID FROM Advertisers
+                                """)
+                myresult = cursor.fetchall()
+                return myresult
 
 
-def writIDconnection2db(id):
-    with pyodbc.connect(connectionString) as conn:
-        with conn.cursor() as cursor:
-            cursor.execute("""
-                INSERT INTO
-                Connections(Date, AdvertiserID)
-                VALUES('{0}', {1});
-                """.format(datetime.datetime.now().strftime('%Y%m%d %H:%M:%S'), id))
 
-
-def writeLandingPage2db(landing, id):
-    with pyodbc.connect(connectionString) as conn:
-        with conn.cursor() as cursor:
-            cursor.execute("""
-            SELECT * FROM LandingPage
-            WHERE "URL"='{0}'
-            """.format(landing))
-            myresult = cursor.fetchall()
-            if(len(myresult) == 0):
+    ######################################################################
+    #  ID connections
+    ######################################################################
+    def writIDconnection2db(self,id):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
                 cursor.execute("""
                     INSERT INTO
-                    LandingPage(URL, AdvertiserID)
-                    VALUES('{0}', '{1}');
-                    """.format(landing, id))
+                    Connections(Date, AdvertiserID)
+                    VALUES('{0}', {1});
+                    """.format(datetime.datetime.now().strftime('%Y%m%d %H:%M:%S'), id))
 
-
-def writeKeywords2db(parm):
-    with pyodbc.connect(connectionString) as conn:
-        with conn.cursor() as cursor:
-            for keyWord in parm:
+    def getIDconnections(self):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
                 cursor.execute("""
-                SELECT * FROM Keywords
-                WHERE "Keyword" = '{0}'
-                """.format(keyWord))
+                                SELECT * FROM Connections
+                                """)
+                myresult = cursor.fetchall()
+                return myresult
 
-                theResult = cursor.fetchall()
-                if(len(theResult) == 0):
+    ######################################################################
+    #  Landing Page
+    ######################################################################
+
+    def getAllLandingPages(self):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                                SELECT * FROM LandingPage
+                                """)
+                myresult = cursor.fetchall()
+                return myresult
+
+    def getLandingPageByUrl(self,url):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                                SELECT * FROM LandingPage
+                                WHERE "URL"='{0}';
+                                """.format(url))
+                myresult = cursor.fetchall()
+                return myresult
+
+    def writeLandingPage2db(self,landing, id):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                SELECT * FROM LandingPage
+                WHERE "URL"='{0}'
+                """.format(landing))
+                myresult = cursor.fetchall()
+                if(len(myresult) == 0):
                     cursor.execute("""
                         INSERT INTO
-                        Keywords(KeyWord)
-                        VALUES('{0}');
-                        """.format(keyWord))
-
-
-def writeDescription2db(url, title, description):
-    with pyodbc.connect(connectionString) as conn:
-        with conn.cursor() as cursor:
-            cursor.execute("""
-            SELECT * FROM TitleAndDescription
-            WHERE "LandingPageURL" = '{0}'
-            """.format(url))
-
-            theResult = cursor.fetchall()
-            if(len(theResult) == 0):
-                cursor.execute("""
-                    INSERT INTO
-                    TitleAndDescription(LandingPageURL, Title,Description)
-                    VALUES('{0}', '{1}','{2}');
-                    """.format(url, title, description))
-
-
-def writeLandingPageToKeyWord(url, keywords):
-    with pyodbc.connect(connectionString) as conn:
-        with conn.cursor() as cursor:
-            for keyword in keywords:
-                cursor.execute("""
-                SELECT * FROM [dbo].[LandingPageToKeyWord]
-                WHERE "LandingPageURL" = '{0}'
-                AND "Keyword" = '{1}';
-                """.format(url, keyword))
-
-                theResult = cursor.fetchall()
-                if(len(theResult) == 0):
-                    cursor.execute("""
-                        INSERT INTO
-                        LandingPageToKeyWord(LandingPageURL, Keyword)
+                        LandingPage(URL, AdvertiserID)
                         VALUES('{0}', '{1}');
-                        """.format(url, keyword))
+                        """.format(landing, id))
 
+    ######################################################################
+    #  Keywords
+    ######################################################################
 
-def writeImages2db(images):
-    with pyodbc.connect(connectionString) as conn:
-        with conn.cursor() as cursor:
-            for keyword in images:
-                for url in images[keyword]:
+    def getAllKeyWords(self):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                                SELECT * FROM Keywords
+                                """)
+                myresult = cursor.fetchall()
+                return myresult
+
+    def getKeyWordByKey(self,keyword):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                                SELECT * FROM Keywords
+                                WHERE "Keyword"='{0}';
+                                """.format(keyword))
+                myresult = cursor.fetchall()
+                return myresult
+
+    def writeKeywords2db(self,parm):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                for keyWord in parm:
                     cursor.execute("""
-                    SELECT * FROM [dbo].[Images]
-                    WHERE "ImageURL" = '{0}';
-                    """.format(url))
+                    SELECT * FROM Keywords
+                    WHERE "Keyword" = '{0}'
+                    """.format(keyWord))
 
-                    theResultForImages = cursor.fetchall()
-
-                    if(len(theResultForImages) == 0):
+                    theResult = cursor.fetchall()
+                    if(len(theResult) == 0):
                         cursor.execute("""
                             INSERT INTO
-                            Images(ImageURL)
+                            Keywords(KeyWord)
                             VALUES('{0}');
-                            """.format(url))
+                            """.format(keyWord))
 
+    ######################################################################
+    #  Description
+    ######################################################################
+
+    def getDescriptionByURL(self,url):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                                SELECT * FROM TitleAndDescription
+                                WHERE "LandingPageURL"='{0}';
+                                """.format(url))
+                myresult = cursor.fetchall()
+                return myresult
+
+    def writeDescription2db(self,url, title, description):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                SELECT * FROM TitleAndDescription
+                WHERE "LandingPageURL" = '{0}'
+                """.format(url))
+
+                theResult = cursor.fetchall()
+                if(len(theResult) == 0):
                     cursor.execute("""
-                    SELECT * FROM [dbo].[ImagesToKeyword]
-                    WHERE "ImageURL" = '{0}'
+                        INSERT INTO
+                        TitleAndDescription(LandingPageURL, Title,Description)
+                        VALUES('{0}', '{1}','{2}');
+                        """.format(url, title, description))
+
+    ######################################################################
+    #  LandingPage to keyword
+    ######################################################################
+    def writeLandingPageToKeyWord(self,url, keywords:[]):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                for keyword in keywords:
+                    cursor.execute("""
+                    SELECT * FROM [dbo].[LandingPageToKeyWord]
+                    WHERE "LandingPageURL" = '{0}'
                     AND "Keyword" = '{1}';
                     """.format(url, keyword))
 
-                    theResltForImageToKeyword = cursor.fetchall()
-
-                    if(len(theResultForImages) == 0):
+                    theResult = cursor.fetchall()
+                    if(len(theResult) == 0):
                         cursor.execute("""
                             INSERT INTO
-                            ImagesToKeyword(ImageURL,Keyword)
-                            VALUES('{0}','{1}');
+                            LandingPageToKeyWord(LandingPageURL, Keyword)
+                            VALUES('{0}', '{1}');
                             """.format(url, keyword))
+
+    def getLandingPageToKeyword(self,url,keyword):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                                SELECT * FROM LandingPageToKeyWord
+                                WHERE "LandingPageURL"='{0}'
+                                AND "Keyword"='{1}';
+                                """.format(url,keyword))
+                myresult = cursor.fetchall()
+                return myresult
+
+
+    def writeImages2db(self,images):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                for keyword in images:
+                    for url in images[keyword]:
+                        cursor.execute("""
+                        SELECT * FROM [dbo].[Images]
+                        WHERE "ImageURL" = '{0}';
+                        """.format(url))
+
+                        theResultForImages = cursor.fetchall()
+
+                        if(len(theResultForImages) == 0):
+                            cursor.execute("""
+                                INSERT INTO
+                                Images(ImageURL)
+                                VALUES('{0}');
+                                """.format(url))
+
+                        cursor.execute("""
+                        SELECT * FROM [dbo].[ImagesToKeyword]
+                        WHERE "ImageURL" = '{0}'
+                        AND "Keyword" = '{1}';
+                        """.format(url, keyword))
+
+                        theResltForImageToKeyword = cursor.fetchall()
+
+                        if(len(theResultForImages) == 0):
+                            cursor.execute("""
+                                INSERT INTO
+                                ImagesToKeyword(ImageURL,Keyword)
+                                VALUES('{0}','{1}');
+                                """.format(url, keyword))
+
+
+dataBaseController=DataBaseController()
+
+def main_trigger(request: azure.functions.HttpRequest):
+    dataBaseController.TriggerTransaction(request)

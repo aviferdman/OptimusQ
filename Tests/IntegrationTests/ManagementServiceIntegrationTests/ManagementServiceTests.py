@@ -1,14 +1,14 @@
 import unittest
 from unittest.mock import Mock, MagicMock
-from ManagementService import main
+from ManagementService.ManagementServiceLibrary import main
+
 
 class MyTestCase(unittest.TestCase):
 
     def setUp(self):
-        self.managementService = main
         self.httpRequestMock = MagicMock()
 
-    def happy_shutterstock(self):
+    def test_happy_shutterstock(self):
         data = {
             "landingPage": "https://www.microsoft.com/en-il/",
             "stock": "shutterstock",
@@ -21,7 +21,7 @@ class MyTestCase(unittest.TestCase):
         self.assertTrue(len(response["keywords"]) > 0)
         self.assertTrue(len(response["images"]) > 0)
 
-    def happy_pixable(self):
+    def test_happy_pixable(self):
         data = {
             "landingPage": "https://www.microsoft.com/en-il/",
             "stock": "pixable",
@@ -34,7 +34,7 @@ class MyTestCase(unittest.TestCase):
         self.assertTrue(len(response["keywords"]) > 0)
         self.assertTrue(len(response["images"]) > 0)
 
-    def bad_landingpage_shutterstock(self):
+    def test_bad_landingpage_shutterstock(self):
         data = {
             "landingPage": "bad",
             "stock": "shutterstock",
@@ -47,7 +47,7 @@ class MyTestCase(unittest.TestCase):
         self.assertTrue(len(response["keywords"]) == 0)
         self.assertTrue(len(response["images"]) == 0)
 
-    def bad_landingpage_pixable(self):
+    def test_bad_landingpage_pixable(self):
         data = {
             "landingPage": "bad",
             "stock": "pixable",
@@ -59,8 +59,8 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(type(response), dict)
         self.assertTrue(len(response["keywords"]) == 0)
         self.assertTrue(len(response["images"]) == 0)
-    
-    def bad_stock_pixable(self):
+
+    def test_bad_stock_pixable(self):
         data = {
             "landingPage": "https://www.microsoft.com/en-il/",
             "stock": "bad",
@@ -72,8 +72,8 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(type(response), dict)
         self.assertTrue(len(response["keywords"]) > 0)
         self.assertTrue(len(response["images"]) == 0)
-    
-    def bad_image_properties_pixable(self):
+
+    def test_bad_image_properties_pixable(self):
         data = {
             "landingPage": "https://www.microsoft.com/en-il/",
             "stock": "pixable",
@@ -87,7 +87,7 @@ class MyTestCase(unittest.TestCase):
         self.assertTrue(len(response["keywords"]) > 0)
         self.assertTrue(len(response["images"]) > 0)
 
-    def bad_image_properties_pixable(self):
+    def test_bad_image_properties_pixable(self):
         data = {
             "landingPage": "https://www.microsoft.com/en-il/",
             "stock": "shutterstock",
@@ -101,7 +101,7 @@ class MyTestCase(unittest.TestCase):
         self.assertTrue(len(response["keywords"]) > 0)
         self.assertTrue(len(response["images"]) > 0)
 
-    def sad_landingpage_pixable(self):
+    def test_sad_landingpage_pixable(self):
         data = {
             "landingPage": "https://www.ynet.com",
             "stock": "shutterstock",
@@ -114,7 +114,7 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(type(response), dict)
         self.assertTrue(len(response["keywords"]) > 0)
 
-    def sad_landingpage_pixable(self):
+    def test_sad_landingpage_pixable(self):
         data = {
             "landingPage": "https://www.ynet.com",
             "stock": "pixable",

@@ -13,14 +13,6 @@ from ScanningService.response import Response
 class RecoSystem:
 
 
-    def enter_landing_page_url(self):
-        """
-        purpose: receives a landing page url.
-        :param url: landing page url
-        :return: void
-        """
-        pass
-
     def scan_landing_page(self, url):
         """
         purpose: scan a landing page url.
@@ -36,6 +28,7 @@ class RecoSystem:
         except Exception as e:
             return None, e
         soup = BeautifulSoup(page)
+
         return soup, "Success"
 
     def extract_title_from_landing_page(self, url, htmlParse):
@@ -85,13 +78,8 @@ class RecoSystem:
         :param url: landing page url
         :return: list of keywords
         """
-        response= Response()
+        response = Response()
         response.set_url(url)
-        # htmlParse, e = self.scan_landing_page(url)
-        # if htmlParse is None:
-        #     response.sign_error(e, True)
-        #     response.set_messege("cant open the url")
-        #     return response
 
         title = htmlParse.find("title")
         if title is None:
@@ -110,9 +98,9 @@ class RecoSystem:
 
         if str_of_keywords != "":
             res = str_of_keywords.split(',')
-            if len(res) < 5:
-                return response.set_keywords(res)
-            return response.set_keywords(response)
+            # if len(res) < 5:
+            #     return response.set_keywords(res)
+            return response.set_keywords(res)
 
         # checks if str in part of a title or a header
 
@@ -139,7 +127,9 @@ class RecoSystem:
             paragraphs += str(p.text).lower()
 
         if len(paragraphs) <= 5 or re.search('[a-zA-Z]', paragraphs) is None:
-            return response.set_keywords([title.text])
+            paragraphs = title.text
+            print("hay!")
+            # return response.set_keywords([title.text])
 
         language = "en"
         max_ngram_size = 2
@@ -200,99 +190,3 @@ class RecoSystem:
                 "keywords": keywords}
 
         return dict
-
-    def add_scraping_rule(self, new_rule):
-        """
-        purpose: add a new rule for scraping a landing page
-        :param new_rule:
-        :return: void
-        """
-        pass
-
-    def edit_a_scraping_rule(self, rule_id):
-        """
-        purpose: edit an existing scraping rule.
-        :param rule_id:
-        :return: void
-        """
-        pass
-
-    def connect_to_image_repositories(self, image_repos):
-        """
-        purpose: connects to the specified image repositories.
-        :param image_repos: a list of image repositories API's to connect
-        :return: void
-        """
-        pass
-
-    def disconnect_from_image_repositories(self, image_repos):
-        """
-        purpose: disconnects from the specified image repositories.
-        :param image_repos: a list of image repositories API's to disconnect from
-        :return: void
-        """
-        pass
-
-    def parse_result(self, text):
-        index1 = text.find('[')
-        index2 = text.find(']')
-        new_str = text[index1 + 1:index2]
-        new_str = new_str.split(',')
-        res = []
-        for s in new_str:
-            tmp = s.replace("\"", "")
-            res.append(tmp)
-        return res
-
-    def recommend_n_photos_by_keywords(self, image_repos, keywords, n):
-        """
-        purpose: returns the most n relevant photos for the given keywords, from image_repos
-         repositories.
-        :param n: number of photos to be recommended
-        :param keywords: keywords for choosing the photos
-        :param image_repos: a list of image repositories API's to search from
-        :return: n most relevant photos
-        """
-        res = []
-        for k in keywords:
-            url = f"https://optimusqbgu.azurewebsites.net/api/imageservice?stock={image_repos}&keywords={k}&maxImages={str(n)}"
-            res = requests.get(url)
-            list_of_images = self.parse_result(res.text)
-            for p in list_of_images:
-                if p:
-                    res.append(p)
-        return res
-
-    def recommend_n_photos_by_landing_page(self, image_repos, landing_url, n):
-        """
-        purpose: scrape the landing page given in landing_url. Returns the most n relevant photos
-        from image_repos, given the landing page.
-         repositories.
-        :param landing_url: url of a landing page
-        :param n: number of photos to be recommended
-        :param image_repos: a list of image repositories API's to search from
-        :return: n most relevant photos
-        """
-        pass
-
-    def process_image_from_a_repository(self, image):
-        """
-        purpose: receives an image, processes it and returns the image's metadata.
-        :param image: image to be processes
-        :return: metadata extracted from the image
-        """
-        pass
-
-    def get_error_log(self):
-        """
-        purpose: returns error log
-        :return: error log
-        """
-        pass
-
-    def get_action_log(self):
-        """
-        purpose: returns action log
-        :return: action log
-        """
-        pass

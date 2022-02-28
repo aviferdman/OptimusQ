@@ -1,6 +1,8 @@
 import unittest
 from unittest.mock import Mock, MagicMock
 from ImageService import main
+
+
 class MyTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -15,7 +17,7 @@ class MyTestCase(unittest.TestCase):
             "properties": {}
         }
         self.httpRequestMock.get_json.return_value = data
-        res =main.main_trigger(self.httpRequestMock)
+        res = main.main_trigger(self.httpRequestMock)
         self.assertEqual(type(res), dict)
         for keyword in res["images"]:
             self.assertIn(keyword, data["keywords"])
@@ -29,7 +31,7 @@ class MyTestCase(unittest.TestCase):
             "properties": {}
         }
         self.httpRequestMock.get_json.return_value = data
-        res =main.main_trigger(self.httpRequestMock)
+        res = main.main_trigger(self.httpRequestMock)
         self.assertEqual(type(res), dict)
         self.assertEqual(bool(res["images"]), False)
 
@@ -41,7 +43,7 @@ class MyTestCase(unittest.TestCase):
             "properties": {}
         }
         self.httpRequestMock.get_json.return_value = data
-        res =main.main_trigger(self.httpRequestMock)
+        res = main.main_trigger(self.httpRequestMock)
         self.assertEqual(type(res), dict)
         self.assertEqual(bool(res["images"]), False)
 
@@ -53,7 +55,7 @@ class MyTestCase(unittest.TestCase):
             "properties": "wowow"
         }
         self.httpRequestMock.get_json.return_value = data
-        res =main.main_trigger(self.httpRequestMock)
+        res = main.main_trigger(self.httpRequestMock)
         self.assertEqual(type(res), dict)
         self.assertEqual(bool(res["images"]), False)
 
@@ -65,7 +67,7 @@ class MyTestCase(unittest.TestCase):
             "properties": {}
         }
         self.httpRequestMock.get_json.return_value = data
-        res =main.main_trigger(self.httpRequestMock)
+        res = main.main_trigger(self.httpRequestMock)
         self.assertEqual(type(res), dict)
         self.assertEqual(bool(res["images"]), False)
 
@@ -77,7 +79,7 @@ class MyTestCase(unittest.TestCase):
             "properties": {}
         }
         self.httpRequestMock.get_json.return_value = data
-        res =main.main_trigger(self.httpRequestMock)
+        res = main.main_trigger(self.httpRequestMock)
         self.assertEqual(type(res), dict)
         for keyword in res["images"]:
             self.assertIn(keyword, data["keywords"])
@@ -91,7 +93,7 @@ class MyTestCase(unittest.TestCase):
             "properties": {}
         }
         self.httpRequestMock.get_json.return_value = data
-        res =main.main_trigger(self.httpRequestMock)
+        res = main.main_trigger(self.httpRequestMock)
         self.assertEqual(type(res), dict)
         self.assertLessEqual(len(res["images"]), main.maxValidKeyword)
 
@@ -103,7 +105,7 @@ class MyTestCase(unittest.TestCase):
             "properties": {}
         }
         self.httpRequestMock.get_json.return_value = data
-        res =main.main_trigger(self.httpRequestMock)
+        res = main.main_trigger(self.httpRequestMock)
         self.assertEqual(type(res), dict)
         self.assertEqual(bool(res["images"]), False)
 
@@ -115,7 +117,7 @@ class MyTestCase(unittest.TestCase):
             "properties": "nana"
         }
         self.httpRequestMock.get_json.return_value = data
-        res =main.main_trigger(self.httpRequestMock)
+        res = main.main_trigger(self.httpRequestMock)
         self.assertEqual(type(res), dict)
         self.assertEqual(bool(res["images"]), False)
 
@@ -127,7 +129,7 @@ class MyTestCase(unittest.TestCase):
             "properties": {}
         }
         self.httpRequestMock.get_json.return_value = data
-        res =main.main_trigger(self.httpRequestMock)
+        res = main.main_trigger(self.httpRequestMock)
         self.assertEqual(type(res), dict)
         self.assertEqual(bool(res["images"]), False)
 
@@ -139,7 +141,7 @@ class MyTestCase(unittest.TestCase):
             "properties": {}
         }
         self.httpRequestMock.get_json.return_value = data
-        res =main.main_trigger(self.httpRequestMock)
+        res = main.main_trigger(self.httpRequestMock)
         self.assertEqual(type(res), dict)
         self.assertEqual(bool(res["images"]), False)
 
@@ -151,7 +153,7 @@ class MyTestCase(unittest.TestCase):
             "properties": {}
         }
         self.httpRequestMock.get_json.return_value = data
-        res =main.main_trigger(self.httpRequestMock)
+        res = main.main_trigger(self.httpRequestMock)
         self.assertEqual(type(res), dict)
         self.assertEqual(bool(res["images"]), False)
 
@@ -163,7 +165,7 @@ class MyTestCase(unittest.TestCase):
             "properties": {}
         }
         self.httpRequestMock.get_json.return_value = data
-        res =main.main_trigger(self.httpRequestMock)
+        res = main.main_trigger(self.httpRequestMock)
         self.assertEqual(type(res), dict)
         self.assertEqual(bool(res["images"]), False)
 
@@ -175,7 +177,7 @@ class MyTestCase(unittest.TestCase):
             "properties": {}
         }
         self.httpRequestMock.get_json.return_value = data
-        res =main.main_trigger(self.httpRequestMock)
+        res = main.main_trigger(self.httpRequestMock)
         for keyword in res["images"]:
             x = len(res["images"][keyword])
             y = data["maxImages"][data["keywords"].index(keyword)]
@@ -189,7 +191,7 @@ class MyTestCase(unittest.TestCase):
             "properties": {}
         }
         self.httpRequestMock.get_json.return_value = data
-        res =main.main_trigger(self.httpRequestMock)
+        res = main.main_trigger(self.httpRequestMock)
         for keyword in res["images"]:
             x = len(res["images"][keyword])
             y = data["maxImages"][data["keywords"].index(keyword)]
