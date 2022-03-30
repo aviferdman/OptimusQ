@@ -4,6 +4,8 @@ from io import BytesIO
 # from cStringIO import StringIO
 from webdriver_manager.chrome import ChromeDriverManager
 
+# Component responsible for saving a screenshot of the landing page
+
 verbose = 1
 
 browser = webdriver.Chrome(ChromeDriverManager().install())

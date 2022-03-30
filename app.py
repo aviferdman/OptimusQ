@@ -1,48 +1,54 @@
-from flask import Flask, render_template, request, flash, abort, Markup
+# This file is responsible for the UI.
+# It is directly linked to any change we make in the business layer.
+# That is, we can conveniently send a URL and see if what we expected to receive was received.
 
-# import recoSystem
-from ScanningService import recoSystem
+# 'Flask' is a library of web applications written in Python.
+
+from flask import Flask, render_template, request, flash, Markup
 from PresentationService.main import main_trigger
 
-# from recoSystem import RecoSystem
+
 
 app = Flask(__name__)
-
 app.secret_key = "manbearpig_MUDMAN888"
 
 
 @app.route("/")
 def hello():
-    # return "Hello, World!"
+    """
+    purpose: Displays on the screen the home page where the user can enter a URL
+    :param : None
+    :return: HTML page
+    """
     return render_template("index.html")
 
 
 @app.route("/extract_data", methods=['POST', 'GET'])
 def extract_keywords_from_landing_page():
+    """
+    purpose: Displays on-screen the information extracted from the entered URL
+    :param : None
+    :return: HTML page
+    """
+    # receive URL and check if valid
     url = str(request.form['url'])
     if url == "":
         flash("Please enter a valid url")
         return render_template("index.html")
-    result = main_trigger(url)
-    if result["title"] == "cant open the url":
-        flash("Cannot open url")
+    result = main_trigger(url)                               # Contains a dictionary with all the information extracted
+    if result["title"] == "can't open the url":
+        flash("can't open url")
         return render_template("index.html")
-    # reco = recoSystem.RecoSystem()
-    # result = reco.scrap_page(url)
     if not result:
-        flash("Can't extract the data from this url... working on it:)")
+        flash("can't extract the data from this url... working on it:)")
         return render_template("index.html")
     images = result["images"]
     list_of_images = []
-    # for k in result["keywords"]:
-    #     if images[k]:
-    #      list_of_images.append(images[k][0])
     for k in images.keys():
         if images[k]:
             list_of_images.append(images[k][0])
 
-    # if len(result) == 0:
-    #     return func.HttpResponse("Can't extract the data from this url... working on it:)")
+    # Text created that will be displayed on the screen after extracting the information
     res_txt = "<b>Title: </b><br>"
     res_txt += result["title"]
     res_txt += "<br>"
@@ -60,22 +66,5 @@ def extract_keywords_from_landing_page():
     return render_template("index.html", output=list_of_images)
 
 
-# check2
 if __name__ == '__main__':
     app.run()
-    # reco = recoSystem.RecoSystem()
-    # url = "https://finance.yahoo.com/news/meatech-3d-reports-breakthrough-cultured-130000799.htm[…]MeaTech+-+Group+3+-+Wide+-+Mobile+-+8%2F12%2F21&guccounter=1"
-    # result = reco.scrap_page(url)
-    # result = main_trigger(url)
-    # print(result)
-
-# import recoSystem
-# from flask import Flask, render_template, request, flash, abort, Markup
-
-# app = Flask(__name__)
-# app.secret_key = "manbearpig_MUDMAN888"
-
-
-# @app.route("/")
-# def index():
-#     return render_template("index.html")

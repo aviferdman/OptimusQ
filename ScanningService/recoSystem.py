@@ -1,17 +1,12 @@
 import re
-import urllib.request
-
-import requests
 import yake as yake
 from bs4 import BeautifulSoup
 from urllib.request import Request, urlopen
-import json
 
 from ScanningService.response import Response
 
 
 class RecoSystem:
-
 
     def scan_landing_page(self, url):
         """
@@ -33,29 +28,33 @@ class RecoSystem:
 
     def extract_title_from_landing_page(self, url, htmlParse):
         """
-        purpose: extract title from  a landing page.
+        purpose: extract title from a landing page.
         :param url: landing page url
+        :param htmlParse: text of html page
         :return: title
         """
         # opening the url for reading
         res = Response()
         res.set_url(url)
-        # try:
-        #     html = urllib.request.urlopen(url)
-        # except Exception as e:
-        #     res.sign_error(e,True)
-        #     res.set_messege("cant open the url")
-        #     return res
 
         # parsing the html file
+        # find the title tag in the html file. If there is no title tag, error is sending in the response
         title = htmlParse.find('title')
         if title is None:
-           res.sign_error(None,True)
-           res.set_messege("Cannot extract title")
-           return res
+            res.sign_error(None, True)
+            res.set_messege("Can't extract title")
+            return res
         return res.set_title(title.text)
 
     def extract_description_from_landing_page(self, url, htmlParse):
+        """
+        purpose: extract description from a landing page.
+        :param url: landing page url
+        :param htmlParse: text of html page
+        :return: description
+        """
+
+        # searching 'description' tag from 'head' tag
         res = Response()
         res.set_url(url)
         head = htmlParse.find("head")
@@ -65,9 +64,11 @@ class RecoSystem:
                 if str(t).__contains__("content"):
                     description = t.__getitem__("content")
                     break
+
+        # if description not found, return an appropriate message
         if description == "":
             res.sign_error(None, True)
-            res.set_messege("Cannot extract description")
+            res.set_messege("can't extract description")
             return res
         else:
             return res.set_description(description)
@@ -76,18 +77,20 @@ class RecoSystem:
         """
         purpose: extract keywords from  a landing page.
         :param url: landing page url
-        :return: list of keywords
+        :param htmlParse: text of html page
+        :return: if 'keywords' tag found in the html page, return it. else, return list of keywords based on our algorithm
         """
         response = Response()
         response.set_url(url)
 
+        # search for 'title' tag in order to use it in the algorithm, to extract keywords.
         title = htmlParse.find("title")
         if title is None:
             response.sign_error(None, True)
-            response.set_messege("Cannot extract keywords")
+            response.set_messege("can't extract keywords")
             return response
-            # return ["Exception: Cannot Access url"]
 
+        # some html files contains keywords, which are relevant for us
         head = htmlParse.find("head")
         str_of_keywords = ""
         for t in head:
@@ -98,23 +101,26 @@ class RecoSystem:
 
         if str_of_keywords != "":
             res = str_of_keywords.split(',')
-            # if len(res) < 5:
-            #     return response.set_keywords(res)
             return response.set_keywords(res)
 
-        # checks if str in part of a title or a header
+        # ***if we didn't find 'keywords' tag , continue to our algorithm***
+        # The main idea is to calculate of the score for each keyword,
+        # that will be determined according to the frequency of the word appearing on the landing page
+        # and will also be given extra points if the word appears in the title or one of the headers.
 
-        def check_if_in_title(title, str):
-            if str in title:
+        # find the title and headers on the page,
+        # and each word that appears on the page is given a higher score, if it appears in at least one of them.
+        def check_if_in_title(titleToCheck, string):
+            if string in titleToCheck:
                 return True
             return False
 
-        def check_if_in_header(htmlParse, h_i, str):
-            headers = htmlParse.find_all(h_i)
+        def check_if_in_header(htmlParser, h_i, string):
+            headers = htmlParser.find_all(h_i)
             if (type(headers) == type(None)) or (len(headers) == 0):
                 return False
-            for t in headers:
-                if str.lower() in t.text.lower():
+            for h in headers:
+                if string.lower() in h.text.lower():
                     return True
             return False
 
@@ -126,11 +132,11 @@ class RecoSystem:
         for p in paragraph_tags:
             paragraphs += str(p.text).lower()
 
+        # check for a valid paragraph. if not valid - uses title as a paragraph.
         if len(paragraphs) <= 5 or re.search('[a-zA-Z]', paragraphs) is None:
             paragraphs = title.text
-            print("hay!")
-            # return response.set_keywords([title.text])
 
+        # 'yake' properties
         language = "en"
         max_ngram_size = 2
         deduplication_threshold = 0.9
@@ -139,6 +145,8 @@ class RecoSystem:
                                                     top=numOfKeywords, features=None)
         keywords = custom_kw_extractor.extract_keywords(paragraphs)
         res_list = []
+
+        # the algorithm core
         for kw in keywords:
             new_score = kw[1]
             if check_if_in_title(title.text.lower(), str(kw[0]).lower()):
@@ -149,8 +157,8 @@ class RecoSystem:
             new_tuple = (kw[0], new_score)
             res_list.append(new_tuple)
 
-        def key_func(tuple):
-            return tuple[1]
+        def key_func(tupleKey):
+            return tupleKey[1]
 
         res_list.sort(key=key_func)
         res = []
@@ -160,14 +168,21 @@ class RecoSystem:
         return response.set_keywords(res)
 
     def scrap_page(self, url):
+        """
+        purpose: receive URL, check if valid and returns extracted info: title, description, keywords.
+        :param url: landing page url
+        :return: dictionary with title, description and list of keywords
+        """
         if url is None or url == "":
             return {"title": "",
                     "description": "",
                     "keywords": []}
         htmlParse, e = self.scan_landing_page(url)
+
+        # if URL not valid, returns an appropriate message
         if htmlParse is None:
-            return {"title": "cant open the url",
-                    "description": "cant open the url",
+            return {"title": "can't open the url",
+                    "description": "can't open the url",
                     "keywords": []}
         response = self.extract_title_from_landing_page(url, htmlParse)
         if response.is_error():
