@@ -17,6 +17,9 @@ Contains the following:
 - response: Class for handling errors and returning appropriate messages to the user
 - screenshot: Class for taking screenshot by the computer. Needs for the mission of scrap images and videos from a landing page
 
+## Facebook Service
+Responsible for connecting to FB and publish campaigns
+
 ## Image Service
 Responsible for recommending the photos after scanning the page.
 
