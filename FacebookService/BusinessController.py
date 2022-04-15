@@ -7,6 +7,48 @@ class BusinessController:
         self.id = id
         self.businesses = {}  # key: business id. value: business
 
+    # You cannot remove ad accounts from your business if you're OWNER and if the accounts are CONFIRMED.
+    # If you have a PENDING access request or you have AGENCY access to the ad account, you can make this DELETE call
+    def delete_ad_account(self, access_token, business_id, ad_account_id):
+        if business_id not in self.businesses.keys():
+            response = Response(False, "business id not found",
+                                -1, "")
+            return response
+        business = self.businesses[business_id]
+        return business.delete_ad_account(access_token, business_id, ad_account_id)
+
+    def delete_campaign(self, access_token, business_id, ad_account_id, campaign_id):
+        if business_id not in self.businesses.keys():
+            response = Response(False, "business id not found",
+                                -1, "")
+            return response
+        business = self.businesses[business_id]
+        return business.delete_campaign(access_token, ad_account_id, campaign_id)
+
+    def delete_adSet(self, access_token, business_id, ad_account_id, campaign_id, adSet_id):
+        if business_id not in self.businesses.keys():
+            response = Response(False, "business id not found",
+                                -1, "")
+            return response
+        business = self.businesses[business_id]
+        return business.delete_adSet(access_token, ad_account_id, campaign_id, adSet_id)
+
+    def delete_ad_creative(self, access_token, business_id, ad_account_id, ad_creative_id):
+        if business_id not in self.businesses.keys():
+            response = Response(False, "business id not found",
+                                -1, "")
+            return response
+        business = self.businesses[business_id]
+        return business.delete_ad_creative(access_token, ad_account_id, ad_creative_id)
+
+    def delete_ad(self, access_token, business_id, ad_account_id, campaign_id, adSet_id, ad_id):
+        if business_id not in self.businesses.keys():
+            response = Response(False, "business id not found",
+                                -1, "")
+            return response
+        business = self.businesses[business_id]
+        return business.delete_ad(access_token, ad_account_id, campaign_id, adSet_id, ad_id)
+
     def create_ad_account(self, business_id, account_name, access_token, currency, timezone_id,
                           end_advertiser='NONE', media_agency='NONE', partner='NONE'):
         if business_id not in self.businesses.keys():
