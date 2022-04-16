@@ -19,6 +19,7 @@ class Business:
         else:
             return Response(False, res.text, res.status_code, "")
 
+    # returns ok Response if succeed
     def delete_campaign(self, access_token, ad_account_id, campaign_id):
         if ad_account_id not in self.adAccounts.keys():
             response = Response(False, "ad account id not found", -1, "")
@@ -26,6 +27,7 @@ class Business:
         ad_account = self.adAccounts[ad_account_id]
         return ad_account.delete_campaign(self, access_token, campaign_id)
 
+    # returns ok Response if succeed
     def delete_adSet(self, access_token, ad_account_id, campaign_id, adSet_id):
         if ad_account_id not in self.adAccounts.keys():
             response = Response(False, "ad account id not found", -1, "")
@@ -33,6 +35,7 @@ class Business:
         ad_account = self.adAccounts[ad_account_id]
         return ad_account.delete_adSet(self, access_token, campaign_id, adSet_id)
 
+    # returns ok Response if succeed
     def delete_ad_creative(self, access_token, ad_account_id, ad_creative_id):
         if ad_account_id not in self.adAccounts.keys():
             response = Response(False, "ad account id not found", -1, "")
@@ -40,6 +43,7 @@ class Business:
         ad_account = self.adAccounts[ad_account_id]
         return ad_account.delete_ad_creative(self, access_token, ad_creative_id)
 
+    # returns ok Response if succeed
     def delete_ad(self, access_token, ad_account_id, campaign_id, adSet_id, ad_id):
         if ad_account_id not in self.adAccounts.keys():
             response = Response(False, "ad account id not found", -1, "")
