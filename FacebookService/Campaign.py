@@ -11,6 +11,26 @@ class Campaign:
         self.campaign_statistics = {}  # key: statistics id. value: campaign statistics
         self.ad_sets = {}   # key: ad set id. value: ad set
 
+    def delete_adSet(self, access_token, adSet_id):
+        if adSet_id not in self.ad_sets.keys():
+            return Response(False, "ad set id not found", -1, "")
+        res = MarketingManagement.delete_adSet(access_token, adSet_id)
+        if res.status_code == 200:
+            self.ad_sets.pop(adSet_id)
+            return Response(True, "", res.status_code, res.text)
+        else:
+            return Response(False, res.text, res.status_code, "")
+
+    def delete_ad(self, access_token, adSet_id, ad_id):
+        if adSet_id not in self.ad_sets.keys():
+            return Response(False, "ad set id not found", -1, "")
+        res = MarketingManagement.delete_ad(access_token, ad_id)
+        if res.status_code == 200:
+            self.ad_sets[adSet_id].ads.pop(ad_id)
+            return Response(True, "", res.status_code, res.text)
+        else:
+            return Response(False, res.text, res.status_code, "")
+
     # creates a new ad set
     def create_new_ad_set(self, AD_ACCOUNT_ID, ad_set_name, access_token, campaign_id, optimization_goal,
                           billing_event, bid_amount, daily_budget,

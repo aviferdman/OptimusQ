@@ -35,7 +35,6 @@ def create_ad_account(business_id, account_name, access_token, currency, timezon
     return requests.post(url, data=payload, headers={})
 
 
-
 # get ad account by id
 def get_ad_account_by_id(ad_account_id, access_token):
     fields = 'fields=account_id,name,account_status,amount_spent,currency,owner,timezone_name,campaigns{id,name}'
@@ -43,7 +42,7 @@ def get_ad_account_by_id(ad_account_id, access_token):
         'access_token': access_token
     }
     return requests.get('https://graph.facebook.com/v13.0/act_' + ad_account_id + '/?' +
-                       fields, params)
+                        fields, params)
 
 
 # returns all ad accounts belongs to business_id
@@ -73,7 +72,7 @@ def get_campaign_by_id(access_token, campaign_id):
         'access_token': access_token
     }
     return requests.get('https://graph.facebook.com/v13.0/' + campaign_id + '/?' +
-                       fields, params)
+                        fields, params)
 
 
 # returns all campaign belongs to AD_ACCOUNT_ID
@@ -175,6 +174,7 @@ def create_carousel_ad(name, access_token, image_hash):
                }
     return requests.post(url, data=payload, headers={})
 
+
 # creates a new ad
 def create_ad(access_token, AD_ACCOUNT_ID, name, adset_id, creative_id, status):
     url = 'https://graph.facebook.com/v13.0/act_' + AD_ACCOUNT_ID + '/ads'
@@ -182,11 +182,49 @@ def create_ad(access_token, AD_ACCOUNT_ID, name, adset_id, creative_id, status):
                'adset_id': adset_id,
                'creative': {
                    "creative_id": creative_id
-                },
+               },
                "status": status,
                "access_token": access_token
                }
     return requests.post(url, data=payload, headers={})
+
+
+# You cannot remove ad accounts from your business if you're OWNER and if the accounts are CONFIRMED.
+# If you have a PENDING access request or you have AGENCY access to the ad account, you can make this DELETE call
+def delete_ad_account(access_token, business_id, ad_account_id):
+    url = 'https://graph.facebook.com/v13.0/' + business_id + '/ad_accounts'
+    payload = {'adaccount_id': ad_account_id,
+               "access_token": access_token
+               }
+    return requests.delete(url, data=payload, headers={})
+
+
+# returns: success: bool
+def delete_campaign(access_token, campaign_id):
+    url = 'https://graph.facebook.com/v13.0/' + campaign_id
+    payload = {"access_token": access_token}
+    return requests.delete(url, data=payload, headers={})
+
+
+# returns: success: bool
+def delete_adSet(access_token, adSet_id):
+    url = 'https://graph.facebook.com/v13.0/' + adSet_id
+    payload = {"access_token": access_token}
+    return requests.delete(url, data=payload, headers={})
+
+
+# returns: success: bool
+def delete_ad_creative(access_token, ad_creative_id):
+    url = 'https://graph.facebook.com/v13.0/' + ad_creative_id
+    payload = {"access_token": access_token}
+    return requests.delete(url, data=payload, headers={})
+
+
+# returns: success: bool
+def delete_ad(access_token, ad_id):
+    url = 'https://graph.facebook.com/v13.0/' + ad_id
+    payload = {"access_token": access_token}
+    return requests.delete(url, data=payload, headers={})
 
 
 # get statistics by campaign id

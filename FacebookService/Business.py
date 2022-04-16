@@ -10,6 +10,43 @@ class Business:
         self.id = id
         self.adAccounts = {}  # key: ad account id. value: ad account
 
+    # returns ok Response if succeed
+    def delete_ad_account(self, access_token, business_id, ad_account_id):
+        res = MarketingManagement.delete_ad_account(access_token, business_id, ad_account_id)
+        if res.status_code == 200:
+            self.adAccounts.pop(ad_account_id) # todo: change to ad account id
+            return Response(True, "", res.status_code, res.text)
+        else:
+            return Response(False, res.text, res.status_code, "")
+
+    def delete_campaign(self, access_token, ad_account_id, campaign_id):
+        if ad_account_id not in self.adAccounts.keys():
+            response = Response(False, "ad account id not found", -1, "")
+            return response
+        ad_account = self.adAccounts[ad_account_id]
+        return ad_account.delete_campaign(self, access_token, campaign_id)
+
+    def delete_adSet(self, access_token, ad_account_id, campaign_id, adSet_id):
+        if ad_account_id not in self.adAccounts.keys():
+            response = Response(False, "ad account id not found", -1, "")
+            return response
+        ad_account = self.adAccounts[ad_account_id]
+        return ad_account.delete_adSet(self, access_token, campaign_id, adSet_id)
+
+    def delete_ad_creative(self, access_token, ad_account_id, ad_creative_id):
+        if ad_account_id not in self.adAccounts.keys():
+            response = Response(False, "ad account id not found", -1, "")
+            return response
+        ad_account = self.adAccounts[ad_account_id]
+        return ad_account.delete_ad_creative(self, access_token, ad_creative_id)
+
+    def delete_ad(self, access_token, ad_account_id, campaign_id, adSet_id, ad_id):
+        if ad_account_id not in self.adAccounts.keys():
+            response = Response(False, "ad account id not found", -1, "")
+            return response
+        ad_account = self.adAccounts[ad_account_id]
+        return ad_account.delete_ad(self, access_token, campaign_id, adSet_id, ad_id)
+
     def create_ad_account(self, account_name, access_token, currency, timezone_id,
                                    end_advertiser, media_agency, partner):
         res = MarketingManagement.create_ad_account(self.id, account_name, access_token, currency, timezone_id,
@@ -31,8 +68,7 @@ class Business:
     def create_new_campaign(self, ad_account_id, access_token, campaign_name, objective,
                             status, special_ad_categories):
         if ad_account_id not in self.adAccounts.keys():
-            response = Response(False, "ad account id not found",
-                                -1, "")
+            response = Response(False, "ad account id not found",-1, "")
             return response
         ad_account = self.adAccounts[ad_account_id]
         return ad_account.create_new_campaign(self, access_token, campaign_name, objective,
