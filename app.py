@@ -20,7 +20,7 @@ def hello():
     :param : None
     :return: HTML page
     """
-    return render_template("main_index.html")
+    return render_template("index.html")
 
 @app.route("/fb")
 def fb_index():
