@@ -22,6 +22,15 @@ def hello():
     """
     return render_template("index.html")
 
+@app.route("/fb")
+def fb_index():
+    """
+    purpose: Displays on the screen the home page where the user can enter a URL
+    :param : None
+    :return: HTML page
+    """
+    return render_template("index.html")
+
 
 @app.route("/extract_data", methods=['POST', 'GET'])
 def extract_keywords_from_landing_page():
