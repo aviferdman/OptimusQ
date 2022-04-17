@@ -20,7 +20,7 @@ def hello():
     :param : None
     :return: HTML page
     """
-    return render_template("main_index.html")
+    return render_template("extract_kw.html")
 
 @app.route("/fb")
 def fb_index():
@@ -29,7 +29,7 @@ def fb_index():
     :param : None
     :return: HTML page
     """
-    return render_template("fb_index.html")
+    return render_template("extract_kw.html")
 
 @app.route("/extract_kw")
 def extract_kw():
