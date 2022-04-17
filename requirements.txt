@@ -4,3 +4,4 @@ yake
 yake-github
 flask
 requests
+azure-functions
