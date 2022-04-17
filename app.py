@@ -81,7 +81,7 @@ def extract_keywords_from_landing_page():
         res_txt += kw + "<br>"
     res_txt += "<br><b>Recommended Images:</b>"
     flash(Markup(res_txt))
-    return render_template("main_index.html", output=list_of_images)
+    return render_template("extract_kw.html", output=list_of_images)
 
 
 if __name__ == '__main__':
