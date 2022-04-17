@@ -20,7 +20,7 @@ def hello():
     :param : None
     :return: HTML page
     """
-    return render_template("extract_kw.html")
+    return render_template("main_index.html")
 
 @app.route("/fb")
 def fb_index():
@@ -29,7 +29,7 @@ def fb_index():
     :param : None
     :return: HTML page
     """
-    return render_template("extract_kw.html")
+    return render_template("fb_index.html")
 
 @app.route("/extract_kw")
 def extract_kw():
@@ -81,7 +81,7 @@ def extract_keywords_from_landing_page():
         res_txt += kw + "<br>"
     res_txt += "<br><b>Recommended Images:</b>"
     flash(Markup(res_txt))
-    return render_template("extract_kw.html", output=list_of_images)
+    return render_template("main_index.html", output=list_of_images)
 
 
 if __name__ == '__main__':
