@@ -20,7 +20,7 @@ def hello():
     :param : None
     :return: HTML page
     """
-    return render_template("index.html")
+    return render_template("main_index.html")
 
 @app.route("/fb")
 def fb_index():
@@ -29,7 +29,16 @@ def fb_index():
     :param : None
     :return: HTML page
     """
-    return render_template("index.html")
+    return render_template("fb_index.html")
+
+@app.route("/extract_kw")
+def extract_kw():
+    """
+    purpose: Displays on the screen the home page where the user can enter a URL
+    :param : None
+    :return: HTML page
+    """
+    return render_template("extract_kw.html")
 
 
 @app.route("/extract_data", methods=['POST', 'GET'])
@@ -43,14 +52,14 @@ def extract_keywords_from_landing_page():
     url = str(request.form['url'])
     if url == "":
         flash("Please enter a valid url")
-        return render_template("index.html")
+        return render_template("main_index.html")
     result = main_trigger(url)                               # Contains a dictionary with all the information extracted
     if result["title"] == "can't open the url":
         flash("can't open url")
-        return render_template("index.html")
+        return render_template("main_index.html")
     if not result:
         flash("can't extract the data from this url... working on it:)")
-        return render_template("index.html")
+        return render_template("main_index.html")
     images = result["images"]
     list_of_images = []
     for k in images.keys():
@@ -72,7 +81,7 @@ def extract_keywords_from_landing_page():
         res_txt += kw + "<br>"
     res_txt += "<br><b>Recommended Images:</b>"
     flash(Markup(res_txt))
-    return render_template("index.html", output=list_of_images)
+    return render_template("extract_kw.html", output=list_of_images)
 
 
 if __name__ == '__main__':

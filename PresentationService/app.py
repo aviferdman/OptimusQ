@@ -14,7 +14,7 @@ app.secret_key = "manbearpig_MUDMAN888"
 @app.route("/")
 def hello():
     # return "Hello, World!"
-    return render_template("index.html")
+    return render_template("main_index.html")
 
 
 @app.route("/extract_data", methods=['POST', 'GET'])
@@ -22,16 +22,16 @@ def extract_keywords_from_landing_page():
     url = str(request.form['url'])
     if url == "":
         flash("Please enter a valid url")
-        return render_template("index.html")
+        return render_template("main_index.html")
     result = main_trigger(url)
     if result["title"] == "cant open the url":
         flash("Cannot open url")
-        return render_template("index.html")
+        return render_template("main_index.html")
     # reco = recoSystem.RecoSystem()
     # result = reco.scrap_page(url)
     if not result:
         flash("Can't extract the data from this url... working on it:)")
-        return render_template("index.html")
+        return render_template("main_index.html")
     images = result["images"]
     list_of_images = []
     # for k in result["keywords"]:
@@ -57,7 +57,7 @@ def extract_keywords_from_landing_page():
         res_txt += kw + "<br>"
     res_txt += "<br><b>Recommended Images:</b>"
     flash(Markup(res_txt))
-    return render_template("index.html", output=list_of_images)
+    return render_template("main_index.html", output=list_of_images)
 
 
 # check2
@@ -78,4 +78,4 @@ if __name__ == '__main__':
 
 # @app.route("/")
 # def index():
-#     return render_template("index.html")
+#     return render_template("main_index.html")
