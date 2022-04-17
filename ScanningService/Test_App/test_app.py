@@ -12,7 +12,7 @@ app.secret_key = "manbearpig_MUDMAN888"
 @app.route("/")
 def hello():
     # return "Hello, World!"
-    return render_template("index.html")
+    return render_template("main_index.html")
 
 @app.route("/extract_data", methods=['POST', 'GET'])
 def extract_keywords_from_landing_page():
@@ -21,7 +21,7 @@ def extract_keywords_from_landing_page():
     result = reco.scrap_page(url)
     if not result:
         flash("Can't extract the data from this url... working on it:)")
-        return render_template("index.html")
+        return render_template("main_index.html")
     res_txt = "<b>Title: </b><br>"
     res_txt += result["title"]
     res_txt += "<br>"
@@ -31,7 +31,7 @@ def extract_keywords_from_landing_page():
     for kw in result["keywords"]:
         res_txt += kw + "<br>"
     flash(Markup(res_txt))
-    return render_template("index.html" ) #, output=list_of_images)
+    return render_template("main_index.html" ) #, output=list_of_images)
 
 
 # check2
@@ -53,4 +53,4 @@ if __name__ == '__main__':
 
 # @app.route("/")
 # def index():
-#     return render_template("index.html")
+#     return render_template("main_index.html")
