@@ -15,14 +15,14 @@
       const access_token = FB.getAuthResponse()['accessToken'];
       console.log('Access Token = '+ access_token);
       // **newly added**
-      let data = {access_token: access_token};
+      let data = {"access_token": access_token};
       let xhr = new XMLHttpRequest();
-      xhr.open("POST", "fb_logged_in.html");
-      xhr.onreadystatechange = function() { 
-        if (xhr.readyState === 4 && xhr.status === 200) { 
-          console.log(xhr.responseText); 
-        }
-      }
+      xhr.open("POST", "fb_logged_in");
+      // xhr.onreadystatechange = function() { 
+      //   if (xhr.readyState === 4 && xhr.status === 200) { 
+      //     console.log(xhr.responseText); 
+      //   }
+      // }
       xhr.setRequestHeader("Content-type", "application/json") // or "text/plain"
       xhr.send(JSON.stringify(data));
 
