@@ -65,7 +65,8 @@ def fb_logged_in():
     res_dict = {
         "redirect": "/fb_login_handler"
     }
-    return jsonify(res_dict)
+    # return jsonify(res_dict)
+    return "/fb_login_handler"
 
 
 @app.route("/extract_data", methods=['POST', 'GET'])
