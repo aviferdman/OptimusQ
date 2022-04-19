@@ -36,7 +36,7 @@
             httpRequest.onreadystatechange = function () {
                 if (httpRequest.readyState === 4) { // request is done
                     if (httpRequest.status === 200) { // successfully
-                        callback(httpRequest.response); // we're calling our method
+                        callback(httpRequest); // we're calling our method
                     }
                 }
                 };
@@ -46,8 +46,9 @@
     }
 
     foo(function (result) {
-        console.log("**result: " + result);
-        console.log("**result[redirect]: " + result["redirect"]);
+        console.log("**result: " + result.response);
+        console.log("**result type: " + result.responseType);
+        console.log("**result[redirect]: " + result.response["redirect"]);
         // window.location.href = result.redirect;
     }, data);
 
