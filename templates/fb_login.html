@@ -14,12 +14,20 @@
       testAPI();
       const access_token = FB.getAuthResponse()['accessToken'];
       console.log('Access Token = '+ access_token);
+
+
       // **newly added**
-      // {#let data = {"access_token": access_token};#}
-      // {#let xhr = new XMLHttpRequest();#}
-      // {#xhr.open("POST", "fb_logged_in");#}
-      // {#xhr.setRequestHeader("Content-type", "application/json") // or "text/plain"#}
-      // {#xhr.send(JSON.stringify(data));#}
+      let data = {"access_token": access_token};
+      let xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            console.log("server returned response: " + response);
+            window.location.href = response.redirect;
+        }
+      };
+      xhr.open("POST", "fb_logged_in");
+      xhr.setRequestHeader("Content-type", "application/json") // or "text/plain"
+      xhr.send(JSON.stringify(data));
 
       // let xhr = new XMLHttpRequest();
       // xhr.open(form.method, form.action, true);
@@ -29,19 +37,19 @@
       // xhr.send(JSON.stringify(data));
 
 
-        $.ajax({
-            type: "POST",
-            url: "fb_logged_in",
-            data: JSON.stringify(access_token),
-            contentType : "application/json",
-            success: function(response) {
-                console.log("server returned response: " + response);
-                 window.location.href = response.redirect;
-            },
-            error: function(error) {
-                console.log(error);
-            }
-        });
+        // $.ajax({
+        //     type: "POST",
+        //     url: "fb_logged_in",
+        //     data: JSON.stringify(access_token),
+        //     contentType : "application/json",
+        //     success: function(response) {
+        //         console.log("server returned response: " + response);
+        //          window.location.href = response.redirect;
+        //     },
+        //     error: function(error) {
+        //         console.log(error);
+        //     }
+        // });
 
 
 
