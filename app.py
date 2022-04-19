@@ -48,6 +48,13 @@ def extract_kw():
     return render_template("extract_kw.html")
 
 
+@app.route("/fb_logged_in", methods=['POST', 'GET'])
+def fb_logged_in():
+    # addrss = request.args.get('url')
+    addrss = request.get_json()
+    return render_template("fb_logged_in.html")
+
+
 @app.route("/extract_data", methods=['POST', 'GET'])
 def extract_keywords_from_landing_page():
     """
