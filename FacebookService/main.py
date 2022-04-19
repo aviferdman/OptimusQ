@@ -19,7 +19,7 @@ import MarketingManagement
 
 
 res = MarketingManagement.create_new_campaign('1394987677611796',
-                                             'EAAEt1383MgMBAMC7VajQMkfUj57KOtIQpx9H8vbdRvHU9yEKom7amcedmuQrj6aytcv1rQE0zL3bll2jeRfO4rgZB8cIc2gZCv0Q1cSsjnqVhtUjliswyD1dtej1ZBk5h1YSXbcqYh1YSRiN9aYpi1BPEe5rvx6I8zQJOr0NlNm0hLQRjypOn5YQMju2iInyVO5xz6m0L1VXyRvNJGT4veFY9jp5SoZBPMCzIjZAlNc5sHK78XMuh',
-                                              'camp 10.4', "PAGE_LIKES", 'PAUSED', "[]")
+                                             'EAAEt1383MgMBAMlyYiZCCurOfgUmB0ZBPDjODZCNBQfEgsk2UK68mHsm0gL1JHHUWSjT3BL6vpcw8r0Fnl84VeD9yzxpE9iTOJFxAA9YZCmCxEpXTBKie5iz8y3ZC7CvZCzVZBKDvzph40znwHe6GGN55dMz8FeyphkMA98SEztdnlwCLU4z06DUdc5nTDfuQOpax45pK0TxIp8ZA6MgdQyg',
+                                              'camp 19.4', "PAGE_LIKES", 'PAUSED', "[]")
 
 print('hi')

@@ -12,8 +12,30 @@
     console.log(response);                   // The current login status of the person.
     if (response.status === 'connected') {   // Logged into your webpage and Facebook.
       testAPI();
-        const access_token = FB.getAuthResponse()['accessToken'];
-        console.log('Access Token = '+ access_token);
+      const access_token = FB.getAuthResponse()['accessToken'];
+      console.log('Access Token = '+ access_token);
+      // **newly added**
+      let data = {access_token: access_token};
+      let xhr = new XMLHttpRequest();
+      xhr.open("POST", "fb_logged_in.html");
+      xhr.onreadystatechange = function() { 
+        if (xhr.readyState === 4 && xhr.status === 200) { 
+          console.log(xhr.responseText); 
+        }
+      }
+      xhr.setRequestHeader("Content-type", "application/json") // or "text/plain"
+      xhr.send(JSON.stringify(data));
+
+
+      // let xhr = new XMLHttpRequest();
+      // xhr.open(form.method, form.action, true);
+      // xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+
+      // // send the collected data as JSON
+      // xhr.send(JSON.stringify(data));
+
+      // **
+
     } else {                                 // Not logged into your webpage or we are unable to tell.
       document.getElementById('status').innerHTML = 'Please log ' +
         'into this webpage.';
@@ -57,8 +79,13 @@
 
 <!-- The JS SDK Login Button -->
 
-<fb:login-button scope="public_profile,email,ads_management,ads_read,business_management" onlogin="checkLoginState();">
+
+<fb:login-button scope="public_profile,email,ads_management,ads_read,business_management" size="large" onlogin="checkLoginState();">
 </fb:login-button>
+
+<!--
+<div class="fb-login-button" scope="public_profile,email,ads_management,ads_read,business_management" data-width="" data-size="medium" data-button-type="continue_with" data-layout="default" data-auto-logout-link="true" data-use-continue-as="false"></div>
+-->
 
 <div id="status">
 </div>
