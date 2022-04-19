@@ -3,10 +3,8 @@
 # That is, we can conveniently send a URL and see if what we expected to receive was received.
 
 # 'Flask' is a library of web applications written in Python.
-
 from flask import Flask, render_template, request, flash, Markup
 from PresentationService.main import main_trigger
-
 
 
 app = Flask(__name__)
@@ -21,6 +19,15 @@ def hello():
     :return: HTML page
     """
     return render_template("main_index.html")
+
+@app.route("/fb_login")
+def fb_login():
+    """
+    purpose: Displays on the screen the home page where the user can enter a URL
+    :param : None
+    :return: HTML page
+    """
+    return render_template("fb_login.html")
 
 @app.route("/fb")
 def fb_index():
