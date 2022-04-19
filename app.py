@@ -6,7 +6,6 @@
 from flask import Flask, render_template, request, flash, Markup, jsonify
 from PresentationService.main import main_trigger
 
-
 app = Flask(__name__)
 app.secret_key = "manbearpig_MUDMAN888"
 
@@ -20,6 +19,7 @@ def hello():
     """
     return render_template("main_index.html")
 
+
 @app.route("/fb_login")
 def fb_login():
     """
@@ -28,6 +28,7 @@ def fb_login():
     :return: HTML page
     """
     return render_template("fb_login.html")
+
 
 @app.route("/fb")
 def fb_index():
@@ -38,6 +39,7 @@ def fb_index():
     """
     return render_template("fb_index.html")
 
+
 @app.route("/extract_kw")
 def extract_kw():
     """
@@ -47,9 +49,11 @@ def extract_kw():
     """
     return render_template("extract_kw.html")
 
+
 @app.route("/fb_login_handler", methods=['POST', 'GET'])
 def fb_login_handler():
     return render_template("fb_logged_in.html")
+
 
 @app.route("/fb_logged_in", methods=['POST', 'GET'])
 def fb_logged_in():
@@ -58,7 +62,11 @@ def fb_logged_in():
     #     req_json = request.get_json()
     #     print(req_json)
     # return render_template("fb_logged_in.html")
-    return jsonify(dict(redirect="/fb_login_handler"))
+    res_dict = {
+        "redirect": "/fb_login_handler"
+    }
+    return jsonify(res_dict)
+
 
 @app.route("/extract_data", methods=['POST', 'GET'])
 def extract_keywords_from_landing_page():
@@ -72,7 +80,7 @@ def extract_keywords_from_landing_page():
     if url == "":
         flash("Please enter a valid url")
         return render_template("main_index.html")
-    result = main_trigger(url)                               # Contains a dictionary with all the information extracted
+    result = main_trigger(url)  # Contains a dictionary with all the information extracted
     if result["title"] == "can't open the url":
         flash("can't open url")
         return render_template("main_index.html")
