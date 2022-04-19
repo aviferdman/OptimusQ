@@ -35,6 +35,7 @@
             data: JSON.stringify(access_token),
             contentType : "application/json",
             success: function(response) {
+                console.log("server returned response: " + response);
                  window.location.href = response.redirect;
             },
             error: function(error) {
