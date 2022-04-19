@@ -18,16 +18,38 @@
 
       // **newly added**
       let data = {"access_token": access_token};
-      let xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            console.log("server returned response: " + response);
-            // window.location.href = response.redirect;
-        }
-      };
-      xhr.open("POST", "fb_logged_in");
-      xhr.setRequestHeader("Content-type", "application/json") // or "text/plain"
-      xhr.send(JSON.stringify(data));
+      // let xhr = new XMLHttpRequest();
+      //   xhr.onreadystatechange = function() {
+      //   if (this.readyState == 4 && this.status == 200) {
+      //       console.log("server returned response: " + response);
+      //       // window.location.href = response.redirect;
+      //   }
+      // };
+      // xhr.open("POST", "fb_logged_in");
+      // xhr.setRequestHeader("Content-type", "application/json") // or "text/plain"
+      // xhr.send(JSON.stringify(data));
+
+
+
+      function foo(callback, data) {
+            httpRequest = new XMLHttpRequest();
+            httpRequest.onreadystatechange = function () {
+                if (httpRequest.readyState === 4) { // request is done
+                    if (httpRequest.status === 200) { // successfully
+                        callback(httpRequest.responseText); // we're calling our method
+                    }
+                }
+                };
+                httpRequest.open('POST', "fb_logged_in");
+                xhr.setRequestHeader("Content-type", "application/json") // or "text/plain"
+                httpRequest.send(JSON.stringify(data));
+    }
+
+    foo(function (result) {
+        console.log(result)
+    }, data);
+
+      
 
       // let xhr = new XMLHttpRequest();
       // xhr.open(form.method, form.action, true);
