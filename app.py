@@ -47,6 +47,9 @@ def extract_kw():
     """
     return render_template("extract_kw.html")
 
+@app.route("/fb_login_handler", methods=['POST', 'GET'])
+def fb_login_handler():
+    return render_template("fb_logged_in.html")
 
 @app.route("/fb_logged_in", methods=['POST', 'GET'])
 def fb_logged_in():
@@ -55,7 +58,7 @@ def fb_logged_in():
     #     req_json = request.get_json()
     #     print(req_json)
     # return render_template("fb_logged_in.html")
-    return jsonify(dict(redirect="/fb_logged_in"))
+    return jsonify(dict(redirect="fb_login_handler"))
 
 @app.route("/extract_data", methods=['POST', 'GET'])
 def extract_keywords_from_landing_page():
