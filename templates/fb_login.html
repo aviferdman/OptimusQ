@@ -47,9 +47,7 @@
 
     foo(function (result) {
         console.log("**result: " + result.response);
-        console.log("**result type: " + result.responseType);
-        console.log("**result[redirect]: " + result.response["redirect"]);
-        // window.location.href = result.redirect;
+        window.location.href = result.response;
     }, data);
 
       
