@@ -3,7 +3,7 @@
 # That is, we can conveniently send a URL and see if what we expected to receive was received.
 
 # 'Flask' is a library of web applications written in Python.
-from flask import Flask, render_template, request, flash, Markup
+from flask import Flask, render_template, request, flash, Markup, jsonify
 from PresentationService.main import main_trigger
 
 
@@ -54,8 +54,8 @@ def fb_logged_in():
     # if request is not None:
     #     req_json = request.get_json()
     #     print(req_json)
-    return render_template("fb_logged_in.html")
-
+    # return render_template("fb_logged_in.html")
+    return jsonify(dict(redirect="fb_logged_in"))
 
 @app.route("/extract_data", methods=['POST', 'GET'])
 def extract_keywords_from_landing_page():
