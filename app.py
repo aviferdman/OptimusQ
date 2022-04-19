@@ -55,7 +55,7 @@ def fb_logged_in():
     #     req_json = request.get_json()
     #     print(req_json)
     # return render_template("fb_logged_in.html")
-    return jsonify(dict(redirect="fb_logged_in.html"))
+    return jsonify(dict(redirect="fb_logged_in"))
 
 @app.route("/extract_data", methods=['POST', 'GET'])
 def extract_keywords_from_landing_page():
