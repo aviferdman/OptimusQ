@@ -51,7 +51,9 @@ def extract_kw():
 @app.route("/fb_logged_in", methods=['POST', 'GET'])
 def fb_logged_in():
     # addrss = request.args.get('url')
-    addrss = request.get_json()
+    if request is not None:
+        addrss = request.get_json()
+
     return render_template("fb_logged_in.html")
 
 
