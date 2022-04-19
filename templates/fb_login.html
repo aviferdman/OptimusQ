@@ -41,7 +41,7 @@
                 }
                 };
                 httpRequest.open('POST', "fb_logged_in");
-                xhr.setRequestHeader("Content-type", "application/json") // or "text/plain"
+                httpRequest.setRequestHeader("Content-type", "application/json") // or "text/plain"
                 httpRequest.send(JSON.stringify(data));
     }
 
