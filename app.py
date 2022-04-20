@@ -6,6 +6,14 @@
 from flask import Flask, render_template, request, flash, Markup, jsonify
 from PresentationService.main import main_trigger
 
+
+# from OpenSSL import SSL
+
+# context = SSL.Context(SSL.TLSv1_2_METHOD)
+# context.use_certificate('csr_file.csr')
+# context.use_privatekey('key_file.key')
+
+
 app = Flask(__name__)
 app.secret_key = "manbearpig_MUDMAN888"
 
@@ -112,5 +120,13 @@ def extract_keywords_from_landing_page():
     return render_template("extract_kw.html", output=list_of_images)
 
 
+# for running in local host with HTTP
+# if __name__ == '__main__':
+#     app.run()
+
+# for running in local host with HTTPS
+# first, create cert.pem and key.pem with the following cmd command:
+# openssl req -x509 -newkey rsa:4096 -nodes -out cert.pem -keyout key.pem -days 365
+# run with cmd command: python app.py
 if __name__ == '__main__':
-    app.run()
+    app.run(ssl_context=('cert.pem', 'key.pem'))
