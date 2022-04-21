@@ -5,7 +5,6 @@
 # 'Flask' is a library of web applications written in Python.
 from flask import Flask, render_template, request, flash, Markup, jsonify
 
-import DataBaseService.main
 from PresentationService.main import main_trigger
 
 app = Flask(__name__)
