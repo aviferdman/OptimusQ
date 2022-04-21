@@ -31,3 +31,10 @@ CREATE TABLE "LandingPageToKeyWord"
 	FOREIGN KEY("LandingPageURL") REFERENCES [dbo].[LandingPage]("URL"),
 	FOREIGN KEY("Keyword") REFERENCES [dbo].[Keywords]("Keyword")
 );
+
+CREATE TABLE "UserAccessTokenByUserId"
+(
+	"UserId" VARCHAR(100),
+	"AccessToken" VARCHAR(400),
+	PRIMARY KEY("UserId")
+);

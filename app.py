@@ -4,6 +4,8 @@
 
 # 'Flask' is a library of web applications written in Python.
 from flask import Flask, render_template, request, flash, Markup, jsonify
+
+import DataBaseService.main
 from PresentationService.main import main_trigger
 
 
@@ -65,15 +67,20 @@ def fb_login_handler():
 
 @app.route("/fb_logged_in", methods=['POST', 'GET'])
 def fb_logged_in():
-    # addrss = request.args.get('url')
-    # if request is not None:
-    #     req_json = request.get_json()
-    #     print(req_json)
-    # return render_template("fb_logged_in.html")
-    res_dict = {
-        "redirect": "/fb_login_handler"
-    }
-    # return jsonify(res_dict)
+    if request.method == "POST":
+        print("POST!!!: ")
+        rq = request.get_json()
+        user_id = rq["user_id"]
+        access_token = rq["access_token"]
+        print("access_token: " + access_token)
+        print("user_id: " + user_id)
+        db = DataBaseService.main.dataBaseController
+        print("deleting from db:")
+        db.deleteAccessTokenByUserId(user_id)
+        print("inserting to db:")
+        db.writeAccessToken2db(user_id, access_token)
+        print("db has tokens:")
+        return db.getAccessTokenByUserId(user_id)
     return "/fb_login_handler"
 
 
