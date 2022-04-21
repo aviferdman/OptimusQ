@@ -32,9 +32,9 @@ CREATE TABLE "LandingPageToKeyWord"
 	FOREIGN KEY("Keyword") REFERENCES [dbo].[Keywords]("Keyword")
 );
 
-CREATE TABLE "UserAccessTokenByUserId"
-(
-	"UserId" VARCHAR(100),
-	"AccessToken" VARCHAR(400),
-	PRIMARY KEY("UserId")
-);
+-- CREATE TABLE "UserAccessTokenByUserId"
+-- (
+-- 	"UserId" VARCHAR(100),
+-- 	"AccessToken" VARCHAR(400),
+-- 	PRIMARY KEY("UserId")
+-- );
