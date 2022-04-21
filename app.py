@@ -7,14 +7,6 @@ from flask import Flask, render_template, request, flash, Markup, jsonify
 
 from PresentationService.main import main_trigger
 
-
-# from OpenSSL import SSL
-
-# context = SSL.Context(SSL.TLSv1_2_METHOD)
-# context.use_certificate('csr_file.csr')
-# context.use_privatekey('key_file.key')
-
-
 app = Flask(__name__)
 app.secret_key = "manbearpig_MUDMAN888"
 
