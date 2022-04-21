@@ -36,140 +36,82 @@ https://www.tooplate.com/view/2128-Tween-Agency
 
     <body>
 
-    <script>
+        <script>
 
-  function statusChangeCallback(response) {  // Called with the results from FB.getLoginStatus().
-    console.log('statusChangeCallback');
-    console.log(response);                   // The current login status of the person.
-    if (response.status === 'connected') {   // Logged into your webpage and Facebook.
-      testAPI();
-    //   const access_token = FB.getAuthResponse()['accessToken'];
-      const access_token = response.authResponse['accessToken'];
-      const user_id = response.authResponse['userID'];
+            function statusChangeCallback(response) {  // Called with the results from FB.getLoginStatus().
+              console.log('statusChangeCallback');
+              console.log(response);                   // The current login status of the person.
+              if (response.status === 'connected') {   // Logged into your webpage and Facebook.
+                testAPI();
+                //const access_token = FB.getAuthResponse()['accessToken'];
+                const access_token = response.authResponse['accessToken'];
+                const user_id = response.authResponse['userID'];
 
+                console.log('Access Token = '+ access_token);
+                console.log('User Id = '+ user_id);
 
-      console.log('Access Token: '+ access_token);
-      console.log('user ID: '+ user_id);
+                // **newly added**
+                let data = {"access_token": access_token, "user_id": user_id};
+                //let data = {"access_token": access_token};
 
-      // **newly added**
-      let data = {"access_token": access_token};
-      // let xhr = new XMLHttpRequest();
-      //   xhr.onreadystatechange = function() {
-      //   if (this.readyState == 4 && this.status == 200) {
-      //       console.log("server returned response: " + response);
-      //       // window.location.href = response.redirect;
-      //   }
-      // };
-      // xhr.open("POST", "fb_logged_in");
-      // xhr.setRequestHeader("Content-type", "application/json") // or "text/plain"
-      // xhr.send(JSON.stringify(data));
-
-
-
-      function foo(callback, data) {
-            httpRequest = new XMLHttpRequest();
-            httpRequest.onreadystatechange = function () {
-                if (httpRequest.readyState === 4) { // request is done
-                    if (httpRequest.status === 200) { // successfully
-                        callback(httpRequest); // we're calling our method
-                    }
-                }
-                };
-                httpRequest.open('POST', "fb_logged_in");
-                httpRequest.setRequestHeader("Content-type", "application/json") // or "text/plain"
-                httpRequest.send(JSON.stringify(data));
-    }
-
-    foo(function (result) {
-        console.log("**result: " + result.response);
-        // window.location.href = result.response;
-    }, data);
-
-
-
-      // let xhr = new XMLHttpRequest();
-      // xhr.open(form.method, form.action, true);
-      // xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-
-      // // send the collected data as JSON
-      // xhr.send(JSON.stringify(data));
-
-
-        // $.ajax({
-        //     type: "POST",
-        //     url: "fb_logged_in",
-        //     data: JSON.stringify(access_token),
-        //     contentType : "application/json",
-        //     success: function(response) {
-        //         console.log("server returned response: " + response);
-        //          window.location.href = response.redirect;
-        //     },
-        //     error: function(error) {
-        //         console.log(error);
-        //     }
-        // });
-
-
-
-      // **
-
-
-
-    } else {                                 // Not logged into your webpage or we are unable to tell.
-      document.getElementById('status').innerHTML = 'Please log ' +
-        'into this webpage.';
-    }
-  }
-
-
-  function checkLoginState() {               // Called when a person is finished with the Login Button.
-    FB.getLoginStatus(function(response) {   // See the onlogin handler
-      statusChangeCallback(response);
-    });
-  }
-
-
-  window.fbAsyncInit = function() {
-    FB.init({
-      appId      : '331878552252931',
-      cookie     : true,                     // Enable cookies to allow the server to access the session.
-      xfbml      : true,                     // Parse social plugins on this webpage.
-      version    : 'v13.0'           // Use this Graph API version for this call.
-    });
-
-
-    FB.getLoginStatus(function(response) {   // Called after the JS SDK has been initialized.
-      statusChangeCallback(response);        // Returns the login status.
-    });
-  };
-
-  function testAPI() {                      // Testing Graph API after login.  See statusChangeCallback() for when this call is made.
-    console.log('Welcome!  Fetching your information.... ');
-    FB.api('/me', function(response) {
-      console.log('Successful login for: ' + response.name);
-      document.getElementById('status').innerHTML =
-        'Thanks for logging in, ' + response.name + '!';
-    });
-  }
-
-
-</script>
-
-
-
-
-<!--
-<div class="fb-login-button" scope="public_profile,email,ads_management,ads_read,business_management" data-width="" data-size="medium" data-button-type="continue_with" data-layout="default" data-auto-logout-link="true" data-use-continue-as="false"></div>
--->
-
-<div id="status">
-</div>
-
-<!-- Load the JS SDK asynchronously -->
-<script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
-
-
-
+          
+                function foo(callback, data) {
+                      httpRequest = new XMLHttpRequest();
+                      httpRequest.onreadystatechange = function () {
+                          if (httpRequest.readyState === 4) { // request is done
+                              if (httpRequest.status === 200) { // successfully
+                                  callback(httpRequest); // we're calling our method
+                              }
+                          }
+                          };
+                          httpRequest.open('POST', "fb_logged_in");
+                          httpRequest.setRequestHeader("Content-type", "application/json") // or "text/plain"
+                          httpRequest.send(JSON.stringify(data));
+              }
+          
+              foo(function (result) {
+                  console.log("**result: " + result.response);
+                //   window.location.href = result.response;
+              }, data);
+          
+            } else {                                 // Not logged into your webpage or we are unable to tell.
+                // document.getElementById('status').innerHTML = 'Please log ' +
+                //   'into this webpage.';
+          
+              }
+            }
+          
+          
+            function checkLoginState() {               // Called when a person is finished with the Login Button.
+              FB.getLoginStatus(function(response) {   // See the onlogin handler
+                statusChangeCallback(response);
+              });
+            }
+          
+          
+            window.fbAsyncInit = function() {
+              FB.init({
+                appId      : '331878552252931',
+                cookie     : true,                     // Enable cookies to allow the server to access the session.
+                xfbml      : true,                     // Parse social plugins on this webpage.
+                version    : 'v13.0'           // Use this Graph API version for this call.
+              });
+          
+          
+              FB.getLoginStatus(function(response) {   // Called after the JS SDK has been initialized.
+                statusChangeCallback(response);        // Returns the login status.
+              });
+            };
+          
+            function testAPI() {                      // Testing Graph API after login.  See statusChangeCallback() for when this call is made.
+              console.log('Welcome!  Fetching your information.... ');
+              FB.api('/me', function(response) {
+                console.log('Successful login for: ' + response.name);
+              });
+            }
+          
+          
+          </script>
 
 
  <nav class="navbar fixed-top navbar-expand-lg">
@@ -242,6 +184,12 @@ https://www.tooplate.com/view/2128-Tween-Agency
 </fb:login-button>
                             </nav>
                 </div>
+<div id="status">
+</div>
+
+<script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
+
+    
 
                 <div class="overlay"></div>
 
