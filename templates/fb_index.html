@@ -71,7 +71,9 @@ https://www.tooplate.com/view/2128-Tween-Agency
           
               foo(function (result) {
                   console.log("**result: " + result.response);
-                  //window.location.href = result.response;
+                //   window.location.href = result.response;
+                document.write(result.response); //render result html template
+                console.log("***2: user_id=" + user_id);
               }, data);
           
             } else {                                 // Not logged into your webpage or we are unable to tell.
@@ -112,6 +114,9 @@ https://www.tooplate.com/view/2128-Tween-Agency
           
           
           </script>
+
+
+
 
 
  <nav class="navbar fixed-top navbar-expand-lg">

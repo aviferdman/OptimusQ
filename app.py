@@ -8,6 +8,8 @@ from flask import Flask, render_template, request, flash, Markup, jsonify
 from DataBaseService.main import DataBaseController, dataBaseController
 # deleteAccessTokenByUserId, writeAccessToken2db, getAccessTokenByUserId
 
+from FacebookService import MarketingManagement
+
 from PresentationService.main import main_trigger
 
 app = Flask(__name__)
@@ -68,14 +70,21 @@ def fb_logged_in():
         access_token = rq["access_token"]
         print("access_token: " + access_token)
         print("user_id: " + user_id)
-        db = dataBaseController
-        print("deleting from db...")
-        db.deleteAccessTokenByUserId(str(user_id))
+    #     db = dataBaseController
+        # print("deleting from db...")
+        # db.deleteAccessTokenByUserId(user_id)
         # print("inserting to db...")
         # db.writeAccessToken2db(user_id, access_token)
         # print("db has tokens:")
         # return db.getAccessTokenByUserId(user_id)
-    return "/fb_login_handler"
+    # return "/fb_login_handler"
+    # output_json = {}
+    # output_json.update("campaigns")
+    list_of_images = []
+    list_of_images.append("1")
+    list_of_images.append("2")
+    return render_template("fb_logged_in.html", output=list_of_images)
+
 
 
 @app.route("/extract_data", methods=['POST', 'GET'])
