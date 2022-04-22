@@ -156,23 +156,7 @@ https://www.tooplate.com/view/2128-Tween-Agency
                                                 <nav>
                                 <div class="nav nav-tabs" id="nav-tab" role="tablist">
                                     <button class="nav-link active" id="nav-intro-tab" data-bs-toggle="tab" data-bs-target="#nav-intro" type="button" role="tab" aria-controls="nav-intro" aria-selected="true">Ad Accounts</button>
-                                    <form action="/fb_logged_in" method="post">
-                                        <br>
-                                        <br>
-                                            {% for link in output %}
-                                                id: {{ link }}
-                                                <br>
-                                            {% endfor %}
-                                    </form>
                                     <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Campaigns</button>
-                                    <form action="/fb_logged_in" method="post">
-                                        <br>
-                                        <br>
-                                            {% for link in output %}
-                                                link is: {{ link }}
-                                                <br>
-                                            {% endfor %}
-                                    </form>
                                     <button class="nav-link" id="nav-faq-tab" data-bs-toggle="tab" data-bs-target="#nav-faq" type="button" role="tab" aria-controls="nav-faq" aria-selected="false">Ad Sets</button>
                                     <button class="nav-link" id="nav-faq-tab" data-bs-toggle="tab" data-bs-target="#nav-faq" type="button" role="tab" aria-controls="nav-faq" aria-selected="false">Ad Creatives</button>
                                     <button class="nav-link" id="nav-faq-tab" data-bs-toggle="tab" data-bs-target="#nav-faq" type="button" role="tab" aria-controls="nav-faq" aria-selected="false">Ads</button>
@@ -186,7 +170,29 @@ https://www.tooplate.com/view/2128-Tween-Agency
 
             </section>
 
-
+                        <b>Ad Accounts:</b><br>
+                        {% for link in output["ad_accounts"] %}
+                        id: {{ link }}
+                        <br>
+                        {% endfor %}
+        <br><br>
+                        <b>Campaigns:</b><br>
+                        {% for link in output["campaigns"] %}
+                        id: {{ link }}
+                        <br>
+                        {% endfor %}
+        <br><br>
+                        <b>Ad Sets:</b><br>
+                        {% for link in output["ad_sets"] %}
+                        id: {{ link }}
+                        <br>
+                        {% endfor %}
+        <br><br>
+                        <b>Ads:</b><br>
+                        {% for link in output["ads"] %}
+                        id: {{ link }}
+                        <br>
+                        {% endfor %}
 
 
             <section class="section-padding" id="section_6">

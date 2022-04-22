@@ -70,6 +70,25 @@ def fb_logged_in():
         access_token = rq["access_token"]
         print("access_token: " + access_token)
         print("user_id: " + user_id)
+
+        ad_accounts = [] + MarketingManagement.get_all_ad_accounts_in_business(access_token).json()['data']
+        ad_accounts_ids = []
+        campaigns = []
+        ad_sets = []
+        for account in ad_accounts:
+            # ad_account_id = account['id'][4::] # only the id, without the prefix of act_
+            ad_account_id = account['account_id']
+            ad_accounts_ids.append(ad_account_id)
+            campaigns = campaigns + (MarketingManagement.get_all_campaigns(ad_account_id, access_token).json()['data'])
+            ad_sets = ad_sets + (MarketingManagement.get_all_ad_sets_by_ad_account(access_token, ad_account_id).json()['data'])
+        ads = []
+        for ad_set in ad_sets:
+            ad_set_id = ad_set['id']
+            print("ad_set: " + str(ad_set_id))
+            ads = ads + (MarketingManagement.get_all_ads_by_adSet_id(access_token, ad_set_id).json()['data'])
+    #     todo: to get ad creatives: An ad creative object is an instance of a specific creative which is being used to define the creative field of one or more ads
+
+
     #     db = dataBaseController
         # print("deleting from db...")
         # db.deleteAccessTokenByUserId(user_id)
@@ -83,7 +102,8 @@ def fb_logged_in():
     list_of_images = []
     list_of_images.append("1")
     list_of_images.append("2")
-    return render_template("fb_logged_in.html", output=list_of_images)
+    return render_template("fb_logged_in.html", output={"ad_accounts": ad_accounts_ids, "campaigns": campaigns, "ad_sets": ad_sets, "ads": ads})
+    # return render_template("fb_logged_in.html", output=list_of_images)
 
 
 
