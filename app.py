@@ -61,20 +61,20 @@ def fb_login_handler():
 
 @app.route("/fb_logged_in", methods=['POST', 'GET'])
 def fb_logged_in():
-    # if request.method == "POST":
-    #     print("POST!!!: ")
-    #     rq = request.get_json()
-    #     user_id = rq["user_id"]
-    #     access_token = rq["access_token"]
-    #     print("access_token: " + access_token)
-    #     print("user_id: " + user_id)
-    #     # db = DataBaseService.main.dataBaseController
-    #     print("deleting from db...")
-    #     deleteAccessTokenByUserId(user_id)
-    #     print("inserting to db...")
-    #     writeAccessToken2db(user_id, access_token)
-    #     print("db has tokens:")
-    #     return getAccessTokenByUserId(user_id)
+    if request.method == "POST":
+        print("POST!!!: ")
+        rq = request.get_json()
+        user_id = rq["user_id"]
+        access_token = rq["access_token"]
+        print("access_token: " + access_token)
+        print("user_id: " + user_id)
+        # db = DataBaseService.main.dataBaseController
+        print("deleting from db...")
+        DataBaseController.deleteAccessTokenByUserId(user_id)
+        print("inserting to db...")
+        DataBaseController.writeAccessToken2db(user_id, access_token)
+        print("db has tokens:")
+        return DataBaseController.getAccessTokenByUserId(user_id)
     return "/fb_login_handler"
 
 
