@@ -5,3 +5,7 @@ yake-github
 flask
 requests
 azure-functions
+import pyodbc
+import datetime
+import azure.functions
+import json
