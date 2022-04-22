@@ -70,11 +70,11 @@ def fb_logged_in():
         print("user_id: " + user_id)
         db = dataBaseController
         print("deleting from db...")
-        db.deleteAccessTokenByUserId(user_id)
-        print("inserting to db...")
-        db.writeAccessToken2db(user_id, access_token)
-        print("db has tokens:")
-        return db.getAccessTokenByUserId(user_id)
+        # db.deleteAccessTokenByUserId(user_id)
+        # print("inserting to db...")
+        # db.writeAccessToken2db(user_id, access_token)
+        # print("db has tokens:")
+        # return db.getAccessTokenByUserId(user_id)
     return "/fb_login_handler"
 
 
