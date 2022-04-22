@@ -5,6 +5,9 @@
 # 'Flask' is a library of web applications written in Python.
 from flask import Flask, render_template, request, flash, Markup, jsonify
 
+from DataBaseService.main import DataBaseController
+# deleteAccessTokenByUserId, writeAccessToken2db, getAccessTokenByUserId
+
 from PresentationService.main import main_trigger
 
 app = Flask(__name__)
@@ -65,13 +68,13 @@ def fb_logged_in():
     #     access_token = rq["access_token"]
     #     print("access_token: " + access_token)
     #     print("user_id: " + user_id)
-    #     db = DataBaseService.main.dataBaseController
-    #     print("deleting from db:")
-    #     db.deleteAccessTokenByUserId(user_id)
-    #     print("inserting to db:")
-    #     db.writeAccessToken2db(user_id, access_token)
+    #     # db = DataBaseService.main.dataBaseController
+    #     print("deleting from db...")
+    #     deleteAccessTokenByUserId(user_id)
+    #     print("inserting to db...")
+    #     writeAccessToken2db(user_id, access_token)
     #     print("db has tokens:")
-    #     return db.getAccessTokenByUserId(user_id)
+    #     return getAccessTokenByUserId(user_id)
     return "/fb_login_handler"
 
 
