@@ -7,4 +7,3 @@ requests
 azure-functions
 pyodbc
 datetime
-json
