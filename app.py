@@ -68,7 +68,6 @@ def fb_logged_in():
         rq = request.get_json()
         user_id = rq["user_id"]
         access_token = rq["access_token"]
-        print("access_token: " + access_token)
         print("user_id: " + user_id)
 
         ad_accounts = [] + MarketingManagement.get_all_ad_accounts_in_business(access_token).json()['data']
