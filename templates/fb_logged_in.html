@@ -9,6 +9,7 @@
 
         <title>OptimusQ</title>
 
+
         <!-- CSS FILES -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
 
@@ -37,14 +38,22 @@ https://www.tooplate.com/view/2128-Tween-Agency
     <body>
         <script>
 
+            function setElements(isLoggedIn){
+                if(isLoggedIn){
+                    document.getElementById('logout').style.display = 'block';
+                } else {
+                    document.getElementById('logout').style.display = 'none';
+                }
+            }
+
             function statusChangeCallback(response) {  // Called with the results from FB.getLoginStatus().
               console.log('statusChangeCallback');
               console.log(response);                   // The current login status of the person.
               if (response.status === 'connected') {   // Logged into your webpage and Facebook.
+                setElements(true);
                 const access_token = FB.getAuthResponse()['accessToken'];
-          
-          
                 } else {                                 // Not logged into your webpage or we are unable to tell.
+                    setElements(false);
                     // document.getElementById('status').innerHTML = 'Please log ' +
                     //   'into this webpage.';
                     window.location.href = "/fb";
@@ -80,9 +89,15 @@ https://www.tooplate.com/view/2128-Tween-Agency
                 console.log('Successful login for: ' + response.name);
               });
             }
+
+        function logout(){
+            FB.logout(function(response){
+            setElements(false);
+            });
+        }
           
           
-          </script>
+    </script>
 
 <div id="status">
 </div>
@@ -127,7 +142,10 @@ https://www.tooplate.com/view/2128-Tween-Agency
                         <li class="nav-item">
                             <a class="nav-link" href="#section_6">Contact</a>
                         </li>
+
+
                     </ul>
+                        <a id="logout" href="#" onclick="logout()">FB Logout</a>
 
                 </div>
             </div>
