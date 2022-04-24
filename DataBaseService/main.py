@@ -253,6 +253,48 @@ class DataBaseController:
                                 VALUES('{0}','{1}');
                                 """.format(url, keyword))
 
+    ######################################################################
+    #  UserAccessTokenByUserId
+    ######################################################################
+
+    def getAccessTokenByUserId(self, user_id):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                                SELECT * FROM UserAccessTokenByUserId
+                                WHERE "UserId"='{0}';
+                                """.format(user_id))
+                myresult = cursor.fetchall()
+                return myresult
+
+    def deleteAccessTokenByUserId(self, user_id):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                SELECT * FROM UserAccessTokenByUserId
+                WHERE "UserId" = '{0}';
+                """.format(user_id))
+                theResult = cursor.fetchall()
+                if (len(theResult) > 0):
+                    cursor.execute("""
+                        DELETE FROM UserAccessTokenByUserId WHERE "UserId" = '{0}';
+                        """.format(user_id))
+
+    def writeAccessToken2db(self, user_id, access_token):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                SELECT * FROM UserAccessTokenByUserId
+                WHERE "UserId" = '{0}';
+                """.format(user_id))
+                theResult = cursor.fetchall()
+                if (len(theResult) == 0):
+                    cursor.execute("""
+                        INSERT INTO
+                        UserAccessTokenByUserId(UserId, AccessToken)
+                        VALUES('{0}', '{1}');
+                        """.format(user_id, access_token))
+
 
 dataBaseController=DataBaseController()
 

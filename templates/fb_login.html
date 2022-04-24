@@ -13,23 +13,10 @@
     if (response.status === 'connected') {   // Logged into your webpage and Facebook.
       testAPI();
       const access_token = FB.getAuthResponse()['accessToken'];
-      console.log('Access Token = '+ access_token);
 
 
       // **newly added**
       let data = {"access_token": access_token};
-      // let xhr = new XMLHttpRequest();
-      //   xhr.onreadystatechange = function() {
-      //   if (this.readyState == 4 && this.status == 200) {
-      //       console.log("server returned response: " + response);
-      //       // window.location.href = response.redirect;
-      //   }
-      // };
-      // xhr.open("POST", "fb_logged_in");
-      // xhr.setRequestHeader("Content-type", "application/json") // or "text/plain"
-      // xhr.send(JSON.stringify(data));
-
-
 
       function foo(callback, data) {
             httpRequest = new XMLHttpRequest();
@@ -47,42 +34,13 @@
 
     foo(function (result) {
         console.log("**result: " + result.response);
-        window.location.href = result.response;
+        // window.location.href = result.response;
     }, data);
 
-      
-
-      // let xhr = new XMLHttpRequest();
-      // xhr.open(form.method, form.action, true);
-      // xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-
-      // // send the collected data as JSON
-      // xhr.send(JSON.stringify(data));
-
-
-        // $.ajax({
-        //     type: "POST",
-        //     url: "fb_logged_in",
-        //     data: JSON.stringify(access_token),
-        //     contentType : "application/json",
-        //     success: function(response) {
-        //         console.log("server returned response: " + response);
-        //          window.location.href = response.redirect;
-        //     },
-        //     error: function(error) {
-        //         console.log(error);
-        //     }
-        // });
-
-
-
-      // **
-
-
-
-    } else {                                 // Not logged into your webpage or we are unable to tell.
+  } else {                                 // Not logged into your webpage or we are unable to tell.
       document.getElementById('status').innerHTML = 'Please log ' +
         'into this webpage.';
+
     }
   }
 

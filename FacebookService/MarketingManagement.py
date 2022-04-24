@@ -46,10 +46,12 @@ def get_ad_account_by_id(ad_account_id, access_token):
 
 
 # returns all ad accounts belongs to business_id
-def get_all_ad_accounts(access_token):
+def get_all_ad_accounts_in_business(access_token):
     params = {'access_token': access_token}
     return requests.get('https://graph.facebook.com/v13.0/' + str(business_id) + '/owned_ad_accounts', params)
 
+# 7832075466806241
+# 775308013448374
 
 # creates a new campaign.
 # all params are string. special_ad_categories in the form: "[]"
@@ -103,10 +105,12 @@ def create_new_ad_set(AD_ACCOUNT_ID, ad_set_name, access_token, campaign_id, opt
     return requests.post(url, data=payload, headers={})
 
 
-# returns all ad set belongs to AD_CAMPAIGN_ID
-# todo
-def get_all_ad_sets_for_campaign(AD_CAMPAIGN_ID):
-    pass
+# returns all ad sets belongs to AD_ACCOUNT_ID
+def get_all_ad_sets_by_ad_account(access_token, ad_account_id):
+    params = {
+        'access_token': access_token
+    }
+    return requests.get('https://graph.facebook.com/v13.0/act_' + ad_account_id + '/adsets', params)
 
 
 # adds an image to ad creative repository.
@@ -188,6 +192,29 @@ def create_ad(access_token, AD_ACCOUNT_ID, name, adset_id, creative_id, status):
                }
     return requests.post(url, data=payload, headers={})
 
+# get all ads by ad account
+def get_all_ads_by_adAcount_id(access_token, ad_account_id):
+    url = 'https://graph.facebook.com/v13.0/act_' + ad_account_id + '/ads'
+    params = {'fields': 'name',
+               "access_token": access_token
+               }
+    return requests.get(url, params)
+
+# get all ads by campaign
+def get_all_ads_by_campaign_id(access_token, campaign_id):
+    url = 'https://graph.facebook.com/v13.0/' + campaign_id + '/ads'
+    params = {'fields': 'name',
+               "access_token": access_token
+               }
+    return requests.get(url, params)
+
+# get all ads by adSet id
+def get_all_ads_by_adSet_id(access_token, adSet_id):
+    url = 'https://graph.facebook.com/v13.0/' + adSet_id + '/ads'
+    params = {'fields': 'name',
+        "access_token": access_token
+               }
+    return requests.get(url, params)
 
 # You cannot remove ad accounts from your business if you're OWNER and if the accounts are CONFIRMED.
 # If you have a PENDING access request or you have AGENCY access to the ad account, you can make this DELETE call

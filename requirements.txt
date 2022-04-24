@@ -5,3 +5,5 @@ yake-github
 flask
 requests
 azure-functions
+pyodbc
+datetime

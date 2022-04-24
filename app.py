@@ -4,15 +4,13 @@
 
 # 'Flask' is a library of web applications written in Python.
 from flask import Flask, render_template, request, flash, Markup, jsonify
+
+from DataBaseService.main import DataBaseController, dataBaseController
+# deleteAccessTokenByUserId, writeAccessToken2db, getAccessTokenByUserId
+
+from FacebookService import MarketingManagement
+
 from PresentationService.main import main_trigger
-
-
-# from OpenSSL import SSL
-
-# context = SSL.Context(SSL.TLSv1_2_METHOD)
-# context.use_certificate('csr_file.csr')
-# context.use_privatekey('key_file.key')
-
 
 app = Flask(__name__)
 app.secret_key = "manbearpig_MUDMAN888"
@@ -65,16 +63,47 @@ def fb_login_handler():
 
 @app.route("/fb_logged_in", methods=['POST', 'GET'])
 def fb_logged_in():
-    # addrss = request.args.get('url')
-    # if request is not None:
-    #     req_json = request.get_json()
-    #     print(req_json)
-    # return render_template("fb_logged_in.html")
-    res_dict = {
-        "redirect": "/fb_login_handler"
-    }
-    # return jsonify(res_dict)
-    return "/fb_login_handler"
+    if request.method == "POST":
+        print("POST!!!: ")
+        rq = request.get_json()
+        user_id = rq["user_id"]
+        access_token = rq["access_token"]
+        print("user_id: " + user_id)
+
+        ad_accounts = [] + MarketingManagement.get_all_ad_accounts_in_business(access_token).json()['data']
+        ad_accounts_ids = []
+        campaigns = []
+        ad_sets = []
+        for account in ad_accounts:
+            # ad_account_id = account['id'][4::] # only the id, without the prefix of act_
+            ad_account_id = account['account_id']
+            ad_accounts_ids.append(ad_account_id)
+            campaigns = campaigns + (MarketingManagement.get_all_campaigns(ad_account_id, access_token).json()['data'])
+            ad_sets = ad_sets + (MarketingManagement.get_all_ad_sets_by_ad_account(access_token, ad_account_id).json()['data'])
+        ads = []
+        for ad_set in ad_sets:
+            ad_set_id = ad_set['id']
+            print("ad_set: " + str(ad_set_id))
+            ads = ads + (MarketingManagement.get_all_ads_by_adSet_id(access_token, ad_set_id).json()['data'])
+    #     todo: to get ad creatives: An ad creative object is an instance of a specific creative which is being used to define the creative field of one or more ads
+
+
+    #     db = dataBaseController
+        # print("deleting from db...")
+        # db.deleteAccessTokenByUserId(user_id)
+        # print("inserting to db...")
+        # db.writeAccessToken2db(user_id, access_token)
+        # print("db has tokens:")
+        # return db.getAccessTokenByUserId(user_id)
+    # return "/fb_login_handler"
+    # output_json = {}
+    # output_json.update("campaigns")
+    list_of_images = []
+    list_of_images.append("1")
+    list_of_images.append("2")
+    return render_template("fb_logged_in.html", output={"ad_accounts": ad_accounts_ids, "campaigns": campaigns, "ad_sets": ad_sets, "ads": ads})
+    # return render_template("fb_logged_in.html", output=list_of_images)
+
 
 
 @app.route("/extract_data", methods=['POST', 'GET'])
@@ -121,12 +150,12 @@ def extract_keywords_from_landing_page():
 
 
 # for running in local host with HTTP
-# if __name__ == '__main__':
-#     app.run()
+if __name__ == '__main__':
+    app.run()
 
 # for running in local host with HTTPS
 # first, create cert.pem and key.pem with the following cmd command:
 # openssl req -x509 -newkey rsa:4096 -nodes -out cert.pem -keyout key.pem -days 365
 # run with cmd command: python app.py
-if __name__ == '__main__':
-    app.run(ssl_context=('cert.pem', 'key.pem'))
+# if __name__ == '__main__':
+#     app.run(ssl_context=('cert.pem', 'key.pem'))

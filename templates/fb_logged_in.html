@@ -9,6 +9,7 @@
 
         <title>OptimusQ</title>
 
+
         <!-- CSS FILES -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
 
@@ -35,6 +36,75 @@ https://www.tooplate.com/view/2128-Tween-Agency
     </head>
 
     <body>
+        <script>
+
+            function setElements(isLoggedIn){
+                if(isLoggedIn){
+                    document.getElementById('logout').style.display = 'block';
+                } else {
+                    document.getElementById('logout').style.display = 'none';
+                }
+            }
+
+            function statusChangeCallback(response) {  // Called with the results from FB.getLoginStatus().
+              console.log('statusChangeCallback');
+              console.log(response);                   // The current login status of the person.
+              if (response.status === 'connected') {   // Logged into your webpage and Facebook.
+                setElements(true);
+                const access_token = FB.getAuthResponse()['accessToken'];
+                } else {                                 // Not logged into your webpage or we are unable to tell.
+                    setElements(false);
+                    // document.getElementById('status').innerHTML = 'Please log ' +
+                    //   'into this webpage.';
+                    window.location.href = "/fb";
+
+                }
+            }
+          
+          
+            function checkLoginState() {               // Called when a person is finished with the Login Button.
+              FB.getLoginStatus(function(response) {   // See the onlogin handler
+                statusChangeCallback(response);
+              });
+            }
+          
+          
+            window.fbAsyncInit = function() {
+              FB.init({
+                appId      : '331878552252931',
+                cookie     : true,                     // Enable cookies to allow the server to access the session.
+                xfbml      : true,                     // Parse social plugins on this webpage.
+                version    : 'v13.0'           // Use this Graph API version for this call.
+              });
+          
+          
+              FB.getLoginStatus(function(response) {   // Called after the JS SDK has been initialized.
+                statusChangeCallback(response);        // Returns the login status.
+              });
+            };
+          
+            function testAPI() {                      // Testing Graph API after login.  See statusChangeCallback() for when this call is made.
+              console.log('Welcome!  Fetching your information.... ');
+              FB.api('/me', function(response) {
+                console.log('Successful login for: ' + response.name);
+              });
+            }
+
+        function logout(){
+            FB.logout(function(response){
+            setElements(false);
+            window.location.reload();
+            });
+        }
+          
+          
+    </script>
+
+<div id="status">
+</div>
+
+<script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
+
 
  <nav class="navbar fixed-top navbar-expand-lg">
             <div class="container">
@@ -73,7 +143,10 @@ https://www.tooplate.com/view/2128-Tween-Agency
                         <li class="nav-item">
                             <a class="nav-link" href="#section_6">Contact</a>
                         </li>
+
+
                     </ul>
+                        <a id="logout" href="#" onclick="logout()">FB Logout</a>
 
                 </div>
             </div>
@@ -115,7 +188,29 @@ https://www.tooplate.com/view/2128-Tween-Agency
 
             </section>
 
-
+                        <b>Ad Accounts:</b><br>
+                        {% for link in output["ad_accounts"] %}
+                        id: {{ link }}
+                        <br>
+                        {% endfor %}
+        <br><br>
+                        <b>Campaigns:</b><br>
+                        {% for link in output["campaigns"] %}
+                        id: {{ link }}
+                        <br>
+                        {% endfor %}
+        <br><br>
+                        <b>Ad Sets:</b><br>
+                        {% for link in output["ad_sets"] %}
+                        id: {{ link }}
+                        <br>
+                        {% endfor %}
+        <br><br>
+                        <b>Ads:</b><br>
+                        {% for link in output["ads"] %}
+                        id: {{ link }}
+                        <br>
+                        {% endfor %}
 
 
             <section class="section-padding" id="section_6">
