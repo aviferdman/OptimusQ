@@ -48,10 +48,9 @@ https://www.tooplate.com/view/2128-Tween-Agency
 
         <script>
             
-            document.getElementById('test').style.display = 'none';
-            // function showTest(){
-            //     document.getElementById('test').style.display = 'block';
-            // }
+            function showCreateAdSet(){
+                document.getElementById('showCreateAdSetForm').style.display = 'block';
+            }
 
 
 
@@ -132,38 +131,51 @@ https://www.tooplate.com/view/2128-Tween-Agency
                         <div class="col-lg-8 col-md-10 col-12 mx-auto">
                             <h2 class="mb-4 text-center">Bring me images!</h2>
 
-                            <form class="custom-form" role="form" action="/extract_data" method="post">
-                                <div class="row">
-                                    <div class="col-lg-12 col-md-6 col-12 my-2">
-                                        <label class="mb-2" for="url">Landing Page URL</label>
+                <form class="custom-form" role="form" action="/extract_data" method="post">
+                    <div class="row">
+                        <div class="col-lg-12 col-md-6 col-12 my-2">
+                            <label class="mb-2" for="url">Landing Page URL</label>
 
-                                        <input type="text" name="url" id="url" class="form-control" required="">
-                                    </div>
+                            <input type="text" name="url" id="url" class="form-control" required="">
+                        </div>
 
-                                    <div class="col-lg-6 col-md-6 col-12 my-2">
-                                        <button type="submit" class="form-control mt-4" id="campaign" onclick="showDetails()">Create Ad set</button>
-                                    </div>
 
-                                    <div class="col-lg-6 col-md-6 col-12 my-2">
-                                        <button type="submit" class="form-control mt-4" id="submit">Extract Data</button>
-                                    </div>
+                        <div class="col-lg-6 col-md-6 col-12 my-2">
+                            <button type="submit" class="form-control mt-4" id="campaign" onclick="showCreateAdSet()" action="/create_ad_set_form">Create Ad set</button>
+                        </div>
 
-                                </div>
+
+
+                        <div class="col-lg-6 col-md-6 col-12 my-2">
+                            <button type="submit" class="form-control mt-4" id="submit">Extract Data</button>
+                        </div>
+
+                    </div>
 
                                             {% for message in get_flashed_messages() %}
-            <p>{{ message }}</p>
-            {% endfor %}
-            <br>
-            {% for link in output %}
-                <img src="{{link}}" alt="Recommended photo">
-                <br><a href ="{{link}}" style="font-size:20px">image link</a>
-                <br>
-            {% endfor %}
-                            </form>
+                        <p>{{ message }}</p>
+                        {% endfor %}
+                        <br>
+                        {% for link in output %}
+                            <img src="{{link}}" alt="Recommended photo">
+                            <br><a href ="{{link}}" style="font-size:20px">image link</a>
+                            <br>
+                        {% endfor %}
+                </form>
 
-                        <a id="test" href="#" onclick="showTest()">testing</a>
+                        <form id="showCreateAdSetForm" class="custom-form" role="form" action="/create_ad_set_form" method="post" style="display:none">
+                                <div class="row">
+                                    <div class="col-lg-12 col-md-6 col-12 my-2">
+                                        <select name="ad_accounts" id="ad_accounts">
+                                            {% for ad_account in outputNew %}
+                                            <option value="{{ad_account}}">{{ad_account}}</option>
+                                            {% endfor %}
+                                            </select>
+                                    </div>                    
+                                </div>
+                        </form>
 
-
+                    <a id="showCreateAdSetForm" href="#" style="display:none">Close</a>
                         </div>
 
                     </div>

@@ -3,6 +3,7 @@
 # That is, we can conveniently send a URL and see if what we expected to receive was received.
 
 # 'Flask' is a library of web applications written in Python.
+from doctest import OutputChecker
 from flask import Flask, render_template, request, flash, Markup, jsonify
 
 from DataBaseService.main import DataBaseController, dataBaseController
@@ -104,6 +105,15 @@ def fb_logged_in():
     return render_template("fb_logged_in.html", output={"ad_accounts": ad_accounts_ids, "campaigns": campaigns, "ad_sets": ad_sets, "ads": ads})
     # return render_template("fb_logged_in.html", output=list_of_images)
 
+
+@app.route("/create_ad_set_form", methods=['POST', 'GET'])
+def create_ad_set_form():
+    """
+    created an ad set form
+    """
+    ad_accounts = ["123"]
+    campaigns = []
+    return render_template("extract_kw.html", output2={"ad_accounts": ad_accounts})
 
 
 @app.route("/extract_data", methods=['POST', 'GET'])
