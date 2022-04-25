@@ -52,6 +52,8 @@ https://www.tooplate.com/view/2128-Tween-Agency
               if (response.status === 'connected') {   // Logged into your webpage and Facebook.
                 setElements(true);
                 const access_token = FB.getAuthResponse()['accessToken'];
+                document.getElementById('token').value = access_token;
+
                 } else {                                 // Not logged into your webpage or we are unable to tell.
                     setElements(false);
                     // document.getElementById('status').innerHTML = 'Please log ' +
@@ -59,6 +61,59 @@ https://www.tooplate.com/view/2128-Tween-Agency
                     window.location.href = "/fb";
 
                 }
+            }
+
+
+            function create_adset() {               // Called when a person is finished with the Login Button.
+              FB.getLoginStatus(function(response) {   // See the onlogin handler
+                getTokenCallback(response);
+              });
+            }
+            function getTokenCallback(response) {  // Called with the results from FB.getLoginStatus().
+
+            if (response.status === 'connected') {   // Logged into your webpage and Facebook.
+                const access_token = response.authResponse['accessToken'];
+
+                let data = {"access_token": access_token,
+                    "ad_account": document.getElementById('ad_account').value,
+                    "campaign": document.getElementById('campaign').value,
+                    "adset_name": document.getElementById('adset_name').value,
+                    "url": document.getElementById('url').value,
+                    "daily_budget": document.getElementById('daily_budget').value
+                };
+
+
+                  console.log(data)
+
+
+                function foo(callback, data) {
+                      httpRequest = new XMLHttpRequest();
+                      httpRequest.onreadystatechange = function () {
+                          if (httpRequest.readyState === 4) { // request is done
+                              if (httpRequest.status === 200) { // successfully
+                                  callback(httpRequest); // we're calling our method
+                              }
+                          }
+                          };
+                          httpRequest.open('POST', "create_ad_set_automatically");
+                          httpRequest.setRequestHeader("Content-type", "application/json") // or "text/plain"
+                          httpRequest.send(JSON.stringify(data));
+                }
+
+                foo(function (result) {
+                      console.log("**result: " + result.response);
+                      window.location.href = result.response;
+                    //document.write(result.response); //render result html template
+                    // FB.api('/me/permissions', function (response) {
+                    //      console.log(response);
+                    // } );
+                  }, data);
+
+                } else {                                 // Not logged into your webpage or we are unable to tell.
+                    console.log("user not connected to FB.")
+
+                }
+
             }
           
           
@@ -97,7 +152,19 @@ https://www.tooplate.com/view/2128-Tween-Agency
             });
         }
           
-          
+         
+        function showCreateAdSet(){
+                document.getElementById('showCreateAdSetForm').style.display = 'block';
+        }
+
+        function showElement(show_flag, element_id){
+            if(show_flag){
+                document.getElementById(element_id).style.display = 'block';
+            } else {
+                document.getElementById(element_id).style.display = 'none';
+            }
+        }
+
     </script>
 
 <div id="status">
@@ -174,13 +241,19 @@ https://www.tooplate.com/view/2128-Tween-Agency
                                                 <nav>
                                 <div class="nav nav-tabs" id="nav-tab" role="tablist">
                                     <button class="nav-link active" id="nav-intro-tab" data-bs-toggle="tab" data-bs-target="#nav-intro" type="button" role="tab" aria-controls="nav-intro" aria-selected="true">Ad Accounts</button>
+
+
                                     <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Campaigns</button>
                                     <button class="nav-link" id="nav-faq-tab" data-bs-toggle="tab" data-bs-target="#nav-faq" type="button" role="tab" aria-controls="nav-faq" aria-selected="false">Ad Sets</button>
                                     <button class="nav-link" id="nav-faq-tab" data-bs-toggle="tab" data-bs-target="#nav-faq" type="button" role="tab" aria-controls="nav-faq" aria-selected="false">Ad Creatives</button>
                                     <button class="nav-link" id="nav-faq-tab" data-bs-toggle="tab" data-bs-target="#nav-faq" type="button" role="tab" aria-controls="nav-faq" aria-selected="false">Ads</button>
 
-
                                 </div>
+                                <ul>
+
+                                        <a class="nav-link" href="\">Home</a>
+
+                                </ul>
                             </nav>
                 </div>
 
@@ -188,37 +261,89 @@ https://www.tooplate.com/view/2128-Tween-Agency
 
             </section>
 
+            <a style="text-align:center;font-size:30px" href="#" onclick="showElement(true, 'showData')">Show Marketing Data</a>
+
+            <div id="showData" style="display:none">
                         <b>Ad Accounts:</b><br>
                         {% for link in output["ad_accounts"] %}
-                        id: {{ link }}
+                        &emsp;id: {{ link.account_id }}, name: {{ link.name }}, amount spent: {{ link.amount_spent }}, business name: {{ link.business.name }}
                         <br>
                         {% endfor %}
-        <br><br>
+                         <br><br>
                         <b>Campaigns:</b><br>
                         {% for link in output["campaigns"] %}
-                        id: {{ link }}
+                        &emsp;id: {{ link.id }}, name: {{ link.name }}, budget remaining: {{ link.budget_remaining }}
                         <br>
                         {% endfor %}
-        <br><br>
+                          <br><br>
                         <b>Ad Sets:</b><br>
                         {% for link in output["ad_sets"] %}
-                        id: {{ link }}
+                        &emsp;id: {{ link.id }}, name: {{ link.name }}, daily budget: {{ link.daily_budget }}
+                            <br>
+                            &emsp; targeting:<br>
+                            &emsp;&emsp;age: {{ link.targeting.age_min }} to {{ link.targeting.age_max }}
+                            <br>
+                            &emsp;&emsp;countries: {{ link.targeting.geo_locations.countries }}
                         <br>
                         {% endfor %}
-        <br><br>
+                         <br><br>
                         <b>Ads:</b><br>
                         {% for link in output["ads"] %}
-                        id: {{ link }}
+                        &emsp;id: {{ link.id }}, name: {{ link.name }}
                         <br>
                         {% endfor %}
+                <br>
+                <a href="#" onclick="showElement(false, 'showData')">Close</a>
+            </div>
 
 
+            <br><br>
+            <a style="text-align:center;font-size:30px" href="#" onclick="showElement(true, 'showCreateAdSetForm')">Create Ads Automatically</a>
+
+                        
             <section class="section-padding" id="section_6">
                 <div class="container">
                     <div class="row">
 
-                        <div class="col-lg-8 col-md-10 col-12 mx-auto">
-                            <h2 class="mb-4 text-center">Facebook Module</h2>
+                    </div>
+                    <div class="row">
+                       <div class="col-lg-8 col-md-10 col-12 mx-auto" id="showCreateAdSetForm" style="display:none">
+                            <!-- <h2 class="mb-4 text-center">Create Ads Automatically</h2> -->
+                            <p>Input a landing page url and create an ad set automatically.</p>
+
+                            <form>
+                                <div class="row">
+                                    <label class="mb-2" for="url">Landing page URL:</label>
+                                    <input type="text" name="url" id="url" class="form-control" required="">
+                                    <label class="mb-2" for="adset_name">Ad set name:</label>
+                                    <input type="text" name="adset_name" id="adset_name" class="form-control" required="">
+                                    <label class="mb-2" for="daily_budget">Ad set daily budget:</label>
+                                    <input type="text" name="daily_budget" id="daily_budget" class="form-control" required="">
+                                    <div class="col-lg-12 col-md-6 col-12 my-2">
+                                        <label for="ad_accounts">Ad account:</label>
+                                        <select name="ad_account" id="ad_account">
+                                            {% for ad_account in output["ad_accounts"] %}
+                                            <option value="{{ad_account.account_id}}">{{ad_account.account_id}}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <br>
+                                        <label for="campaigns">Campaign:</label>
+                                        <select name="campaign" id="campaign">
+                                            {% for campaign in output["campaigns"] %}
+                                            <option value="{{campaign.id}}">{{campaign.id}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>                    
+                                </div>
+                                <br>
+                                <a href="#" onclick="showElement(false, 'showCreateAdSetForm')">Close</a>
+
+                                <div class="col-lg-6 col-md-6 col-12 my-2">
+                                    <button type="submit" class="form-control mt-4" id="submit" onclick="create_adset()">Create Ad Set!</button>
+                                </div>
+
+                                
+                        </form>
 
 
                         </div>

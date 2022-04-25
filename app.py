@@ -3,6 +3,7 @@
 # That is, we can conveniently send a URL and see if what we expected to receive was received.
 
 # 'Flask' is a library of web applications written in Python.
+from doctest import OutputChecker
 from flask import Flask, render_template, request, flash, Markup, jsonify
 
 from DataBaseService.main import DataBaseController, dataBaseController
@@ -71,14 +72,12 @@ def fb_logged_in():
         print("user_id: " + user_id)
 
         ad_accounts = [] + MarketingManagement.get_all_ad_accounts_in_business(access_token).json()['data']
-        ad_accounts_ids = []
         campaigns = []
         ad_sets = []
         for account in ad_accounts:
             # ad_account_id = account['id'][4::] # only the id, without the prefix of act_
             ad_account_id = account['account_id']
-            ad_accounts_ids.append(ad_account_id)
-            campaigns = campaigns + (MarketingManagement.get_all_campaigns(ad_account_id, access_token).json()['data'])
+            campaigns = campaigns + (MarketingManagement.get_all_campaigns(ad_account_id, access_token).json()["campaigns"]["data"])
             ad_sets = ad_sets + (MarketingManagement.get_all_ad_sets_by_ad_account(access_token, ad_account_id).json()['data'])
         ads = []
         for ad_set in ad_sets:
@@ -101,9 +100,67 @@ def fb_logged_in():
     list_of_images = []
     list_of_images.append("1")
     list_of_images.append("2")
-    return render_template("fb_logged_in.html", output={"ad_accounts": ad_accounts_ids, "campaigns": campaigns, "ad_sets": ad_sets, "ads": ads})
+    return render_template("fb_logged_in.html", output={"ad_accounts": ad_accounts, "campaigns": campaigns, "ad_sets": ad_sets, "ads": ads})
     # return render_template("fb_logged_in.html", output=list_of_images)
 
+
+@app.route("/create_ad_set_automatically", methods=['POST', 'GET'])
+def create_ad_set_automatically():
+    """
+    created an ad set automatically by a landing page url
+    """
+    if request.method == "POST":
+        print("POST!!!: ")
+        rq = request.get_json()
+        access_token = rq["access_token"]
+        ad_account = rq["ad_account"]
+        url = rq["url"]
+        daily_budget = rq["daily_budget"]
+        adset_name = rq["adset_name"]
+        campaign = rq["campaign"]
+        result = main_trigger(url)
+        images = result["images"]
+        list_of_images = []
+        for k in images.keys():
+            if images[k]:
+                list_of_images.append(images[k][0])
+        print(MarketingManagement.create_new_ad_set(
+            ad_account, adset_name, access_token, campaign, daily_budget
+        ).json())
+        # img_hashes = []
+        # for img in list_of_images:
+        #     img_hashes.append(MarketingManagement.upload_image_by_url(ad_account, access_token, img).json()["images"]["ad_img.jpg"]["hash"])
+
+        creatives_ids = []
+        # for img_hash in img_hashes:
+        #     MarketingManagement.create_ad_creative("default name", access_token, img_hash)
+
+            
+
+
+    # url = str(request.form['url'])
+    # print("url:" + url)
+
+    # adset_name = str(request.form['adset_name'])
+    # daily_budget = str(request.form['daily_budget'])
+    # ad_account = str(request.form['ad_account'])
+    # print("ad account:" + ad_account)
+    # print("adset_name:" + adset_name)
+    # print("daily_budget:" + daily_budget)
+    ad_accounts = ["123"]
+    return render_template("create_adset_handler.html", output2=ad_accounts)
+
+
+@app.route("/create_ad_set_form", methods=['POST', 'GET'])
+def create_ad_set_form():
+    """
+    created an ad set form
+    """
+    ad_accounts = ["123"]
+    campaigns = []
+    return render_template("extract_kw.html", output2=ad_accounts)
+    # output2 = {"ad_accounts": ad_accounts}
+    # return output2
 
 
 @app.route("/extract_data", methods=['POST', 'GET'])
@@ -150,12 +207,12 @@ def extract_keywords_from_landing_page():
 
 
 # for running in local host with HTTP
-if __name__ == '__main__':
-    app.run()
+# if __name__ == '__main__':
+#     app.run()
 
 # for running in local host with HTTPS
 # first, create cert.pem and key.pem with the following cmd command:
 # openssl req -x509 -newkey rsa:4096 -nodes -out cert.pem -keyout key.pem -days 365
 # run with cmd command: python app.py
-# if __name__ == '__main__':
-#     app.run(ssl_context=('cert.pem', 'key.pem'))
+if __name__ == '__main__':
+    app.run(ssl_context=('cert.pem', 'key.pem'), debug=True)

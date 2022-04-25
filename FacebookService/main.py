@@ -15,7 +15,8 @@ import MarketingManagement
 
 
 
-res= MarketingManagement.get_all_ads_by_adSet_id('', '23850154047300253')
+# res= MarketingManagement.upload_image_by_url('1394987677611796',
+#                                       '',
+#                                       'https://blog.hubspot.com/hubfs/marketing-techniques-Jun-30-2020-04-25-34-14-AM.jpg')
 # data = res.json()['data']
-id = res.json()['data']
 print('hi')

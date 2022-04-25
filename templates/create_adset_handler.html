@@ -9,6 +9,7 @@
 
         <title>OptimusQ</title>
 
+
         <!-- CSS FILES -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
 
@@ -16,23 +17,13 @@
 
         <link href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
 
+        <link href="../static/css/bootstrap.min.css" rel="stylesheet">
 
+        <link href="../static/css/bootstrap-icons.css" rel="stylesheet">
 
+        <link href="../static/css/magnific-popup.css" rel="stylesheet">
 
-        <!-- <link href="./static/css/bootstrap.min.css" rel="stylesheet"> -->
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
-
-        <!-- <link href="./static/css/bootstrap-icons.css" rel="stylesheet"> -->
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-icons.css') }}">
-
-
-        <!-- <link href="./static/css/magnific-popup.css" rel="stylesheet"> -->
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/magnific-popup.css') }}">
-
-
-        <!-- <link href="./static/css/tooplate-tween-agency.css" rel="stylesheet"> -->
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/tooplate-tween-agency.css') }}">
-
+        <link href="../static/css/tooplate-tween-agency.css" rel="stylesheet">
 
 <!--
 
@@ -45,22 +36,94 @@ https://www.tooplate.com/view/2128-Tween-Agency
     </head>
 
     <body>
-
         <script>
-            
-            function showCreateAdSet(){
-                document.getElementById('showCreateAdSetForm').style.display = 'block';
+
+            function setElements(isLoggedIn){
+                if(isLoggedIn){
+                    document.getElementById('logout').style.display = 'block';
+                } else {
+                    document.getElementById('logout').style.display = 'none';
+                }
+            }
+
+            function statusChangeCallback(response) {  // Called with the results from FB.getLoginStatus().
+              console.log('statusChangeCallback');
+              console.log(response);                   // The current login status of the person.
+              if (response.status === 'connected') {   // Logged into your webpage and Facebook.
+                setElements(true);
+                const access_token = FB.getAuthResponse()['accessToken'];
+                } else {                                 // Not logged into your webpage or we are unable to tell.
+                    setElements(false);
+                    // document.getElementById('status').innerHTML = 'Please log ' +
+                    //   'into this webpage.';
+                    window.location.href = "/fb";
+
+                }
             }
 
 
+            function checkLoginState() {               // Called when a person is finished with the Login Button.
+              FB.getLoginStatus(function(response) {   // See the onlogin handler
+                statusChangeCallback(response);
+              });
+            }
 
-        </script>
 
-        <nav class="navbar fixed-top navbar-expand-lg">
+            window.fbAsyncInit = function() {
+              FB.init({
+                appId      : '331878552252931',
+                cookie     : true,                     // Enable cookies to allow the server to access the session.
+                xfbml      : true,                     // Parse social plugins on this webpage.
+                version    : 'v13.0'           // Use this Graph API version for this call.
+              });
+
+
+              FB.getLoginStatus(function(response) {   // Called after the JS SDK has been initialized.
+                statusChangeCallback(response);        // Returns the login status.
+              });
+            };
+
+            function testAPI() {                      // Testing Graph API after login.  See statusChangeCallback() for when this call is made.
+              console.log('Welcome!  Fetching your information.... ');
+              FB.api('/me', function(response) {
+                console.log('Successful login for: ' + response.name);
+              });
+            }
+
+        function logout(){
+            FB.logout(function(response){
+            setElements(false);
+            window.location.reload();
+            });
+        }
+
+
+        function showCreateAdSet(){
+                document.getElementById('showCreateAdSetForm').style.display = 'block';
+        }
+
+        function showElement(show_flag, element_id){
+            if(show_flag){
+                document.getElementById(element_id).style.display = 'block';
+            } else {
+                document.getElementById(element_id).style.display = 'none';
+            }
+        }
+
+    </script>
+
+<div id="status">
+</div>
+
+<script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
+
+
+ <nav class="navbar fixed-top navbar-expand-lg">
             <div class="container">
 
                 <a href="\" class="navbar-brand">
-                    OptimusQ
+                  OptimusQ
+
                 </a>
 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -92,11 +155,18 @@ https://www.tooplate.com/view/2128-Tween-Agency
                         <li class="nav-item">
                             <a class="nav-link" href="#section_6">Contact</a>
                         </li>
+
+
                     </ul>
+                        <a id="logout" href="#" onclick="logout()">FB Logout</a>
 
                 </div>
             </div>
         </nav>
+
+
+
+
 
         <main>
 
@@ -104,86 +174,22 @@ https://www.tooplate.com/view/2128-Tween-Agency
                 <div class="container">
                     <div class="row">
 
-                        <div class="col-lg-12 col-12">
+                        <div class="col-lg-8 col-12">
                             <div class="heroText">
-                                <h2 class="text-white mb-lg-5 mb-4">Images By URL Extraction</h2>
-                                <p class="text-white mb-lg-5 mb-4" style="font-size:25px;">By entering url you can choose one of 2 options: <br>
-                                    1- Extracting information from the landing page - title, description and keywords <br>
-                                    2- Automatically create a campaign that contains an ad set with the recommended images</p>
+                                <h2 class="text-white mb-lg-5 mb-4">Ad Set Status</h2>
 
-                                </a>
                             </div>
                         </div>
 
                     </div>
+
                 </div>
 
                 <div class="overlay"></div>
+
             </section>
 
 
-
-
-            <section class="section-padding" id="section_6">
-                <div class="container">
-                    <div class="row">
-
-                        <div class="col-lg-8 col-md-10 col-12 mx-auto">
-                            <h2 class="mb-4 text-center">Bring me images!</h2>
-
-                <form class="custom-form" role="form" action="/extract_data" method="post">
-                    <div class="row">
-                        <div class="col-lg-12 col-md-6 col-12 my-2">
-                            <label class="mb-2" for="url">Landing Page URL</label>
-
-                            <input type="text" name="url" id="url" class="form-control" required="">
-                        </div>
-
-
-                        <div class="col-lg-6 col-md-6 col-12 my-2">
-                            <button form="showCreateAdSetForm" type="submit" method="post" class="form-control mt-4" id="campaign" onclick="showCreateAdSet()" action="/create_ad_set_form">Create Ad set</button>
-                            <!-- <input class="form-control mt-4" type="submit" form="showCreateAdSetForm" onclick="showCreateAdSet()">  -->
-                        </div>
-
-
-
-
-                        <div class="col-lg-6 col-md-6 col-12 my-2">
-                            <button type="submit" class="form-control mt-4" id="submit">Extract Data</button>
-                        </div>
-
-                    </div>
-
-                        {% for message in get_flashed_messages() %}
-                        <p>{{ message }}</p>
-                        {% endfor %}
-                        <br>
-                        {% for link in output %}
-                            <img src="{{link}}" alt="Recommended photo">
-                            <br><a href ="{{link}}" style="font-size:20px">image link</a>
-                            <br>
-                        {% endfor %}
-                </form>
-
-                        <form id="showCreateAdSetForm" action="/create_ad_set_form" method="post" style="display:none">
-                                <div class="row" id="showCreateAdSetForm">
-                                    <div class="col-lg-12 col-md-6 col-12 my-2">
-                                        <select name="ad_accounts" id="ad_accounts">
-                                            {% for ad_account in output2 %}
-                                            <option value="{{ad_account}}">{{ad_account}}</option>
-                                            {% endfor %}
-                                            </select>
-                                    </div>                    
-                                </div>
-                                
-                        </form>
-
-                    <a id="showCreateAdSetForm" href="#" style="display:none">Close</a>
-                        </div>
-
-                    </div>
-                </div>
-            </section>
 
         </main>
 
