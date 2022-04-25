@@ -1,5 +1,6 @@
 import requests
 
+
 # This interface allows the user to create and manage all the marketing fields,
 # using Facebook APIs.
 
@@ -45,10 +46,12 @@ def get_ad_account_by_id(ad_account_id, access_token):
                         fields, params)
 
 
+# act_1394987677611796?fields=amount_spent,business,name
 # returns all ad accounts belongs to business_id
 def get_all_ad_accounts_in_business(access_token):
+    fields = 'fields=amount_spent,business,name,account_id'
     params = {'access_token': access_token}
-    return requests.get('https://graph.facebook.com/v13.0/' + str(business_id) + '/owned_ad_accounts', params)
+    return requests.get('https://graph.facebook.com/v13.0/' + str(business_id) + '/owned_ad_accounts?' + fields, params)
 
 # 7832075466806241
 # 775308013448374
@@ -56,8 +59,8 @@ def get_all_ad_accounts_in_business(access_token):
 # creates a new campaign.
 # all params are string. special_ad_categories in the form: "[]"
 # returns: new campaign's id
-def create_new_campaign(ad_account_id, access_token, campaign_name, objective,
-                        status, special_ad_categories):
+def create_new_campaign(ad_account_id, access_token, campaign_name, objective="LINK_CLICKS",
+                        status="PAUSED", special_ad_categories="[]"):
     url = 'https://graph.facebook.com/v13.0/act_' + ad_account_id + '/campaigns'
     payload = {'name': campaign_name,
                'objective': objective,
@@ -82,12 +85,13 @@ def get_all_campaigns(ad_account_id, access_token):
     params = {
         'access_token': access_token
     }
-    return requests.get('https://graph.facebook.com/v13.0/act_' + ad_account_id + '/campaigns', params)
+    return requests.get('https://graph.facebook.com/v13.0/act_' + ad_account_id + '?fields=campaigns{id,name,budget_remaining,daily_budget}', params)
 
 
 # creates a new ad set
-def create_new_ad_set(AD_ACCOUNT_ID, ad_set_name, access_token, campaign_id, optimization_goal='REACH',
-                      billing_event='IMPRESSIONS', bid_amount=2, daily_budget=1000,
+def create_new_ad_set(AD_ACCOUNT_ID, ad_set_name, access_token, campaign_id, daily_budget="1000",
+                      optimization_goal='REACH',
+                      billing_event='IMPRESSIONS', bid_amount="2",
                       targeting={"geo_locations": {"countries": ["US"]}},
                       start_time='2020-10-06T04:45:17+0000', status='PAUSED'):
     url = 'https://graph.facebook.com/v13.0/act_' + AD_ACCOUNT_ID + '/adsets'
@@ -107,17 +111,31 @@ def create_new_ad_set(AD_ACCOUNT_ID, ad_set_name, access_token, campaign_id, opt
 
 # returns all ad sets belongs to AD_ACCOUNT_ID
 def get_all_ad_sets_by_ad_account(access_token, ad_account_id):
+    fields = 'fields=daily_budget,name,targeting'
     params = {
         'access_token': access_token
     }
-    return requests.get('https://graph.facebook.com/v13.0/act_' + ad_account_id + '/adsets', params)
+    return requests.get('https://graph.facebook.com/v13.0/act_' + ad_account_id + '/adsets?'+fields, params)
 
 
 # adds an image to ad creative repository.
 # image_path - path of image to upload, from local computer.
 # returns image's hash
-def upload_image(AD_ACCOUNT_ID, access_token, image_path):
+def upload_image_by_path(AD_ACCOUNT_ID, access_token, image_path):
     image_file = open(image_path, "rb")
+    url = 'https://graph.facebook.com/v13.0/act_' + AD_ACCOUNT_ID + '/adimages'
+    file_obj = {'filename': image_file}
+    payload = {"access_token": access_token}
+    return requests.post(url, data=payload, files=file_obj)
+
+# adds an image to ad creative repository.
+# image_path - path of image to upload, from local computer.
+# returns image's hash
+# todo: delete tmp image
+def upload_image_by_url(AD_ACCOUNT_ID, access_token, image_url):
+    # urllib.request.urlretrieve(image_url, "tmp_img.jpg")
+    image_file = open("tmp_img.jpg", "rb")
+    # image_file = open(image_path, "rb")
     url = 'https://graph.facebook.com/v13.0/act_' + AD_ACCOUNT_ID + '/adimages'
     file_obj = {'filename': image_file}
     payload = {"access_token": access_token}
@@ -180,7 +198,7 @@ def create_carousel_ad(name, access_token, image_hash):
 
 
 # creates a new ad
-def create_ad(access_token, AD_ACCOUNT_ID, name, adset_id, creative_id, status):
+def create_ad(access_token, AD_ACCOUNT_ID, name, adset_id, creative_id, status="PAUSED"):
     url = 'https://graph.facebook.com/v13.0/act_' + AD_ACCOUNT_ID + '/ads'
     payload = {'name': name,
                'adset_id': adset_id,
