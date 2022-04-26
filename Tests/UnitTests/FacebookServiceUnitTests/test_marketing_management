@@ -1,0 +1,32 @@
+# import unittest
+
+# class TestMarketingManagement(unittest.TestCase):
+
+
+#     def test_create_campaign:
+
+#     def test_create_adSet:
+
+#     def test_create_ad_creative:
+
+#     def test_create_ad:
+
+#     def test_delete_campaign:
+
+#     def test_delete_adSet:
+
+#     def test_delete_ad_creative:
+
+#     def test_delete_ad:
+
+#     def test_edit_campaign:
+
+#     def test_edit_adSet:
+
+#     def test_edit_ad_creative:
+
+#     def test_edit_ad:
+
+#     def test_automate_campaign:
+
+    
