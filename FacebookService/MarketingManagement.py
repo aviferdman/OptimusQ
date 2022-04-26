@@ -1,5 +1,6 @@
 import requests
-
+import urllib.request
+import base64
 
 # This interface allows the user to create and manage all the marketing fields,
 # using Facebook APIs.
@@ -133,13 +134,16 @@ def upload_image_by_path(AD_ACCOUNT_ID, access_token, image_path):
 # returns image's hash
 # todo: delete tmp image
 def upload_image_by_url(AD_ACCOUNT_ID, access_token, image_url):
-    # urllib.request.urlretrieve(image_url, "tmp_img.jpg")
-    image_file = open("tmp_img.jpg", "rb")
-    # image_file = open(image_path, "rb")
+    user_agent = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.7) Gecko/2009021910 Firefox/3.0.7'
+    headers = {'User-Agent': user_agent}
+    request = urllib.request.Request(image_url, None, headers)  # The assembled request
+    response = urllib.request.urlopen(request)
+    data = response.read()  # The data u need
+    image_file = base64.b64encode(data).decode()
     url = 'https://graph.facebook.com/v13.0/act_' + AD_ACCOUNT_ID + '/adimages'
-    file_obj = {'filename': image_file}
+    file_obj = {'bytes': image_file}
     payload = {"access_token": access_token}
-    return requests.post(url, data=payload, files=file_obj)
+    return requests.post(url, data=payload, params=file_obj)
 
 
 # creates a new ad creative

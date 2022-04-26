@@ -77,7 +77,7 @@ https://www.tooplate.com/view/2128-Tween-Agency
                 let data = {"access_token": access_token,
                     "ad_account": document.getElementById('ad_account').value,
                     "campaign": document.getElementById('campaign').value,
-                    "adset_name": document.getElementById('adset_name').value,
+                    "ad_name": document.getElementById('ad_name').value,
                     "url": document.getElementById('url').value,
                     "daily_budget": document.getElementById('daily_budget').value
                 };
@@ -95,7 +95,7 @@ https://www.tooplate.com/view/2128-Tween-Agency
                               }
                           }
                           };
-                          httpRequest.open('POST', "create_ad_set_automatically");
+                          httpRequest.open('POST', "create_ad");
                           httpRequest.setRequestHeader("Content-type", "application/json") // or "text/plain"
                           httpRequest.send(JSON.stringify(data));
                 }
@@ -298,7 +298,7 @@ https://www.tooplate.com/view/2128-Tween-Agency
 
 
             <br><br>
-            <a style="text-align:center;font-size:30px" href="#" onclick="showElement(true, 'showCreateAdSetForm')">Create Ads Automatically</a>
+            <a style="text-align:center;font-size:30px" href="#" onclick="showElement(true, 'showCreateAdSetForm')">Create an ad</a>
 
                         
             <section class="section-padding" id="section_6">
@@ -309,15 +309,14 @@ https://www.tooplate.com/view/2128-Tween-Agency
                     <div class="row">
                        <div class="col-lg-8 col-md-10 col-12 mx-auto" id="showCreateAdSetForm" style="display:none">
                             <!-- <h2 class="mb-4 text-center">Create Ads Automatically</h2> -->
-                            <p>Input a landing page url and create an ad set automatically.</p>
 
                             <form>
                                 <div class="row">
-                                    <label class="mb-2" for="url">Landing page URL:</label>
+                                    <label class="mb-2" for="url">Image URL:</label>
                                     <input type="text" name="url" id="url" class="form-control" required="">
-                                    <label class="mb-2" for="adset_name">Ad set name:</label>
-                                    <input type="text" name="adset_name" id="adset_name" class="form-control" required="">
-                                    <label class="mb-2" for="daily_budget">Ad set daily budget:</label>
+                                    <label class="mb-2" for="ad_name">Ad name:</label>
+                                    <input type="text" name="ad_name" id="ad_name" class="form-control" required="">
+                                    <label class="mb-2" for="daily_budget">Daily budget:</label>
                                     <input type="text" name="daily_budget" id="daily_budget" class="form-control" required="">
                                     <div class="col-lg-12 col-md-6 col-12 my-2">
                                         <label for="ad_accounts">Ad account:</label>
@@ -339,7 +338,7 @@ https://www.tooplate.com/view/2128-Tween-Agency
                                 <a href="#" onclick="showElement(false, 'showCreateAdSetForm')">Close</a>
 
                                 <div class="col-lg-6 col-md-6 col-12 my-2">
-                                    <button type="submit" class="form-control mt-4" id="submit" onclick="create_adset()">Create Ad Set!</button>
+                                    <button type="submit" class="form-control mt-4" id="submit" onclick="create_adset()">Create Ad!</button>
                                 </div>
 
                                 

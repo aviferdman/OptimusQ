@@ -5,6 +5,7 @@
 # 'Flask' is a library of web applications written in Python.
 from doctest import OutputChecker
 from flask import Flask, render_template, request, flash, Markup, jsonify
+import time
 
 from DataBaseService.main import DataBaseController, dataBaseController
 # deleteAccessTokenByUserId, writeAccessToken2db, getAccessTokenByUserId
@@ -104,7 +105,7 @@ def fb_logged_in():
     # return render_template("fb_logged_in.html", output=list_of_images)
 
 
-@app.route("/create_ad_set_automatically", methods=['POST', 'GET'])
+@app.route("/create_ad", methods=['POST', 'GET'])
 def create_ad_set_automatically():
     """
     created an ad set automatically by a landing page url
@@ -112,26 +113,23 @@ def create_ad_set_automatically():
     if request.method == "POST":
         print("POST!!!: ")
         rq = request.get_json()
+        print("request: " + str(rq))
         access_token = rq["access_token"]
         ad_account = rq["ad_account"]
-        url = rq["url"]
+        url = rq["url"] #image url
         daily_budget = rq["daily_budget"]
-        adset_name = rq["adset_name"]
+        ad_name = rq["ad_name"]
         campaign = rq["campaign"]
-        result = main_trigger(url)
-        images = result["images"]
-        list_of_images = []
-        for k in images.keys():
-            if images[k]:
-                list_of_images.append(images[k][0])
-        print(MarketingManagement.create_new_ad_set(
-            ad_account, adset_name, access_token, campaign, daily_budget
-        ).json())
+        # print(MarketingManagement.create_new_ad_set(
+        #     ad_account, adset_name, access_token, campaign, daily_budget
+        # ).json())
         # img_hashes = []
-        # for img in list_of_images:
-        #     img_hashes.append(MarketingManagement.upload_image_by_url(ad_account, access_token, img).json()["images"]["ad_img.jpg"]["hash"])
+        # for img_url in list_of_images:
+        #     print(MarketingManagement.upload_image_by_url(ad_account, access_token, img_url).json())
+        #     time.sleep(6)
+            # MarketingManagement.upload_image_by_url(ad_account, access_token, img_url).json()["images"]["bytes"]["hash"]
+        print(MarketingManagement.upload_image_by_url(ad_account, access_token, url).json())
 
-        creatives_ids = []
         # for img_hash in img_hashes:
         #     MarketingManagement.create_ad_creative("default name", access_token, img_hash)
 
