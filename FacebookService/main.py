@@ -47,7 +47,7 @@ import base64
 # encoded_str = str(encoded_string)
 
 res = MarketingManagement.upload_image_by_url('1394987677611796',
-                                              'EAAEt1383MgMBAB2FZCHtFgYbnrlJBWlWZCFgfOH7QggFM0nMZCZAuoOwIFoIXPkjZAlMi0Bm0ShHC7uvso6mU5oxLr1fQakgtjWjvhZCpqmcraGzoiKJZBUthhjyAw8v7SqiYllPShI4auW6uZBEPLZBcvZAgc1xCucrqxQqLy8rKgE9Kv2OtwzQk5ZCEoTzuJRYN0gyx7evsYqStqHFD1eiSFZAR8tfa0wYPLx9vO2ZCbz0iHfwSspJE9IgZC',
+                                              '',
                                               'https://pixabay.com/get/ge2b26680189f004db205a96101aa57e45807e44f7150e776d9abb969cf16a2152053b0d56bec4c71757c6108666899b16a10007ddde52f8afb0fef3be32c12a9_640.png')
 
 # data = res.json()["images"]["bytes"]["hash"]
