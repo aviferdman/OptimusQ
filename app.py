@@ -224,9 +224,7 @@ def upload_img_from_url():
         ad_account_id = rq['ad_account']
         img_url = rq['img_url']
         token = db.getAccessTokenByUserId('admin_token')
-        # MarketingManagement.upload_image_by_url('1394987677611796', token, 'https://artprojectsforkids.org/wp-content/uploads/2020/05/Airplane.jpg')
-        MarketingManagement.upload_image_by_url(ad_account_id, token, img_url)
-        return "success"
+        return MarketingManagement.upload_image_by_url(ad_account_id, token, img_url)
 
 
 # for running in local host with HTTP

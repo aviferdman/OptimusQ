@@ -135,15 +135,18 @@ def upload_image_by_path(AD_ACCOUNT_ID, access_token, image_path):
 def upload_image_by_url(AD_ACCOUNT_ID, access_token, image_url):
     user_agent = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.7) Gecko/2009021910 Firefox/3.0.7'
     headers = {'User-Agent': user_agent}
-    request = urllib.request.Request(image_url, None, headers)  # The assembled request
-    response = urllib.request.urlopen(request)
-    data = response.read()  # The data we need
-    image_file = base64.b64encode(data).decode()
-    url = 'https://graph.facebook.com/v13.0/act_' + AD_ACCOUNT_ID + '/adimages'
-    file_obj = {'bytes': image_file}
-    payload = {"access_token": access_token}
-    return requests.post(url, data=payload, params=file_obj)
-
+    try:
+        request = urllib.request.Request(image_url, None, headers)  # The assembled request
+        response = urllib.request.urlopen(request)
+        data = response.read()  # The data we need
+        image_file = base64.b64encode(data).decode()
+        url = 'https://graph.facebook.com/v13.0/act_' + AD_ACCOUNT_ID + '/adimages'
+        file_obj = {'bytes': image_file}
+        payload = {"access_token": access_token}
+        res = requests.post(url, data=payload, params=file_obj)
+        return {"status": res.status_code, "body": res.json()}
+    except Exception as e:
+        return {"status": 400, "body": str(e)}
 
 # creates a new ad creative
 # todo: returns error: "Ads creative post was created by an app that is in development mode. It must be in public to create this ad"
