@@ -17,6 +17,8 @@ from PresentationService.main import main_trigger
 app = Flask(__name__)
 app.secret_key = "manbearpig_MUDMAN888"
 
+db = dataBaseController
+
 
 @app.route("/")
 def hello():
@@ -111,7 +113,7 @@ def create_ad_set_automatically():
     created an ad set automatically by a landing page url
     """
     if request.method == "POST":
-        print("POST!!!: ")
+        print("POST FROM create_ad!!!: ")
         rq = request.get_json()
         print("request: " + str(rq))
         access_token = rq["access_token"]
@@ -127,8 +129,9 @@ def create_ad_set_automatically():
         # for img_url in list_of_images:
         #     print(MarketingManagement.upload_image_by_url(ad_account, access_token, img_url).json())
         #     time.sleep(6)
-            # MarketingManagement.upload_image_by_url(ad_account, access_token, img_url).json()["images"]["bytes"]["hash"]
-        print(MarketingManagement.upload_image_by_url(ad_account, access_token, url).json())
+        # MarketingManagement.upload_image_by_url(ad_account, access_token, img_url).json()["images"]["bytes"]["hash"]
+        print("**DEBUG2")
+        print("**response from FB: " + str(MarketingManagement.upload_image_by_url(ad_account, access_token, url).json()))
 
         # for img_hash in img_hashes:
         #     MarketingManagement.create_ad_creative("default name", access_token, img_hash)
@@ -202,6 +205,28 @@ def extract_keywords_from_landing_page():
     res_txt += "<br><b>Recommended Images:</b>"
     flash(Markup(res_txt))
     return render_template("extract_kw.html", output=list_of_images)
+
+@app.route("/api/fb/save_in_db", methods=['POST', 'GET'])
+def save_in_db():
+    if request.method == "POST":
+        print("POST to DB!!!: ")
+        rq = request.get_json()
+        # db = dataBaseController
+        print("inserting to db...")
+        db.writeAccessToken2db(rq["user_id"], rq["token"])
+        return "success"
+
+@app.route("/api/fb/upload_img_from_url", methods=['POST'])
+def upload_img_from_url():
+    if request.method == "POST":
+        print("upload_img_from_url: POST!")
+        rq = request.get_json()
+        ad_account_id = rq['ad_account']
+        img_url = rq['img_url']
+        token = db.getAccessTokenByUserId('admin_token')
+        # MarketingManagement.upload_image_by_url('1394987677611796', token, 'https://artprojectsforkids.org/wp-content/uploads/2020/05/Airplane.jpg')
+        MarketingManagement.upload_image_by_url(ad_account_id, token, img_url)
+        return "success"
 
 
 # for running in local host with HTTP

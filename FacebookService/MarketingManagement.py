@@ -47,15 +47,12 @@ def get_ad_account_by_id(ad_account_id, access_token):
                         fields, params)
 
 
-# act_1394987677611796?fields=amount_spent,business,name
 # returns all ad accounts belongs to business_id
 def get_all_ad_accounts_in_business(access_token):
     fields = 'fields=amount_spent,business,name,account_id'
     params = {'access_token': access_token}
     return requests.get('https://graph.facebook.com/v13.0/' + str(business_id) + '/owned_ad_accounts?' + fields, params)
 
-# 7832075466806241
-# 775308013448374
 
 # creates a new campaign.
 # all params are string. special_ad_categories in the form: "[]"
@@ -86,7 +83,9 @@ def get_all_campaigns(ad_account_id, access_token):
     params = {
         'access_token': access_token
     }
-    return requests.get('https://graph.facebook.com/v13.0/act_' + ad_account_id + '?fields=campaigns{id,name,budget_remaining,daily_budget}', params)
+    return requests.get(
+        'https://graph.facebook.com/v13.0/act_' + ad_account_id + '?fields=campaigns{id,name,budget_remaining,daily_budget}',
+        params)
 
 
 # creates a new ad set
@@ -116,7 +115,7 @@ def get_all_ad_sets_by_ad_account(access_token, ad_account_id):
     params = {
         'access_token': access_token
     }
-    return requests.get('https://graph.facebook.com/v13.0/act_' + ad_account_id + '/adsets?'+fields, params)
+    return requests.get('https://graph.facebook.com/v13.0/act_' + ad_account_id + '/adsets?' + fields, params)
 
 
 # adds an image to ad creative repository.
@@ -129,16 +128,16 @@ def upload_image_by_path(AD_ACCOUNT_ID, access_token, image_path):
     payload = {"access_token": access_token}
     return requests.post(url, data=payload, files=file_obj)
 
+
 # adds an image to ad creative repository.
 # image_path - path of image to upload, from local computer.
 # returns image's hash
-# todo: delete tmp image
 def upload_image_by_url(AD_ACCOUNT_ID, access_token, image_url):
     user_agent = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.7) Gecko/2009021910 Firefox/3.0.7'
     headers = {'User-Agent': user_agent}
     request = urllib.request.Request(image_url, None, headers)  # The assembled request
     response = urllib.request.urlopen(request)
-    data = response.read()  # The data u need
+    data = response.read()  # The data we need
     image_file = base64.b64encode(data).decode()
     url = 'https://graph.facebook.com/v13.0/act_' + AD_ACCOUNT_ID + '/adimages'
     file_obj = {'bytes': image_file}
@@ -149,16 +148,16 @@ def upload_image_by_url(AD_ACCOUNT_ID, access_token, image_url):
 # creates a new ad creative
 # todo: returns error: "Ads creative post was created by an app that is in development mode. It must be in public to create this ad"
 # todo: make this function generic
-def create_ad_creative(name, access_token, image_hash):
+def create_ad_creative(name, access_token, image_hash, ad_account_id, link, message, page_id='107414948611212'):
     object_story_spec = {
-        "page_id": "109098168429622",
+        "page_id": page_id,
         "link_data": {
             "image_hash": image_hash,
-            "link": "https://facebook.com/109098168429622",
-            "message": "try it out"
+            "link": link,
+            "message": message
         }
     }
-    url = 'https://graph.facebook.com/v13.0/act_1394987677611796/adcreatives'
+    url = 'https://graph.facebook.com/v13.0/act_' + ad_account_id + '/adcreatives'
     payload = {'name': name,
                'object_story_spec': str(object_story_spec),
                "access_token": access_token
@@ -167,17 +166,16 @@ def create_ad_creative(name, access_token, image_hash):
 
 
 # creates an ad of type "carousel"
-# todo: returns error: "Ads creative post was created by an app that is in development mode. It must be in public to create this ad"
 # todo: make this function generic
-def create_carousel_ad(name, access_token, image_hash):
+def create_carousel_ad(name, access_token, image_hash, link, description, page_id='107414948611212'):
     object_story_spec = {
-        "page_id": "109098168429622",
+        "page_id": page_id,
         "link_data": {
             "child_attachments": [
                 {
-                    "description": "$8.99",
+                    "description": description,
                     "image_hash": image_hash,
-                    "link": "https://www.google.com/",
+                    "link": link,
                     "name": "Product 1",
                     # "video_id": "<VIDEO_ID>"
                 },
@@ -206,37 +204,39 @@ def create_ad(access_token, AD_ACCOUNT_ID, name, adset_id, creative_id, status="
     url = 'https://graph.facebook.com/v13.0/act_' + AD_ACCOUNT_ID + '/ads'
     payload = {'name': name,
                'adset_id': adset_id,
-               'creative': {
-                   "creative_id": creative_id
-               },
+               'creative': str({"creative_id": creative_id}),
                "status": status,
                "access_token": access_token
                }
     return requests.post(url, data=payload, headers={})
 
+
 # get all ads by ad account
 def get_all_ads_by_adAcount_id(access_token, ad_account_id):
     url = 'https://graph.facebook.com/v13.0/act_' + ad_account_id + '/ads'
     params = {'fields': 'name',
-               "access_token": access_token
-               }
+              "access_token": access_token
+              }
     return requests.get(url, params)
+
 
 # get all ads by campaign
 def get_all_ads_by_campaign_id(access_token, campaign_id):
     url = 'https://graph.facebook.com/v13.0/' + campaign_id + '/ads'
     params = {'fields': 'name',
-               "access_token": access_token
-               }
+              "access_token": access_token
+              }
     return requests.get(url, params)
+
 
 # get all ads by adSet id
 def get_all_ads_by_adSet_id(access_token, adSet_id):
     url = 'https://graph.facebook.com/v13.0/' + adSet_id + '/ads'
     params = {'fields': 'name',
-        "access_token": access_token
-               }
+              "access_token": access_token
+              }
     return requests.get(url, params)
+
 
 # You cannot remove ad accounts from your business if you're OWNER and if the accounts are CONFIRMED.
 # If you have a PENDING access request or you have AGENCY access to the ad account, you can make this DELETE call
