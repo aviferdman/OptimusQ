@@ -80,8 +80,10 @@ def fb_logged_in():
         for account in ad_accounts:
             # ad_account_id = account['id'][4::] # only the id, without the prefix of act_
             ad_account_id = account['account_id']
-            campaigns = campaigns + (MarketingManagement.get_all_campaigns(ad_account_id, access_token).json()["campaigns"]["data"])
-            ad_sets = ad_sets + (MarketingManagement.get_all_ad_sets_by_ad_account(access_token, ad_account_id).json()['data'])
+            campaigns = campaigns + (
+            MarketingManagement.get_all_campaigns(ad_account_id, access_token).json()["campaigns"]["data"])
+            ad_sets = ad_sets + (
+            MarketingManagement.get_all_ad_sets_by_ad_account(access_token, ad_account_id).json()['data'])
         ads = []
         for ad_set in ad_sets:
             ad_set_id = ad_set['id']
@@ -89,21 +91,21 @@ def fb_logged_in():
             ads = ads + (MarketingManagement.get_all_ads_by_adSet_id(access_token, ad_set_id).json()['data'])
     #     todo: to get ad creatives: An ad creative object is an instance of a specific creative which is being used to define the creative field of one or more ads
 
-
     #     db = dataBaseController
-        # print("deleting from db...")
-        # db.deleteAccessTokenByUserId(user_id)
-        # print("inserting to db...")
-        # db.writeAccessToken2db(user_id, access_token)
-        # print("db has tokens:")
-        # return db.getAccessTokenByUserId(user_id)
+    # print("deleting from db...")
+    # db.deleteAccessTokenByUserId(user_id)
+    # print("inserting to db...")
+    # db.writeAccessToken2db(user_id, access_token)
+    # print("db has tokens:")
+    # return db.getAccessTokenByUserId(user_id)
     # return "/fb_login_handler"
     # output_json = {}
     # output_json.update("campaigns")
     list_of_images = []
     list_of_images.append("1")
     list_of_images.append("2")
-    return render_template("fb_logged_in.html", output={"ad_accounts": ad_accounts, "campaigns": campaigns, "ad_sets": ad_sets, "ads": ads})
+    return render_template("fb_logged_in.html",
+                           output={"ad_accounts": ad_accounts, "campaigns": campaigns, "ad_sets": ad_sets, "ads": ads})
     # return render_template("fb_logged_in.html", output=list_of_images)
 
 
@@ -118,7 +120,7 @@ def create_ad_set_automatically():
         print("request: " + str(rq))
         access_token = rq["access_token"]
         ad_account = rq["ad_account"]
-        url = rq["url"] #image url
+        url = rq["url"]  # image url
         daily_budget = rq["daily_budget"]
         ad_name = rq["ad_name"]
         campaign = rq["campaign"]
@@ -131,13 +133,11 @@ def create_ad_set_automatically():
         #     time.sleep(6)
         # MarketingManagement.upload_image_by_url(ad_account, access_token, img_url).json()["images"]["bytes"]["hash"]
         print("**DEBUG2")
-        print("**response from FB: " + str(MarketingManagement.upload_image_by_url(ad_account, access_token, url).json()))
+        print(
+            "**response from FB: " + str(MarketingManagement.upload_image_by_url(ad_account, access_token, url).json()))
 
         # for img_hash in img_hashes:
         #     MarketingManagement.create_ad_creative("default name", access_token, img_hash)
-
-            
-
 
     # url = str(request.form['url'])
     # print("url:" + url)
@@ -206,6 +206,7 @@ def extract_keywords_from_landing_page():
     flash(Markup(res_txt))
     return render_template("extract_kw.html", output=list_of_images)
 
+
 @app.route("/api/fb/save_in_db", methods=['POST', 'GET'])
 def save_in_db():
     if request.method == "POST":
@@ -216,15 +217,51 @@ def save_in_db():
         db.writeAccessToken2db(rq["user_id"], rq["token"])
         return "success"
 
+
 @app.route("/api/fb/upload_img_from_url", methods=['POST'])
 def upload_img_from_url():
     if request.method == "POST":
         print("upload_img_from_url: POST!")
         rq = request.get_json()
+        is_sandbox_mode = rq['sandbox_mode']
+        if is_sandbox_mode == "no":
+            return {'status': 400, 'body': 'currently working in sandbox mode only.'}
         ad_account_id = rq['ad_account']
         img_url = rq['img_url']
-        token = db.getAccessTokenByUserId('admin_token')
+        token = db.getAccessTokenByUserId('sandbox_token')
         return MarketingManagement.upload_image_by_url(ad_account_id, token, img_url)
+
+
+@app.route("/api/fb/create_adCreative", methods=['POST'])
+def create_adCreative():
+    if request.method == "POST":
+        rq = request.get_json()
+        is_sandbox_mode = rq['sandbox_mode']
+        if is_sandbox_mode == "no":
+            return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+        ad_account_id = rq['ad_account']
+        name = rq['name']
+        img_hash = rq['img_hash']
+        link = rq['link']
+        msg = rq['msg']
+        page_id = rq['page_id']
+        token = db.getAccessTokenByUserId('sandbox_token')
+        return MarketingManagement.create_ad_creative(token, name, img_hash, ad_account_id, link, msg, page_id)
+
+@app.route("/api/fb/create_ad", methods=['POST'])
+def create_ad():
+    if request.method == "POST":
+        rq = request.get_json()
+        is_sandbox_mode = rq['sandbox_mode']
+        if is_sandbox_mode == "no":
+            return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+        ad_account_id = rq['ad_account']
+        name = rq['name']
+        adset = rq['adset']
+        creative = rq['creative']
+        status = rq['status']
+        token = db.getAccessTokenByUserId('sandbox_token')
+        return MarketingManagement.create_ad(token, ad_account_id, name, adset, creative, status)
 
 
 # for running in local host with HTTP
