@@ -65,7 +65,8 @@ def create_new_campaign(access_token, ad_account_id, campaign_name, objective="L
                "status": status,
                'special_ad_categories': special_ad_categories,
                'access_token': access_token}
-    return requests.post(url, data=payload, headers={})
+    res = requests.post(url, data=payload, headers={})
+    return {"status": res.status_code, "body": res.json()}
 
 
 # returns a campaign by id
@@ -83,9 +84,10 @@ def get_all_campaigns(access_token, ad_account_id):
     params = {
         'access_token': access_token
     }
-    return requests.get(
+    res = requests.get(
         'https://graph.facebook.com/v13.0/act_' + ad_account_id + '?fields=campaigns{id,name,budget_remaining,daily_budget}',
         params)
+    return {"status": res.status_code, "body": res.json()}
 
 
 # creates a new ad set
@@ -106,7 +108,8 @@ def create_new_ad_set(access_token, AD_ACCOUNT_ID, ad_set_name, campaign_id, dai
                "status": status,
                "access_token": access_token
                }
-    return requests.post(url, data=payload, headers={})
+    res = requests.post(url, data=payload, headers={})
+    return {"status": res.status_code, "body": res.json()}
 
 
 # returns all ad sets belongs to AD_ACCOUNT_ID
@@ -117,6 +120,15 @@ def get_all_ad_sets_by_ad_account(access_token, ad_account_id):
     }
     return requests.get('https://graph.facebook.com/v13.0/act_' + ad_account_id + '/adsets?' + fields, params)
 
+# 120330000357827313/adsets
+# returns all ad sets belongs to campaign with campaign_id
+def get_all_ad_sets_by_campaign(access_token, campaign_id):
+    fields = 'fields=daily_budget,name,targeting'
+    params = {
+        'access_token': access_token
+    }
+    res = requests.get('https://graph.facebook.com/v13.0/' + campaign_id +  '/adsets?' + fields, params)
+    return {"status": res.status_code, "body": res.json()}
 
 # adds an image to ad creative repository.
 # image_path - path of image to upload, from local computer.
@@ -236,10 +248,29 @@ def get_all_ads_by_campaign_id(access_token, campaign_id):
 # get all ads by adSet id
 def get_all_ads_by_adSet_id(access_token, adSet_id):
     url = 'https://graph.facebook.com/v13.0/' + adSet_id + '/ads'
-    params = {'fields': 'name',
+    params = {'fields': 'id,creative,name,status',
               "access_token": access_token
               }
-    return requests.get(url, params)
+    res = requests.get(url, params)
+    return {"status": res.status_code, "body": res.json()}
+
+# get an adCreative preview
+def get_adCreative_preview(access_token, creative_id, ad_format='DESKTOP_FEED_STANDARD'):
+    url = 'https://graph.facebook.com/v13.0/' + creative_id + '/previews'
+    params = {'ad_format': ad_format,
+              "access_token": access_token
+              }
+    res = requests.get(url, params)
+    return {"status": res.status_code, "body": res.json()}
+
+# get an ad preview
+def get_ad_preview(access_token, ad_id, ad_format='DESKTOP_FEED_STANDARD'):
+    url = 'https://graph.facebook.com/v13.0/' + ad_id + '/previews'
+    params = {'ad_format': ad_format,
+              "access_token": access_token
+              }
+    res = requests.get(url, params)
+    return {"status": res.status_code, "body": res.json()}
 
 
 # You cannot remove ad accounts from your business if you're OWNER and if the accounts are CONFIRMED.
@@ -280,7 +311,12 @@ def delete_ad(access_token, ad_id):
     return requests.delete(url, data=payload, headers={})
 
 
-# get statistics by campaign id
-# todo: implement
-def get_campaign_statistics(campaign_id, access_token):
-    pass
+# get insights for ad account/campaign/ad set/ ad
+def get_insights(access_token, marketing_object_id, date_preset):
+    url = 'https://graph.facebook.com/v13.0/' + marketing_object_id + '/insights'
+    params = {'fields': 'impressions,clicks,cpc,ctr,frequency,objective,optimization_goal,quality_ranking,spend',
+              'date_preset': date_preset,
+              "access_token": access_token
+              }
+    res = requests.get(url, params)
+    return {"status": res.status_code, "body": res.json()}

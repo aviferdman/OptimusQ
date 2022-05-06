@@ -7,8 +7,9 @@ import MarketingManagement as mm
 # adCreative: '{"id":"120330000357828413"}'
 # ad id for example: '{"id":"120330000357835013"}'
 
-res3 = mm.create_ad('',
-                    '1107831820072468', 'adName1', '120330000357832413', '120330000357828413', 'PAUSED')
+from DataBaseService.main import dataBaseController
+db = dataBaseController
+token = db.getAccessTokenByUserId('sandbox_token')
 
 
 print('hi')

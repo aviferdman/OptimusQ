@@ -4,8 +4,10 @@
 
 # 'Flask' is a library of web applications written in Python.
 from doctest import OutputChecker
+import json
 from flask import Flask, render_template, request, flash, Markup, jsonify
 import time
+import requests
 
 from DataBaseService.main import DataBaseController, dataBaseController
 # deleteAccessTokenByUserId, writeAccessToken2db, getAccessTokenByUserId
@@ -218,10 +220,47 @@ def save_in_db():
         return "success"
 
 
+# get_all_campaigns
+@app.route("/api/fb/get_all_campaigns", methods=['GET'])
+def fb_api_get_all_campaigns():
+    if request.method == "GET":
+        rq = request.get_json()
+        is_sandbox_mode = rq['sandbox_mode']
+        if is_sandbox_mode == "no":
+            return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+        ad_account  = rq['ad_account']
+        token = db.getAccessTokenByUserId('sandbox_token')
+        return MarketingManagement.get_all_campaigns(token, ad_account)
+
+# upload_img_from_url
 @app.route("/api/fb/upload_img_from_url", methods=['POST'])
 def upload_img_from_url():
     if request.method == "POST":
         print("upload_img_from_url: POST!")
+        rq = request.get_json()
+        is_sandbox_mode = rq['sandbox_mode']
+        if is_sandbox_mode == "no":
+            return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+        ad_account_id = rq['ad_account']
+        img_url = rq['img_url']
+        token = db.getAccessTokenByUserId('sandbox_token')
+        return MarketingManagement.upload_image_by_url(ad_account_id, token, img_url)
+
+# get_all_ad_sets_for_campaign
+@app.route("/api/fb/get_all_ad_sets_by_campaign", methods=['GET'])
+def fb_api_get_all_ad_sets_by_campaign():
+    if request.method == "GET":
+        rq = request.get_json()
+        is_sandbox_mode = rq['sandbox_mode']
+        if is_sandbox_mode == "no":
+            return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+        campaign_id = rq['campaign_id']
+        token = db.getAccessTokenByUserId('sandbox_token')
+        return MarketingManagement.get_all_ad_sets_by_campaign(token, campaign_id)
+
+@app.route("/api/fb/upload_image_by_path", methods=['POST'])
+def fb_api_upload_image_by_path():
+    if request.method == "POST":
         rq = request.get_json()
         is_sandbox_mode = rq['sandbox_mode']
         if is_sandbox_mode == "no":
@@ -263,6 +302,94 @@ def create_ad():
         token = db.getAccessTokenByUserId('sandbox_token')
         return MarketingManagement.create_ad(token, ad_account_id, name, adset, creative, status)
 
+@app.route("/api/fb/create_new_adset", methods=['POST'])
+def create_new_adset():
+    if request.method == "POST":
+        rq = request.get_json()
+        is_sandbox_mode = rq['sandbox_mode']
+        if is_sandbox_mode == "no":
+            return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+        ad_account_id = rq['ad_account']
+        ad_set_name = rq['ad_set_name']
+        campaign_id = rq['campaign_id']
+        daily_budget = '1000'
+        if 'daily_budget' in rq:
+            daily_budget = rq['daily_budget']
+        optimization_goal = 'REACH'
+        if 'optimization_goal' in rq:
+            optimization_goal = rq['optimization_goal']
+        billing_event = 'IMPRESSIONS'
+        if 'billing_event' in rq:
+            billing_event = rq['billing_event']
+        targeting = {"geo_locations": {"countries": ["US"]}}
+        if 'targeting' in rq:
+            targeting = rq['targeting']
+        bid_amount = '1500'
+        if 'bid_amount' in rq:
+            bid_amount = rq['bid_amount']
+        start_time = '2020-10-06T04:45:17+0000'
+        if 'start_time' in rq:
+            start_time = rq['start_time']
+        status = 'PAUSED'
+        if status in rq:
+            status = rq['status']
+        token = db.getAccessTokenByUserId('sandbox_token')
+        return MarketingManagement.create_new_ad_set(token, ad_account_id, ad_set_name, campaign_id, daily_budget,
+                                                     optimization_goal, billing_event, bid_amount, targeting, start_time, status)
+
+# create_new_ad_set
+@app.route("/api/fb/create_new_campaign", methods=['POST'])
+def fb_api_create_new_campaign():
+    if request.method == "POST":
+        rq = request.get_json()
+        is_sandbox_mode = rq['sandbox_mode']
+        if is_sandbox_mode == "no":
+            return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+        ad_account_id = rq['ad_account']
+        campaign_name = rq.get('campaign_name')
+        objective = rq.get('objective', 'LINK_CLICKS')
+        status = rq.get('status', 'PAUSED')
+        special_ad_categories = rq.get('special_ad_categories', "[]")
+        token = db.getAccessTokenByUserId('sandbox_token')
+        return MarketingManagement.create_new_campaign(token, ad_account_id, campaign_name, objective, status, special_ad_categories)
+
+# get_ad_preview
+@app.route("/api/fb/get_ad_preview", methods=['GET'])
+def fb_api_get_ad_preview():
+    if request.method == "GET":
+        rq = request.get_json()
+        is_sandbox_mode = rq['sandbox_mode']
+        if is_sandbox_mode == "no":
+            return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+        ad_id = rq['ad_id']
+        ad_format = rq.get('ad_format', 'DESKTOP_FEED_STANDARD')
+        token = db.getAccessTokenByUserId('sandbox_token')
+        return MarketingManagement.get_ad_preview(token, ad_id, ad_format)
+
+# get all ads by adSet
+@app.route("/api/fb/get_all_ads_by_adSet_id", methods=['GET'])
+def fb_api_get_all_ads_by_adSet_id():
+    if request.method == "GET":
+        rq = request.get_json()
+        is_sandbox_mode = rq['sandbox_mode']
+        if is_sandbox_mode == "no":
+            return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+        adset_id = rq['adset_id']
+        token = db.getAccessTokenByUserId('sandbox_token')
+        return MarketingManagement.get_all_ads_by_adSet_id(token, adset_id)
+
+# get insights for ad account/campaign/ad set/ ad
+@app.route("/api/fb/get_insights", methods=['GET'])
+def fb_api_get_insights():
+    if request.method == "GET":
+        rq = request.get_json()
+        is_sandbox_mode = rq['sandbox_mode']
+        if is_sandbox_mode == "no":
+            return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+        marketing_object_id = rq['marketing_object_id']
+        date_preset = rq.get('date_preset', 'maximum')
+        token = db.getAccessTokenByUserId('sandbox_token')
+        return MarketingManagement.get_insights(token, marketing_object_id, date_preset)
 
 # for running in local host with HTTP
 # if __name__ == '__main__':
