@@ -295,6 +295,222 @@ class DataBaseController:
                         VALUES('{0}', '{1}');
                         """.format(user_id, access_token))
 
+    ######################################################################
+    #  FB_Campaigns
+    ######################################################################
+    def addCampaign(self, id, ad_account, name, daily_budget, budget_remaining):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                    INSERT INTO [dbo].[FB_Campaigns] (id, ad_account, name, daily_budget, budget_remaining)
+                    VALUES ('{0}', '{1}', '{2}', '{3}', '{4}');
+                    """.format(id, ad_account, name, daily_budget, budget_remaining))
+
+    def getCampaign(self, id):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                                SELECT * FROM FB_Campaigns
+                                WHERE "id"='{0}';
+                                """.format(id))
+                myresult = cursor.fetchall()
+                return myresult
+
+    def getAllCampaigns(self):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                SELECT * FROM FB_Campaigns;""")
+                myresult = cursor.fetchall()
+                return myresult
+
+    def deleteCampaign(self, id):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                SELECT * FROM FB_Campaigns
+                WHERE "id" = '{0}';
+                """.format(id))
+                theResult = cursor.fetchall()
+                if (len(theResult) > 0):
+                    cursor.execute("""
+                        DELETE FROM FB_Campaigns WHERE "id" = '{0}';
+                        """.format(id))
+
+
+
+    ######################################################################
+    #  FB_AdSets
+    ######################################################################
+    def addAdSet(self, id, ad_account, campaign, name, daily_budget, targeting):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                    INSERT INTO [dbo].[FB_AdSets] (id, ad_account, campaign, name, daily_budget, targeting)
+                    VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}');
+                    """.format(id, ad_account, campaign, name, daily_budget, targeting))
+
+    def getAdSet(self, id):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                                SELECT * FROM FB_AdSets
+                                WHERE "id"='{0}';
+                                """.format(id))
+                myresult = cursor.fetchall()
+                return myresult
+
+    def getAllAdSets(self):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                SELECT * FROM FB_AdSets;""")
+                myresult = cursor.fetchall()
+                return myresult
+
+    def deleteAdSet(self, id):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                SELECT * FROM FB_AdSets
+                WHERE "id" = '{0}';
+                """.format(id))
+                theResult = cursor.fetchall()
+                if (len(theResult) > 0):
+                    cursor.execute("""
+                        DELETE FROM FB_AdSets WHERE "id" = '{0}';
+                        """.format(id))
+
+
+    ######################################################################
+    #  FB_Images
+    ######################################################################
+    def addFBImage(self, hash, permalink_url):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                    INSERT INTO [dbo].[FB_Images] (hash, permalink_url)
+                    VALUES ('{0}', '{1}');
+                    """.format(hash, permalink_url))
+
+    def getFBImage(self, hash):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                                SELECT * FROM FB_Images
+                                WHERE "hash"='{0}';
+                                """.format(hash))
+                myresult = cursor.fetchall()
+                return myresult
+
+    def getAllFBImages(self):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                SELECT * FROM FB_Images;""")
+                myresult = cursor.fetchall()
+                return myresult
+
+    def deleteFBImage(self, hash):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                SELECT * FROM FB_Images
+                WHERE "hash" = '{0}';
+                """.format(hash))
+                theResult = cursor.fetchall()
+                if (len(theResult) > 0):
+                    cursor.execute("""
+                        DELETE FROM FB_Images WHERE "hash" = '{0}';
+                        """.format(hash))
+
+
+    ######################################################################
+    #  FB_AdCreatives
+    ######################################################################
+    def addFBAdCreative(self, id, name, title, body, image_hash):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                    INSERT INTO [dbo].[FB_AdCreatives] (id, name, title, body, image_hash)
+                    VALUES ('{0}', '{1}', '{2}', '{3}', '{4}');
+                    """.format(id, name, title, body, image_hash))
+
+    def getFBAdCreative(self, id):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                                SELECT * FROM FB_AdCreatives
+                                WHERE "id"='{0}';
+                                """.format(id))
+                myresult = cursor.fetchall()
+                return myresult
+
+    def getAllFBAdCreatives(self):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                SELECT * FROM FB_AdCreatives;""")
+                myresult = cursor.fetchall()
+                return myresult
+
+    def deleteFBAdCreative(self, id):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                SELECT * FROM FB_AdCreatives
+                WHERE "id" = '{0}';
+                """.format(id))
+                theResult = cursor.fetchall()
+                if (len(theResult) > 0):
+                    cursor.execute("""
+                        DELETE FROM FB_AdCreatives WHERE "id" = '{0}';
+                        """.format(id))
+
+
+    ######################################################################
+    #  FB_Ads
+    ######################################################################
+    def addFBAd(self, id, adSet, name, creative, status):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                    INSERT INTO [dbo].[FB_Ads] (id, adSet, name, creative, status)
+                    VALUES ('{0}', '{1}', '{2}', '{3}', '{4}');
+                    """.format(id, adSet, name, creative, status))
+
+    def getFBAd(self, id):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                                SELECT * FROM FB_Ads
+                                WHERE "id"='{0}';
+                                """.format(id))
+                myresult = cursor.fetchall()
+                return myresult
+
+    def getAllFBAds(self):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                SELECT * FROM FB_Ads;""")
+                myresult = cursor.fetchall()
+                return myresult
+
+    def deleteFBAd(self, id):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                SELECT * FROM FB_Ads
+                WHERE "id" = '{0}';
+                """.format(id))
+                theResult = cursor.fetchall()
+                if (len(theResult) > 0):
+                    cursor.execute("""
+                        DELETE FROM FB_Ads WHERE "id" = '{0}';
+                        """.format(id))
+
+
 
 dataBaseController=DataBaseController()
 
