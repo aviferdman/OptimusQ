@@ -72,6 +72,13 @@ CREATE TABLE "FB_AdSets"
     FOREIGN KEY("campaign") REFERENCES [dbo].[FB_Campaigns]("id")
 );
 
+CREATE TABLE "FB_Images"
+(
+    "hash" VARCHAR(512),
+    "permalink_url" VARCHAR(512),
+	PRIMARY KEY("hash")
+);
+
 CREATE TABLE "FB_AdCreatives"
 (
 	"id" VARCHAR(256),
@@ -81,13 +88,6 @@ CREATE TABLE "FB_AdCreatives"
     "image_hash" VARCHAR(512),
 	PRIMARY KEY("id"),
     FOREIGN KEY("image_hash") REFERENCES [dbo].[FB_Images]("hash")
-);
-
-CREATE TABLE "FB_Images"
-(
-    "hash" VARCHAR(256),
-    "permalink_url" VARCHAR(512),
-	PRIMARY KEY("hash")
 );
 
 CREATE TABLE "FB_Ads"

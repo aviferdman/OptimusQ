@@ -9,11 +9,10 @@ import MarketingManagement as mm
 # ad 2 id: {'id': '120330000357977413'}
 
 from DataBaseService.main import dataBaseController
+
 db = dataBaseController
 token = db.getAccessTokenByUserId('sandbox_token')
 
-res = mm.get_all_ad_creatives(token, '1107831820072468')
 
 
 print('hi')
-
