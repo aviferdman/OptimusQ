@@ -228,7 +228,7 @@ def fb_api_get_all_campaigns():
         is_sandbox_mode = rq['sandbox_mode']
         if is_sandbox_mode == "no":
             return {'status': 400, 'body': 'currently working in sandbox mode only.'}
-        ad_account  = rq['ad_account']
+        ad_account = rq['ad_account']
         token = db.getAccessTokenByUserId('sandbox_token')
         return MarketingManagement.get_all_campaigns(token, ad_account)
 
@@ -244,7 +244,15 @@ def upload_img_from_url():
         ad_account_id = rq['ad_account']
         img_url = rq['img_url']
         token = db.getAccessTokenByUserId('sandbox_token')
-        return MarketingManagement.upload_image_by_url(ad_account_id, token, img_url)
+        res = MarketingManagement.upload_image_by_url(token, ad_account_id, img_url)
+        try:
+            img_hash = res.get('body').get('images').get('bytes').get('hash')
+            res2 = MarketingManagement.get_permanent_url_for_image_by_hash(token, ad_account_id, img_hash)
+            img_permalink_url = res2.get('body').get('data')[0].get('permalink_url')
+            db.addFBImage(img_hash, img_permalink_url)
+        except Exception as e:
+            print(str(e))
+        return res
 
 # get_all_ad_sets_for_campaign
 @app.route("/api/fb/get_all_ad_sets_by_campaign", methods=['GET'])
@@ -285,7 +293,12 @@ def create_adCreative():
         msg = rq['msg']
         page_id = rq['page_id']
         token = db.getAccessTokenByUserId('sandbox_token')
-        return MarketingManagement.create_ad_creative(token, name, img_hash, ad_account_id, link, msg, page_id)
+        res = MarketingManagement.create_ad_creative(token, name, img_hash, ad_account_id, link, msg, page_id)
+        try:
+            db.addFBAdCreative(res.get('body').get('id'), name, page_id, msg, img_hash)
+        except Exception as e:
+            print(str(e))
+        return res
 
 @app.route("/api/fb/create_ad", methods=['POST'])
 def create_ad():
@@ -300,7 +313,14 @@ def create_ad():
         creative = rq['creative']
         status = rq['status']
         token = db.getAccessTokenByUserId('sandbox_token')
-        return MarketingManagement.create_ad(token, ad_account_id, name, adset, creative, status)
+        res = MarketingManagement.create_ad(token, ad_account_id, name, adset, creative, status)
+        try:
+            ad_id = res.get('body').get('id')
+            db.addFBAd(ad_id, adset, name, creative, status)
+        except Exception as e:
+            print(str(e))
+
+        return res
 
 @app.route("/api/fb/create_new_adset", methods=['POST'])
 def create_new_adset():
@@ -334,8 +354,15 @@ def create_new_adset():
         if status in rq:
             status = rq['status']
         token = db.getAccessTokenByUserId('sandbox_token')
-        return MarketingManagement.create_new_ad_set(token, ad_account_id, ad_set_name, campaign_id, daily_budget,
+        res = MarketingManagement.create_new_ad_set(token, ad_account_id, ad_set_name, campaign_id, daily_budget,
                                                      optimization_goal, billing_event, bid_amount, targeting, start_time, status)
+        try:
+            adset_id = res.get('body').get('id')
+            db.addAdSet(adset_id, ad_account_id, campaign_id, ad_set_name, daily_budget, 'targeting')
+        except Exception as e:
+            print(str(e))
+        return res
+
 
 # create_new_ad_set
 @app.route("/api/fb/create_new_campaign", methods=['POST'])
@@ -351,7 +378,13 @@ def fb_api_create_new_campaign():
         status = rq.get('status', 'PAUSED')
         special_ad_categories = rq.get('special_ad_categories', "[]")
         token = db.getAccessTokenByUserId('sandbox_token')
-        return MarketingManagement.create_new_campaign(token, ad_account_id, campaign_name, objective, status, special_ad_categories)
+        res = MarketingManagement.create_new_campaign(token, ad_account_id, campaign_name, objective, status, special_ad_categories)
+        try:
+            campaign_id = res.get('body').get('id')
+            db.addCampaign(campaign_id, ad_account_id, campaign_name, objective, status)
+        except Exception as e:
+            print(str(e))
+        return res
 
 # get_ad_preview
 @app.route("/api/fb/get_ad_preview", methods=['GET'])

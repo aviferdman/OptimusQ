@@ -298,13 +298,13 @@ class DataBaseController:
     ######################################################################
     #  FB_Campaigns
     ######################################################################
-    def addCampaign(self, id, ad_account, name, daily_budget, budget_remaining):
+    def addCampaign(self, id, ad_account, name, objective, status):
         with pyodbc.connect(self.connectionString) as conn:
             with conn.cursor() as cursor:
                 cursor.execute("""
-                    INSERT INTO [dbo].[FB_Campaigns] (id, ad_account, name, daily_budget, budget_remaining)
+                    INSERT INTO [dbo].[FB_Campaigns] (id, ad_account, name, objective, status)
                     VALUES ('{0}', '{1}', '{2}', '{3}', '{4}');
-                    """.format(id, ad_account, name, daily_budget, budget_remaining))
+                    """.format(id, ad_account, name, objective, status))
 
     def getCampaign(self, id):
         with pyodbc.connect(self.connectionString) as conn:
