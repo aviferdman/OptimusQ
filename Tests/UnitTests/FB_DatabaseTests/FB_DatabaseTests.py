@@ -9,30 +9,30 @@ class FBDBTestCase(unittest.TestCase):
         self.db = DataBaseController()
 
     # test campaigns
-    def test_get_campaign(self):
-        self.assertEqual((self.db.getCampaign('120330000357827313'))[0][2], 'camp1')
-
     def test_add_campaign(self):
         time_in_millis = round(time.time() * 1000)
         self.assertEqual(len(self.db.getCampaign(time_in_millis)), 0)
-        self.db.addCampaign(str(time_in_millis), '1107831820072468', 'name1', 0, 0)
+        self.db.addCampaign(str(time_in_millis), '1107831820072468', 'name1', 'objective', 'ACTIVE')
         self.assertEqual((self.db.getCampaign(time_in_millis))[0][0], str(time_in_millis))
+
+    def test_get_campaign(self):
+        self.assertEqual((self.db.getCampaign('120330000357827313'))[0][2], 'camp1')
 
     def test_get_all_campaigns(self):
         time_in_millis = round(time.time() * 1000)
-        self.db.addCampaign(str(time_in_millis), '1107831820072468', 'name1', 0, 0)
+        self.db.addCampaign(str(time_in_millis), '1107831820072468', 'name1', 'objective', 'ACTIVE')
         self.assertEqual(len(self.db.getAllCampaigns()) > 0, True)
 
     def test_delete_campaign(self):
         time_in_millis = round(time.time() * 1000)
-        self.db.addCampaign(str(time_in_millis), '1107831820072468', 'name1', 0, 0)
+        self.db.addCampaign(str(time_in_millis), '1107831820072468', 'name1', 'objective', 'ACTIVE')
         self.assertEqual(len(self.db.getCampaign(time_in_millis)) > 0, True)
         self.db.deleteCampaign(time_in_millis)
         self.assertEqual(len(self.db.getCampaign(time_in_millis)) == 0, True)
 
     # test ad sets
     def test_get_adSet(self):
-        self.assertEqual((self.db.getAdSet('120330000357832413'))[0][3], 'newAd set name1')
+        self.assertEqual((self.db.getAdSet('120330000357832413'))[0][3], 'name')
 
     def test_add_adSet(self):
         time_in_millis = round(time.time() * 1000)
@@ -85,7 +85,7 @@ class FBDBTestCase(unittest.TestCase):
         self.assertEqual((self.db.getFBAdCreative(time_in_millis))[0][1], 'name')
 
     def test_get_fb_AdCreative(self):
-        self.assertEqual((self.db.getFBAdCreative('1652017188506'))[0][2], 'title')
+        self.assertEqual((self.db.getFBAdCreative('120330000357828413'))[0][2], 'title')
 
     def test_get_all_fb_AdCreatives(self):
         time_in_millis = round(time.time() * 1000)
@@ -109,20 +109,20 @@ class FBDBTestCase(unittest.TestCase):
     def test_add_fb_Ad(self):
         time_in_millis = round(time.time() * 1000)
         self.assertEqual(len(self.db.getFBAd(time_in_millis)), 0)
-        self.db.addFBAd(str(time_in_millis), '120330000357832413', 'ad name', '1652017188506', 'PAUSED')
+        self.db.addFBAd(str(time_in_millis), '120330000357832413', 'ad name', '120330000357828413', 'PAUSED')
         self.assertEqual((self.db.getFBAd(time_in_millis))[0][2], 'ad name')
 
     def test_get_fb_Ad(self):
-        self.assertEqual((self.db.getFBAd('1652017686546'))[0][2], 'ad name')
+        self.assertEqual((self.db.getFBAd('120330000357835013'))[0][2], 'name')
 
     def test_get_all_fb_Ads(self):
         time_in_millis = round(time.time() * 1000)
-        self.db.addFBAd(str(time_in_millis), '120330000357832413', 'ad name', '1652017188506', 'PAUSED')
+        self.db.addFBAd(str(time_in_millis), '120330000357832413', 'ad name', '120330000357828413', 'PAUSED')
         self.assertEqual(len(self.db.getAllFBAds()) > 0, True)
 
     def test_delete_fb_Ad(self):
         time_in_millis = round(time.time() * 1000)
-        self.db.addFBAd(str(time_in_millis), '120330000357832413', 'ad name', '1652017188506', 'PAUSED')
+        self.db.addFBAd(str(time_in_millis), '120330000357832413', 'ad name', '120330000357828413', 'PAUSED')
         self.assertEqual(len(self.db.getFBAd(time_in_millis)) > 0, True)
         self.db.deleteFBAd(time_in_millis)
         self.assertEqual(len(self.db.getFBAd(time_in_millis)) == 0, True)

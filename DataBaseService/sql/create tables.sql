@@ -53,8 +53,8 @@ CREATE TABLE "FB_Campaigns"
 	"id" VARCHAR(256),
     "ad_account" VARCHAR(256),
 	"name" VARCHAR(256),
-    "daily_budget" INTEGER,
-    "budget_remaining" INTEGER,
+    "objective" VARCHAR(256),
+    "status" VARCHAR(256),
 	PRIMARY KEY("id"),
     FOREIGN KEY("ad_account") REFERENCES [dbo].[FB_Ad_Accounts]("id")
 );
