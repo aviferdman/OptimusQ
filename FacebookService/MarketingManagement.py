@@ -130,6 +130,15 @@ def get_all_ad_sets_by_campaign(access_token, campaign_id):
     res = requests.get('https://graph.facebook.com/v13.0/' + campaign_id +  '/adsets?' + fields, params)
     return {"status": res.status_code, "body": res.json()}
 
+# returns all ad creatives belongs to ad account
+def get_all_ad_creatives(access_token, ad_account):
+    fields = 'fields=id,name,title,body,image_hash'
+    params = {
+        'access_token': access_token
+    }
+    res = requests.get('https://graph.facebook.com/v13.0/act_' + ad_account +  '/adcreatives?' + fields, params)
+    return {"status": res.status_code, "body": res.json()}
+
 # adds an image to ad creative repository.
 # image_path - path of image to upload, from local computer.
 # returns image's hash
@@ -312,7 +321,7 @@ def delete_ad(access_token, ad_id):
 
 
 # get insights for ad account/campaign/ad set/ ad
-def get_insights(access_token, marketing_object_id, date_preset):
+def get_insights(access_token, marketing_object_id, date_preset='maximum'):
     url = 'https://graph.facebook.com/v13.0/' + marketing_object_id + '/insights'
     params = {'fields': 'impressions,clicks,cpc,ctr,frequency,objective,optimization_goal,quality_ranking,spend',
               'date_preset': date_preset,
