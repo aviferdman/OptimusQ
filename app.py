@@ -440,7 +440,7 @@ def fb_api_get_insights():
         token = db.getAccessTokenByUserId('sandbox_token')
         return MarketingManagement.get_insights(token, marketing_object_id, date_preset)
       
- =======
+
 # deletes a campaign
 @app.route("/api/fb/campaigns", methods=['DELETE'])
 def fb_api_delete_campaign():
@@ -556,15 +556,13 @@ def googleAds_api_get_campaign_by_id():
         return CampaignManagement.get_campaign_by_id(customer_id, campaign_id)
 
 
-
-
 # for running in local host with HTTP
-#if __name__ == '__main__':
-#    app.run()
+if __name__ == '__main__':
+    app.run()
 
 # for running in local host with HTTPS
 # first, create cert.pem and key.pem with the following cmd command:
 # openssl req -x509 -newkey rsa:4096 -nodes -out cert.pem -keyout key.pem -days 365
 # run with cmd command: python app.py
- if __name__ == '__main__':
-     app.run(ssl_context=('cert.pem', 'key.pem'), debug=True)
+# if __name__ == '__main__':
+#     app.run(ssl_context=('cert.pem', 'key.pem'), debug=True)
