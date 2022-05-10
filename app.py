@@ -426,7 +426,7 @@ def fb_api_get_all_ads_by_adSet_id():
         token = db.getAccessTokenByUserId('sandbox_token')
         return MarketingManagement.get_all_ads_by_adSet_id(token, adset_id)
 
-# get insights for ad account/campaign/ad set/ ad
+# get insights for ad account/campaign/ad set/ad
 @app.route("/api/fb/get_insights", methods=['GET'])
 def fb_api_get_insights():
     if request.method == "GET":
@@ -438,6 +438,84 @@ def fb_api_get_insights():
         date_preset = rq.get('date_preset', 'maximum')
         token = db.getAccessTokenByUserId('sandbox_token')
         return MarketingManagement.get_insights(token, marketing_object_id, date_preset)
+
+
+# deletes a campaign
+@app.route("/api/fb/campaigns", methods=['DELETE'])
+def fb_api_delete_campaign():
+    if request.method == "DELETE":
+        rq = request.get_json()
+        is_sandbox_mode = rq['sandbox_mode']
+        if is_sandbox_mode == "no":
+            return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+        campaign_id = rq.get('campaign_id', '-1')
+        token = db.getAccessTokenByUserId('sandbox_token')
+        res = MarketingManagement.delete_campaign(token, campaign_id)
+        if res.get('status') == 200:
+            try:
+                db.deleteCampaign(campaign_id)
+            except Exception as e:
+                print(str(e))
+        return res
+
+
+# deletes an ad set
+@app.route("/api/fb/adsets", methods=['DELETE'])
+def fb_api_delete_adSet():
+    if request.method == "DELETE":
+        rq = request.get_json()
+        is_sandbox_mode = rq['sandbox_mode']
+        if is_sandbox_mode == "no":
+            return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+        adset_id = rq.get('adset_id', '-1')
+        token = db.getAccessTokenByUserId('sandbox_token')
+        res = MarketingManagement.delete_adSet(token, adset_id)
+        if res.get('status') == 200:
+            try:
+                db.deleteAdSet(adset_id)
+            except Exception as e:
+                print(str(e))
+        return res
+
+# deletes an ad creative
+@app.route("/api/fb/ad_creatives", methods=['DELETE'])
+def fb_api_delete_ad_creative():
+    if request.method == "DELETE":
+        rq = request.get_json()
+        is_sandbox_mode = rq['sandbox_mode']
+        if is_sandbox_mode == "no":
+            return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+        creative_id = rq.get('creative_id', '-1')
+        token = db.getAccessTokenByUserId('sandbox_token')
+        res = MarketingManagement.delete_ad_creative(token, creative_id)
+        if res.get('status') == 200:
+            try:
+                db.deleteFBAdCreative(creative_id)
+            except Exception as e:
+                print(str(e))
+        return res
+
+
+# deletes an ad
+@app.route("/api/fb/ads", methods=['DELETE'])
+def fb_api_delete_ad():
+    if request.method == "DELETE":
+        rq = request.get_json()
+        is_sandbox_mode = rq['sandbox_mode']
+        if is_sandbox_mode == "no":
+            return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+        ad_id = rq.get('ad_id', '-1')
+        token = db.getAccessTokenByUserId('sandbox_token')
+        res = MarketingManagement.delete_ad(token, ad_id)
+        if res.get('status') == 200:
+            try:
+                db.deleteFBAd(ad_id)
+            except Exception as e:
+                print(str(e))
+        return res
+
+
+
 
 # for running in local host with HTTP
 # if __name__ == '__main__':

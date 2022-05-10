@@ -13,6 +13,5 @@ from DataBaseService.main import dataBaseController
 db = dataBaseController
 token = db.getAccessTokenByUserId('sandbox_token')
 
-res = mm.create_new_campaign(token, '1107831820072468', 'name')
-
+res = mm.get_all_campaigns(token, '1107831820072468')
 print('hi')
