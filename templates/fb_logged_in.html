@@ -79,7 +79,8 @@ https://www.tooplate.com/view/2128-Tween-Agency
                     "campaign": document.getElementById('campaign').value,
                     "ad_name": document.getElementById('ad_name').value,
                     "url": document.getElementById('url').value,
-                    "daily_budget": document.getElementById('daily_budget').value
+                    "ad_link": document.getElementById('ad_link').value,
+                    "ad_body": document.getElementById('ad_body').value
                 };
 
 
@@ -238,23 +239,7 @@ https://www.tooplate.com/view/2128-Tween-Agency
                         </div>
 
                     </div>
-                                                <nav>
-                                <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                                    <button class="nav-link active" id="nav-intro-tab" data-bs-toggle="tab" data-bs-target="#nav-intro" type="button" role="tab" aria-controls="nav-intro" aria-selected="true">Ad Accounts</button>
 
-
-                                    <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Campaigns</button>
-                                    <button class="nav-link" id="nav-faq-tab" data-bs-toggle="tab" data-bs-target="#nav-faq" type="button" role="tab" aria-controls="nav-faq" aria-selected="false">Ad Sets</button>
-                                    <button class="nav-link" id="nav-faq-tab" data-bs-toggle="tab" data-bs-target="#nav-faq" type="button" role="tab" aria-controls="nav-faq" aria-selected="false">Ad Creatives</button>
-                                    <button class="nav-link" id="nav-faq-tab" data-bs-toggle="tab" data-bs-target="#nav-faq" type="button" role="tab" aria-controls="nav-faq" aria-selected="false">Ads</button>
-
-                                </div>
-                                <ul>
-
-                                        <a class="nav-link" href="\">Home</a>
-
-                                </ul>
-                            </nav>
                 </div>
 
                 <div class="overlay"></div>
@@ -262,14 +247,7 @@ https://www.tooplate.com/view/2128-Tween-Agency
             </section>
 
             <a style="text-align:center;font-size:30px" href="#" onclick="showElement(true, 'showData')">Show Marketing Data</a>
-
             <div id="showData" style="display:none">
-                        <b>Ad Accounts:</b><br>
-                        {% for link in output["ad_accounts"] %}
-                        &emsp;id: {{ link.account_id }}, name: {{ link.name }}, amount spent: {{ link.amount_spent }}, business name: {{ link.business.name }}
-                        <br>
-                        {% endfor %}
-                         <br><br>
                         <b>Campaigns:</b><br>
                         {% for link in output["campaigns"] %}
                         &emsp;id: {{ link.id }}, name: {{ link.name }}, budget remaining: {{ link.budget_remaining }}
@@ -288,10 +266,10 @@ https://www.tooplate.com/view/2128-Tween-Agency
                         {% endfor %}
                          <br><br>
                         <b>Ads:</b><br>
-                        {% for link in output["ads"] %}
-                        &emsp;id: {{ link.id }}, name: {{ link.name }}
-                        <br>
+                        {% for message in get_flashed_messages() %}
+                           {{ message }}
                         {% endfor %}
+
                 <br>
                 <a href="#" onclick="showElement(false, 'showData')">Close</a>
             </div>
@@ -316,8 +294,10 @@ https://www.tooplate.com/view/2128-Tween-Agency
                                     <input type="text" name="url" id="url" class="form-control" required="">
                                     <label class="mb-2" for="ad_name">Ad name:</label>
                                     <input type="text" name="ad_name" id="ad_name" class="form-control" required="">
-                                    <label class="mb-2" for="daily_budget">Daily budget:</label>
-                                    <input type="text" name="daily_budget" id="daily_budget" class="form-control" required="">
+                                    <label class="mb-2" for="ad_link">Ad link:</label>
+                                    <input type="text" name="ad_link" id="ad_link" class="form-control" required="">
+                                    <label class="mb-2" for="ad_body">Ad body:</label>
+                                    <input type="text" name="ad_body" id="ad_body" class="form-control" required="">
                                     <div class="col-lg-12 col-md-6 col-12 my-2">
                                         <label for="ad_accounts">Ad account:</label>
                                         <select name="ad_account" id="ad_account">

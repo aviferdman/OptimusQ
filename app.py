@@ -5,7 +5,7 @@
 # 'Flask' is a library of web applications written in Python.
 from doctest import OutputChecker
 import json
-from flask import Flask, render_template, request, flash, Markup, jsonify
+from flask import Flask, render_template, request, flash, Markup, jsonify, redirect
 import time
 import requests
 
@@ -20,6 +20,8 @@ app = Flask(__name__)
 app.secret_key = "manbearpig_MUDMAN888"
 
 db = dataBaseController
+sandbox_token = db.getAccessTokenByUserId('sandbox_token')
+admin_token = db.getAccessTokenByUserId('admin_token')
 
 
 @app.route("/")
@@ -69,45 +71,50 @@ def fb_login_handler():
 
 @app.route("/fb_logged_in", methods=['POST', 'GET'])
 def fb_logged_in():
+    res_preview = ""
     if request.method == "POST":
         print("POST!!!: ")
         rq = request.get_json()
         user_id = rq["user_id"]
         access_token = rq["access_token"]
+        access_token = admin_token
         print("user_id: " + user_id)
-
-        ad_accounts = [] + MarketingManagement.get_all_ad_accounts_in_business(access_token).json()['data']
+        ad_accounts = [{'account_id': '1394987677611796'}]
+        # ad_accounts_list = MarketingManagement.get_all_ad_accounts_in_business(access_token).json()
         campaigns = []
         ad_sets = []
-        for account in ad_accounts:
-            # ad_account_id = account['id'][4::] # only the id, without the prefix of act_
-            ad_account_id = account['account_id']
-            campaigns = campaigns + (
-            MarketingManagement.get_all_campaigns(ad_account_id, access_token).json()["campaigns"]["data"])
-            ad_sets = ad_sets + (
-            MarketingManagement.get_all_ad_sets_by_ad_account(access_token, ad_account_id).json()['data'])
-        ads = []
-        for ad_set in ad_sets:
-            ad_set_id = ad_set['id']
-            print("ad_set: " + str(ad_set_id))
-            ads = ads + (MarketingManagement.get_all_ads_by_adSet_id(access_token, ad_set_id).json()['data'])
-    #     todo: to get ad creatives: An ad creative object is an instance of a specific creative which is being used to define the creative field of one or more ads
 
-    #     db = dataBaseController
-    # print("deleting from db...")
-    # db.deleteAccessTokenByUserId(user_id)
-    # print("inserting to db...")
-    # db.writeAccessToken2db(user_id, access_token)
-    # print("db has tokens:")
-    # return db.getAccessTokenByUserId(user_id)
-    # return "/fb_login_handler"
-    # output_json = {}
-    # output_json.update("campaigns")
+        # ad_account_id = account['id'][4::] # only the id, without the prefix of act_
+        ad_account_id = '1394987677611796'
+        campaigns = campaigns + (
+        MarketingManagement.get_all_campaigns(access_token, ad_account_id).get('body').get('campaigns').get("data"))
+        ad_sets = ad_sets + (
+        MarketingManagement.get_all_ad_sets_by_ad_account(access_token, ad_account_id).json()['data'])
+        ads = []
+        ad_preview = {}
+        res_preview = ""
+        # preview = MarketingManagement.get_ad_preview(access_token, '120330000358031413').get('body').get('data')[0].get('body')
+        # print(preview)
+        # flash(Markup(preview))
+        # for ad_set in ad_sets:
+        #     ad_set_id = ad_set['id']
+        ads = ads + (MarketingManagement.get_all_ads_by_adSet_id(access_token, '23850154047300253').get('body').get('data'))
+        # ads = ads[0:6]
+        # count = 0
+        for ad in ads:
+            # if count > 5:
+            #     break
+            # count += 1
+            preview = MarketingManagement.get_ad_preview(access_token, ad.get('id')).get('body').get('data')[0].get('body')
+            ad_id = ad.get('id')
+            res_preview += "id: " + ad_id + ", name: " + ad['name'] + "<br>preview:<br>" + preview + "<br><br>"
+            ad_preview[ad_id] = preview
     list_of_images = []
     list_of_images.append("1")
     list_of_images.append("2")
+    flash(Markup(res_preview))
     return render_template("fb_logged_in.html",
-                           output={"ad_accounts": ad_accounts, "campaigns": campaigns, "ad_sets": ad_sets, "ads": ads})
+                           output={"ad_accounts": ad_accounts, "campaigns": campaigns, "ad_sets": ad_sets, "ads": ads, "ad_preview": ad_preview})
     # return render_template("fb_logged_in.html", output=list_of_images)
 
 
@@ -123,7 +130,8 @@ def create_ad_set_automatically():
         access_token = rq["access_token"]
         ad_account = rq["ad_account"]
         url = rq["url"]  # image url
-        daily_budget = rq["daily_budget"]
+        ad_link = rq["ad_link"]
+        ad_body = rq["ad_body"]
         ad_name = rq["ad_name"]
         campaign = rq["campaign"]
         # print(MarketingManagement.create_new_ad_set(
@@ -134,9 +142,13 @@ def create_ad_set_automatically():
         #     print(MarketingManagement.upload_image_by_url(ad_account, access_token, img_url).json())
         #     time.sleep(6)
         # MarketingManagement.upload_image_by_url(ad_account, access_token, img_url).json()["images"]["bytes"]["hash"]
-        print("**DEBUG2")
-        print(
-            "**response from FB: " + str(MarketingManagement.upload_image_by_url(ad_account, access_token, url).json()))
+        img_hash = MarketingManagement.upload_image_by_url(admin_token, '1394987677611796', url).get('body').get('images').get('bytes').get('hash')
+        print('img_hash: ' + img_hash)
+        creative_id = MarketingManagement.create_ad_creative(admin_token, "creative name", img_hash, '1394987677611796', ad_link, ad_body).get('body').get('id')
+        print('creative_id: ' + creative_id)
+        res = MarketingManagement.create_ad(admin_token, '1394987677611796', ad_name, '23850154047300253', creative_id).get('body').get('id')
+        print('ad id: ' + res)
+        print('ad created id: ' + res)
 
         # for img_hash in img_hashes:
         #     MarketingManagement.create_ad_creative("default name", access_token, img_hash)
@@ -151,7 +163,7 @@ def create_ad_set_automatically():
     # print("adset_name:" + adset_name)
     # print("daily_budget:" + daily_budget)
     ad_accounts = ["123"]
-    return render_template("create_adset_handler.html", output2=ad_accounts)
+    return redirect("/fb_logged_in")
 
 
 @app.route("/create_ad_set_form", methods=['POST', 'GET'])
