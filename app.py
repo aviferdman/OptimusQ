@@ -306,10 +306,11 @@ def create_adCreative():
         page_id = rq['page_id']
         token = db.getAccessTokenByUserId('sandbox_token')
         res = MarketingManagement.create_ad_creative(token, name, img_hash, ad_account_id, link, msg, page_id)
-        try:
-            db.addFBAdCreative(res.get('body').get('id'), name, page_id, msg, img_hash)
-        except Exception as e:
-            print(str(e))
+        if res.get('status') == 200:
+            try:
+                db.addFBAdCreative(res.get('body').get('id'), name, page_id, msg, img_hash)
+            except Exception as e:
+                print(str(e))
         return res
 
 @app.route("/api/fb/create_ad", methods=['POST'])
@@ -326,12 +327,12 @@ def create_ad():
         status = rq['status']
         token = db.getAccessTokenByUserId('sandbox_token')
         res = MarketingManagement.create_ad(token, ad_account_id, name, adset, creative, status)
-        try:
-            ad_id = res.get('body').get('id')
-            db.addFBAd(ad_id, adset, name, creative, status)
-        except Exception as e:
-            print(str(e))
-
+        if res.get('status') == 200:
+            try:
+                ad_id = res.get('body').get('id')
+                db.addFBAd(ad_id, adset, name, creative, status)
+            except Exception as e:
+                print(str(e))
         return res
 
 @app.route("/api/fb/create_new_adset", methods=['POST'])
@@ -368,11 +369,12 @@ def create_new_adset():
         token = db.getAccessTokenByUserId('sandbox_token')
         res = MarketingManagement.create_new_ad_set(token, ad_account_id, ad_set_name, campaign_id, daily_budget,
                                                      optimization_goal, billing_event, bid_amount, targeting, start_time, status)
-        try:
-            adset_id = res.get('body').get('id')
-            db.addAdSet(adset_id, ad_account_id, campaign_id, ad_set_name, daily_budget, 'targeting')
-        except Exception as e:
-            print(str(e))
+        if res.get('status') == 200:
+            try:
+                adset_id = res.get('body').get('id')
+                db.addAdSet(adset_id, ad_account_id, campaign_id, ad_set_name, daily_budget, 'targeting')
+            except Exception as e:
+                print(str(e))
         return res
 
 
@@ -391,11 +393,12 @@ def fb_api_create_new_campaign():
         special_ad_categories = rq.get('special_ad_categories', "[]")
         token = db.getAccessTokenByUserId('sandbox_token')
         res = MarketingManagement.create_new_campaign(token, ad_account_id, campaign_name, objective, status, special_ad_categories)
-        try:
-            campaign_id = res.get('body').get('id')
-            db.addCampaign(campaign_id, ad_account_id, campaign_name, objective, status)
-        except Exception as e:
-            print(str(e))
+        if res.get('status') == 200:
+            try:
+                campaign_id = res.get('body').get('id')
+                db.addCampaign(campaign_id, ad_account_id, campaign_name, objective, status)
+            except Exception as e:
+                print(str(e))
         return res
 
 # get_ad_preview
