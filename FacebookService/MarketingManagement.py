@@ -114,12 +114,15 @@ def create_new_ad_set(access_token, AD_ACCOUNT_ID, ad_set_name, campaign_id, dai
 
 
 # returns all ad sets belongs to AD_ACCOUNT_ID
-def get_all_ad_sets_by_ad_account(access_token, ad_account_id):
+def get_all_ad_sets_by_ad_account(access_token, ad_account_id, with_status='ALL'):
     fields = 'fields=daily_budget,name,targeting'
     params = {
         'access_token': access_token
     }
-    return requests.get('https://graph.facebook.com/v13.0/act_' + ad_account_id + '/adsets?' + fields, params)
+    if with_status != 'ALL':
+        params['effective_status'] = with_status
+    res = requests.get('https://graph.facebook.com/v13.0/act_' + ad_account_id + '/adsets?' + fields, params)
+    return {"status": res.status_code, "body": res.json()}
 
 # 120330000357827313/adsets
 # returns all ad sets belongs to campaign with campaign_id
