@@ -13,6 +13,7 @@ from DataBaseService.main import DataBaseController, dataBaseController
 # deleteAccessTokenByUserId, writeAccessToken2db, getAccessTokenByUserId
 
 from FacebookService import MarketingManagement
+from GoogleAdsService import CampaignManagement
 
 from PresentationService.main import main_trigger
 
@@ -364,7 +365,7 @@ def create_new_adset():
         return res
 
 
-# create_new_ad_set
+# create_new_campaign
 @app.route("/api/fb/create_new_campaign", methods=['POST'])
 def fb_api_create_new_campaign():
     if request.method == "POST":
@@ -424,13 +425,57 @@ def fb_api_get_insights():
         token = db.getAccessTokenByUserId('sandbox_token')
         return MarketingManagement.get_insights(token, marketing_object_id, date_preset)
 
+
+################################################## Google-Ads ##########################################################
+
+# create_new_campaign
+@app.route("/api/GoogleAds/create_new_campaign", methods=['GET', 'POST'])
+def googleAds_api_create_new_campaign():
+    if request.method == "POST":
+        rq = request.get_json(force=True)
+        customer_id = rq.get('customer_id')
+        budget = rq.get('budget')
+        name = rq.get('name')
+        days_to_start = rq.get('days_to_start')
+        weeks_to_end = rq.get('weeks_to_end')
+        status = rq.get('status', 'PAUSED')
+        res = CampaignManagement.create_new_campaign(customer_id, budget, name, days_to_start, weeks_to_end, status)
+       # try:
+       #      campaign_id = res.get('body').get('id')
+       #      db.addCampaign(campaign_id, ad_account_id, campaign_name, objective, status)
+       #  except Exception as e:
+       #      print(str(e))
+        return res
+
+# get_all_campaigns
+@app.route("/api/GoogleAds/get_all_campaigns", methods=['GET'])
+def googleAds_api_get_all_campaigns():
+    if request.method == "GET":
+        rq = request.get_json(force=True)
+        customer_id = rq['customer_id']
+        return CampaignManagement.get_all_campaigns(customer_id)
+
+# get_campaign_by_id
+@app.route("/api/GoogleAds/get_campaign", methods=['GET'])
+def googleAds_api_get_campaign_by_id():
+    if request.method == "GET":
+        rq = request.get_json(force=True)
+        customer_id = rq['customer_id']
+        campaign_id = rq['campaign_id']
+        return CampaignManagement.get_campaign_by_id(customer_id, campaign_id)
+
+
+
+
+
+
 # for running in local host with HTTP
-# if __name__ == '__main__':
-#     app.run()
+if __name__ == '__main__':
+    app.run()
 
 # for running in local host with HTTPS
 # first, create cert.pem and key.pem with the following cmd command:
 # openssl req -x509 -newkey rsa:4096 -nodes -out cert.pem -keyout key.pem -days 365
 # run with cmd command: python app.py
-if __name__ == '__main__':
-    app.run(ssl_context=('cert.pem', 'key.pem'), debug=True)
+# if __name__ == '__main__':
+#     app.run(ssl_context=('cert.pem', 'key.pem'), debug=True)
