@@ -22,12 +22,10 @@ ad2 = '120330000357977413'
 db = dataBaseController
 token = db.getAccessTokenByUserId('sandbox_token')
 
-adsets = mm.get_all_ads_by_adAcount_id(token, sandbox_ad_account).get('body').get('data')
-count = 0
-for ad_set in adsets:
-    id = ad_set.get('id')
-    if id != '120330000357835013' and id != '120330000357977413':
-        res = mm.delete_ad(token, id)
-        count += 1
-print(count)
+token_details = db.get_GoogleAds_Token('1040281022647-soclnfbgmiujemuojhbopomnkf0o1724.apps.googleusercontent.com',
+                                '2838771052')
+developer_token = token_details['developer_token']
+client_secret = token_details['client_secret']
+refresh_token = token_details['refresh_token']
+
 print('hi')

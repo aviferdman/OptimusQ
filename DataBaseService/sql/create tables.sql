@@ -101,3 +101,13 @@ CREATE TABLE "FB_Ads"
     FOREIGN KEY("adSet") REFERENCES [dbo].[FB_AdSets]("id"),
     FOREIGN KEY("creative") REFERENCES [dbo].[FB_AdCreatives]("id")
 );
+
+CREATE TABLE "GoogleAds_Tokens"
+(
+	"client_id" VARCHAR(512),
+	"login_customer_id" VARCHAR(512),
+	"developer_token" VARCHAR(512),
+	"client_secret" VARCHAR(512),
+	"refresh_token" VARCHAR(512),
+	PRIMARY KEY("client_id","login_customer_id")
+);
