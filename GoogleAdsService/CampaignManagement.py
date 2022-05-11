@@ -7,6 +7,7 @@ from google.ads.googleads.client import GoogleAdsClient
 from google.ads.googleads.errors import GoogleAdsException
 
 _DATE_FORMAT = "%Y%m%d"
+_DEFAULT_PAGE_SIZE = 1000
 
 # This interface allows the user to create and manage all the marketing fields,
 # using Google Ads APIs.
@@ -15,7 +16,7 @@ curr_path = dir_path + "\google-ads.yaml"
 client = GoogleAdsClient.load_from_storage(path=curr_path, version="v9")
 
 
-# creates a new campaign.
+# creates a new campaign
 def create_new_campaign(customer_id, budget, name, days_to_start, weeks_to_end, status):
     campaign_budget_service = client.get_service("CampaignBudgetService")
     campaign_service = client.get_service("CampaignService")
@@ -52,13 +53,9 @@ def create_new_campaign(customer_id, budget, name, days_to_start, weeks_to_end, 
     # the ads from immediately serving. Set to ENABLED once you've added
     # targeting and the ads are ready to serve.
     if status == "PAUSED":
-        campaign.status = client.get_type(
-            "CampaignStatusEnum"
-        ).CampaignStatus.PAUSED
+        campaign.status = client.get_type("CampaignStatusEnum").CampaignStatus.PAUSED
     elif status == "ENABLED":
-        campaign.status = client.get_type(
-            "CampaignStatusEnum"
-        ).CampaignStatus.ENABLED
+        campaign.status = client.get_type("CampaignStatusEnum").CampaignStatus.ENABLED
 
     # Set the bidding strategy and budget.
     campaign.manual_cpc.enhanced_cpc_enabled = True
@@ -131,12 +128,61 @@ def get_campaign_by_id(customer_id, campaign_id):
         for row in batch.results:
             campaigns.append((row.campaign.id, row.campaign.name))
     return {"body": campaigns}
-    return
 
+# creates a new ad group
+def create_new_ad_group(customer_id, campaign_id, name, status, cpc_bid):
+    ad_group_service = client.get_service("AdGroupService")
+    campaign_service = client.get_service("CampaignService")
 
+    # Create ad group.
+    ad_group_operation = client.get_type("AdGroupOperation")
+    ad_group = ad_group_operation.create
+    ad_group.name = name
+    if status == "PAUSED":
+        ad_group.status = client.get_type("AdGroupStatusEnum").AdGroupStatus.PAUSED
+    elif status == "ENABLED":
+        ad_group.status = client.get_type("AdGroupStatusEnum").AdGroupStatus.ENABLED
+    ad_group.campaign = campaign_service.campaign_path(customer_id, campaign_id)
+    ad_group.type_ = client.get_type(
+        "AdGroupTypeEnum"
+    ).AdGroupType.SEARCH_STANDARD
+    ad_group.cpc_bid_micros = cpc_bid * 1000000
 
+    # Add the ad group.
+    ad_group_response = ad_group_service.mutate_ad_groups(
+        customer_id=customer_id, operations=[ad_group_operation])
+    return {"body": ad_group_response.results[0].resource_name}
+    # print(f"Created ad group {ad_group_response.results[0].resource_name}.")
 
+# returns all campaign belongs to AD_ACCOUNT_ID
+def get_all_ad_groups(customer_id, campaign_id):
+    ga_service = client.get_service("GoogleAdsService")
 
+    query = """
+            SELECT
+              campaign.id,
+              ad_group.id,
+              ad_group.name
+            FROM ad_group"""
+
+    if campaign_id:
+        query += f" WHERE campaign.id = {campaign_id}"
+
+    search_request = client.get_type("SearchGoogleAdsRequest")
+    search_request.customer_id = customer_id
+    search_request.query = query
+    search_request.page_size = _DEFAULT_PAGE_SIZE
+
+    results = ga_service.search(request=search_request)
+
+    ad_groups = []
+    for row in results:
+        ad_groups.append((row.ad_group.id, row.ad_group.name))
+        # print(
+        #     f"Ad group with ID {row.ad_group.id} and name "
+        #     f'"{row.ad_group.name}" was found in campaign with '
+        #     f"ID {row.campaign.id}.")
+    return {"body": ad_groups}
 
 
 def _handle_googleads_exception(exception):
