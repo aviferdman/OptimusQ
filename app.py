@@ -555,6 +555,86 @@ def googleAds_api_get_campaign_by_id():
         campaign_id = rq['campaign_id']
         return CampaignManagement.get_campaign_by_id(customer_id, campaign_id)
 
+# create_new_ad_group
+@app.route("/api/GoogleAds/create_new_ad_group", methods=['POST'])
+def googleAds_api_create_new_ad_group():
+    if request.method == "POST":
+        rq = request.get_json(force=True)
+        customer_id = rq.get('customer_id')
+        campaign_id = rq.get('campaign_id')
+        name = rq.get('name')
+        cpc_bid = rq.get('cpc_bid')   # cost per click in IL shekels
+        status = rq.get('status', 'ENABLED')
+        res = CampaignManagement.create_new_adgroup(customer_id, campaign_id, name, status, cpc_bid)
+            # try:
+            #     adset_id = res.get('body').get('id')
+            #     db.addAdSet(adset_id, ad_account_id, campaign_id, ad_set_name, daily_budget, 'targeting')
+            # except Exception as e:
+            #     print(str(e))
+        return res
+
+# get_all_ad_groups
+@app.route("/api/GoogleAds/get_all_ad_groups", methods=['GET'])
+def googleAds_api_get_all_ad_groups():
+    if request.method == "GET":
+        rq = request.get_json(force=True)
+        customer_id = rq['customer_id']
+        campaign_id = rq.get('campaign_id')
+        return CampaignManagement.get_all_ad_groups(customer_id, campaign_id)
+
+# add a keyword to ad group
+@app.route("/api/GoogleAds/add_keyword", methods=['POST'])
+def googleAds_api_add_keyword():
+    if request.method == "POST":
+        rq = request.get_json(force=True)
+        customer_id = rq.get('customer_id')
+        ad_group_id = rq.get('ad_group_id')
+        keyword_text = rq.get('keyword_text')
+        res = CampaignManagement.add_keyword(customer_id, ad_group_id, keyword_text)
+            # try:
+            #     adset_id = res.get('body').get('id')
+            #     db.addAdSet(adset_id, ad_account_id, campaign_id, ad_set_name, daily_budget, 'targeting')
+            # except Exception as e:
+            #     print(str(e))
+        return res
+
+# get_keywords
+@app.route("/api/GoogleAds/get_keywords", methods=['GET'])
+def googleAds_api_get_keywords():
+    if request.method == "GET":
+        rq = request.get_json(force=True)
+        customer_id = rq['customer_id']
+        ad_group_id = rq.get('ad_group_id')
+        return CampaignManagement.get_keywords(customer_id, ad_group_id)
+
+# create_new_responsive_search_ad
+@app.route("/api/GoogleAds/create_new_RS_ad", methods=['POST'])
+def googleAds_api_create_new_RS_ad():
+    if request.method == "POST":
+        rq = request.get_json(force=True)
+        customer_id = rq.get('customer_id')
+        ad_group_id = rq.get('ad_group_id')
+        headlines_texts = rq.get('headlines_texts')
+        descriptions_texts = rq.get('descriptions_texts')
+        final_url = rq.get('final_url')
+        pinned_text = rq.get('pinned_text', None)
+        res = CampaignManagement.create_new_responsive_search_ad(customer_id, ad_group_id, headlines_texts, descriptions_texts, final_url, pinned_text)
+       # try:
+       #      campaign_id = res.get('body').get('id')
+       #      db.addCampaign(campaign_id, ad_account_id, campaign_name, objective, status)
+       #  except Exception as e:
+       #      print(str(e))
+        return res
+
+# get_all_responsive_search_ads
+@app.route("/api/GoogleAds/get_all_RS_ads", methods=['GET'])
+def googleAds_api_get_all_RS_ads():
+    if request.method == "GET":
+        rq = request.get_json(force=True)
+        customer_id = rq['customer_id']
+        ad_group_id = rq.get('ad_group_id')
+        return CampaignManagement.get_all_responsive_search_ads(customer_id, ad_group_id)
+
 
 # for running in local host with HTTP
 if __name__ == '__main__':
