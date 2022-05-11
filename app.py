@@ -519,6 +519,7 @@ def fb_api_delete_ad():
 
 ################################################## Google-Ads ##########################################################
 
+#todo add try and catch
 # create_new_campaign
 @app.route("/api/GoogleAds/create_new_campaign", methods=['GET', 'POST'])
 def googleAds_api_create_new_campaign():
@@ -555,6 +556,21 @@ def googleAds_api_get_campaign_by_id():
         campaign_id = rq['campaign_id']
         return CampaignManagement.get_campaign_by_id(customer_id, campaign_id)
 
+# delete_campaign
+@app.route("/api/GoogleAds/delete_campaign", methods=['DELETE'])
+def googleAds_api_delete_campaign():
+    if request.method == "DELETE":
+        rq = request.get_json(force=True)
+        customer_id = rq['customer_id']
+        campaign_id = rq['campaign_id']
+        res = CampaignManagement.delete_campaign(customer_id, campaign_id)
+        # if res.get('status') == 200:
+        #     try:
+        #         db.deleteFBAd(ad_id)
+        #     except Exception as e:
+        #         print(str(e))
+        return res
+
 # create_new_ad_group
 @app.route("/api/GoogleAds/create_new_ad_group", methods=['POST'])
 def googleAds_api_create_new_ad_group():
@@ -582,6 +598,21 @@ def googleAds_api_get_all_ad_groups():
         campaign_id = rq.get('campaign_id')
         return CampaignManagement.get_all_ad_groups(customer_id, campaign_id)
 
+# delete_ad_group
+@app.route("/api/GoogleAds/delete_ad_group", methods=['DELETE'])
+def googleAds_api_delete_ad_group():
+    if request.method == "DELETE":
+        rq = request.get_json(force=True)
+        customer_id = rq['customer_id']
+        ad_group_id = rq['ad_group_id']
+        res = CampaignManagement.delete_ad_group(customer_id, ad_group_id)
+        # if res.get('status') == 200:
+        #     try:
+        #         db.deleteFBAd(ad_id)
+        #     except Exception as e:
+        #         print(str(e))
+        return res
+
 # add a keyword to ad group
 @app.route("/api/GoogleAds/add_keyword", methods=['POST'])
 def googleAds_api_add_keyword():
@@ -606,6 +637,22 @@ def googleAds_api_get_keywords():
         customer_id = rq['customer_id']
         ad_group_id = rq.get('ad_group_id')
         return CampaignManagement.get_keywords(customer_id, ad_group_id)
+
+# delete_keyword
+@app.route("/api/GoogleAds/delete_keyword", methods=['DELETE'])
+def googleAds_api_delete_keyword():
+    if request.method == "DELETE":
+        rq = request.get_json(force=True)
+        customer_id = rq['customer_id']
+        ad_group_id = rq['ad_group_id']
+        criterion_id = rq['criterion_id']
+        res = CampaignManagement.delete_keyword(customer_id, ad_group_id, criterion_id)
+        # if res.get('status') == 200:
+        #     try:
+        #         db.deleteFBAd(ad_id)
+        #     except Exception as e:
+        #         print(str(e))
+        return res
 
 # create_new_responsive_search_ad
 @app.route("/api/GoogleAds/create_new_RS_ad", methods=['POST'])
@@ -634,6 +681,22 @@ def googleAds_api_get_all_RS_ads():
         customer_id = rq['customer_id']
         ad_group_id = rq.get('ad_group_id')
         return CampaignManagement.get_all_responsive_search_ads(customer_id, ad_group_id)
+
+# delete_ad
+@app.route("/api/GoogleAds/delete_ad", methods=['DELETE'])
+def googleAds_api_delete_ad():
+    if request.method == "DELETE":
+        rq = request.get_json(force=True)
+        customer_id = rq['customer_id']
+        ad_group_id = rq['ad_group_id']
+        ad_id = rq['ad_id']
+        res = CampaignManagement.delete_ad(customer_id, ad_group_id, ad_id)
+        # if res.get('status') == 200:
+        #     try:
+        #         db.deleteFBAd(ad_id)
+        #     except Exception as e:
+        #         print(str(e))
+        return res
 
 
 # for running in local host with HTTP

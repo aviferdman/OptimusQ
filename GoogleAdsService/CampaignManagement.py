@@ -95,6 +95,7 @@ def get_all_campaigns(customer_id):
               campaign.id,
               campaign.name
             FROM campaign
+            WHERE campaign.status != \"REMOVED\"
             ORDER BY campaign.id"""
 
     # Issues a search request using streaming.
@@ -128,6 +129,21 @@ def get_campaign_by_id(customer_id, campaign_id):
         for row in batch.results:
             campaigns.append((row.campaign.id, row.campaign.name))
     return {"body": campaigns}
+
+# deletes a campaign
+def delete_campaign(customer_id, campaign_id):
+    campaign_service = client.get_service("CampaignService")
+    campaign_operation = client.get_type("CampaignOperation")
+
+    resource_name = campaign_service.campaign_path(customer_id, campaign_id)
+    campaign_operation.remove = resource_name
+
+    campaign_response = campaign_service.mutate_campaigns(
+        customer_id=customer_id, operations=[campaign_operation]
+    )
+
+    # print(f"Removed campaign {campaign_response.results[0].resource_name}.")
+    return {"data": campaign_response.results[0].resource_name}
 
 # creates a new ad group
 def create_new_ad_group(customer_id, campaign_id, name, status, cpc_bid):
@@ -163,10 +179,11 @@ def get_all_ad_groups(customer_id, campaign_id):
               campaign.id,
               ad_group.id,
               ad_group.name
-            FROM ad_group"""
+            FROM ad_group
+            """
 
     if campaign_id:
-        query += f" WHERE campaign.id = {campaign_id}"
+        query += f" WHERE campaign.id = {campaign_id} AND ad_group.status != \"REMOVED\""
 
     search_request = client.get_type("SearchGoogleAdsRequest")
     search_request.customer_id = customer_id
@@ -183,6 +200,21 @@ def get_all_ad_groups(customer_id, campaign_id):
         #     f'"{row.ad_group.name}" was found in campaign with '
         #     f"ID {row.campaign.id}.")
     return {"body": ad_groups}
+
+# deletes an ad group
+def delete_ad_group(customer_id, ad_group_id):
+    ad_group_service = client.get_service("AdGroupService")
+    ad_group_operation = client.get_type("AdGroupOperation")
+
+    resource_name = ad_group_service.ad_group_path(customer_id, ad_group_id)
+    ad_group_operation.remove = resource_name
+
+    ad_group_response = ad_group_service.mutate_ad_groups(
+        customer_id=customer_id, operations=[ad_group_operation]
+    )
+
+    # print(f"Removed ad group {ad_group_response.results[0].resource_name}.")
+    return {"data":ad_group_response.results[0].resource_name}
 
 # adds a keyword to an ad group
 def add_keyword(customer_id, ad_group_id, keyword_text):
@@ -253,7 +285,7 @@ def get_keywords(customer_id, ad_group_id):
         ad_group_criterion = row.ad_group_criterion
         keyword = row.ad_group_criterion.keyword
 
-        keywords.append(keyword.text)
+        keywords.append((keyword.text, ad_group_criterion.criterion_id))
         # print(
         #     f'Keyword with text "{keyword.text}", match type '
         #     f"{keyword.match_type}, criteria type "
@@ -263,6 +295,23 @@ def get_keywords(customer_id, ad_group_id):
         # )
 
     return {"data": keywords}
+
+# deletes a keyword
+def delete_keyword(customer_id, ad_group_id, criterion_id):
+    agc_service = client.get_service("AdGroupCriterionService")
+    agc_operation = client.get_type("AdGroupCriterionOperation")
+
+    resource_name = agc_service.ad_group_criterion_path(
+        customer_id, ad_group_id, criterion_id
+    )
+    agc_operation.remove = resource_name
+
+    agc_response = agc_service.mutate_ad_group_criteria(
+        customer_id=customer_id, operations=[agc_operation]
+    )
+
+    # print(f"Removed keyword {agc_response.results[0].resource_name}.")
+    return {"data": agc_response.results[0].resource_name}
 
 # todo throw exception if the headings is less than 3and descriptions is less than 2
 # creates a responsive search ad
@@ -331,6 +380,7 @@ def _create_ad_text_asset(text, pinned_field=None):
         ad_text_asset.pinned_field = pinned_field
     return ad_text_asset
 
+# todo fix all returns objects to return json
 # returns all responsive search ads belongs to ad_group_id
 def get_all_responsive_search_ads(customer_id, ad_group_id):
     ga_service = client.get_service("GoogleAdsService")
@@ -376,6 +426,22 @@ def get_all_responsive_search_ads(customer_id, ad_group_id):
         # print("No responsive search ads were found.")
     return {"data": ads}
 
+# deletes a keyword
+def delete_ad(customer_id, ad_group_id, ad_id):
+    ad_group_ad_service = client.get_service("AdGroupAdService")
+    ad_group_ad_operation = client.get_type("AdGroupAdOperation")
+
+    resource_name = ad_group_ad_service.ad_group_ad_path(
+        customer_id, ad_group_id, ad_id
+    )
+    ad_group_ad_operation.remove = resource_name
+
+    ad_group_ad_response = ad_group_ad_service.mutate_ad_group_ads(
+        customer_id=customer_id, operations=[ad_group_ad_operation]
+    )
+
+    # print(f"Removed ad group ad {ad_group_ad_response.results[0].resource_name}.")
+    return {"data": ad_group_ad_response.results[0].resource_name}
 
 def _ad_text_assets_to_strs(assets):
     """Converts a list of AdTextAssets to a list of user-friendly strings."""
@@ -383,6 +449,8 @@ def _ad_text_assets_to_strs(assets):
     for asset in assets:
         s.append(f"\t {asset.text} pinned to {asset.pinned_field.name}")
     return s
+
+
 
 
 
