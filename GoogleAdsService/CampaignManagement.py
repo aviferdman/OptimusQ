@@ -6,6 +6,7 @@ import os
 from google.ads.googleads.client import GoogleAdsClient
 from google.ads.googleads.errors import GoogleAdsException
 
+
 _DATE_FORMAT = "%Y%m%d"
 _DEFAULT_PAGE_SIZE = 1000
 
