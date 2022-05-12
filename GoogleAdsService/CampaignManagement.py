@@ -372,6 +372,7 @@ def create_new_responsive_search_ad(customer_id, ad_group_id, headlines_texts, d
         # )
     return {"body": res}
 
+
 def _create_ad_text_asset(text, pinned_field=None):
     """Create an AdTextAsset."""
     ad_text_asset = client.get_type("AdTextAsset")
