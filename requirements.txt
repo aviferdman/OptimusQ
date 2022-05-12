@@ -13,3 +13,4 @@ bs4
 selenium
 google-ads
 google
+google.ads
