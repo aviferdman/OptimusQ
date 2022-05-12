@@ -14,7 +14,7 @@ from DataBaseService.main import DataBaseController, dataBaseController
 
 from FacebookService import MarketingManagement
 # from GoogleAdsService import CampaignManagement
-from GoogleAdsService2 import CampaignManagement
+# from GoogleAdsService2 import CampaignManagement
 
 from PresentationService.main import main_trigger
 
