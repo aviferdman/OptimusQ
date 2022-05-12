@@ -13,8 +13,8 @@ from DataBaseService.main import DataBaseController, dataBaseController
 # deleteAccessTokenByUserId, writeAccessToken2db, getAccessTokenByUserId
 
 from FacebookService import MarketingManagement
-# from GoogleAdsService import CampaignManagement
-from GoogleAdsService2 import CampaignManagement
+from GoogleAdsService import CampaignManagement
+# from GoogleAdsService2 import CampaignManagement
 
 from PresentationService.main import main_trigger
 

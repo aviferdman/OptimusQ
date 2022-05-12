@@ -12,9 +12,12 @@ _DEFAULT_PAGE_SIZE = 1000
 
 # This interface allows the user to create and manage all the marketing fields,
 # using Google Ads APIs.
-dir_path = os.path.dirname(os.path.realpath(__file__))
-curr_path = dir_path + "\google-ads.yaml"
-client = GoogleAdsClient.load_from_storage(path=curr_path, version="v9")
+# dir_path = os.path.dirname(os.path.realpath(__file__))
+dir_path = ""
+# curr_path = dir_path + "\google-ads.yaml"
+curr_path = ""
+# client = GoogleAdsClient.load_from_storage(path=curr_path, version="v9")
+client = ""
 
 
 # creates a new campaign
