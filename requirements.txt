@@ -13,4 +13,3 @@ bs4
 selenium
 google-ads
 google
-uuid
