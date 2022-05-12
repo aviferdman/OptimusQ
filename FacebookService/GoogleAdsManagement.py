@@ -1,10 +1,10 @@
-import datetime
-import sys
-import uuid
-import os
+# import datetime
+# import sys
+# import uuid
+# import os
 
-from google.ads.googleads.client import GoogleAdsClient
-from google.ads.googleads.errors import GoogleAdsException
+# from google.ads.googleads.client import GoogleAdsClient
+# from google.ads.googleads.errors import GoogleAdsException
 
 
 _DATE_FORMAT = "%Y%m%d"
