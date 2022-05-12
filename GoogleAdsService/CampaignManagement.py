@@ -6,6 +6,9 @@
 # from google.ads.googleads.client import GoogleAdsClient
 # from google.ads.googleads.errors import GoogleAdsException
 
+def tst_func():
+    print("tst!")
+
 #
 # _DATE_FORMAT = "%Y%m%d"
 # _DEFAULT_PAGE_SIZE = 1000
