@@ -3,21 +3,33 @@ import sys
 import uuid
 import os
 
+from DataBaseService.main import dataBaseController
+
+
 from google.ads.googleads.client import GoogleAdsClient
 from google.ads.googleads.errors import GoogleAdsException
-
 
 _DATE_FORMAT = "%Y%m%d"
 _DEFAULT_PAGE_SIZE = 1000
 
+# fetching token details from database
+db = dataBaseController
+client_id = '1040281022647-soclnfbgmiujemuojhbopomnkf0o1724.apps.googleusercontent.com'
+login_customer_id = '2838771052'
+
+token_details = db.get_GoogleAds_Token(client_id, login_customer_id)
+
+developer_token = token_details['developer_token']
+client_secret = token_details['client_secret']
+refresh_token = token_details['refresh_token']
+
+token_dict = {"client_id": client_id, "login_customer_id": login_customer_id, "developer_token": developer_token,
+              "client_secret": client_secret, "refresh_token": refresh_token}
+
+
 # This interface allows the user to create and manage all the marketing fields,
 # using Google Ads APIs.
-# dir_path = os.path.dirname(os.path.realpath(__file__))
-dir_path = ""
-# curr_path = dir_path + "\google-ads.yaml"
-curr_path = ""
-# client = GoogleAdsClient.load_from_storage(path=curr_path, version="v9")
-client = ""
+client = GoogleAdsClient.load_from_dict(token_dict)
 
 
 # creates a new campaign
