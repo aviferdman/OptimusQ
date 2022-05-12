@@ -23,8 +23,8 @@ developer_token = token_details['developer_token']
 client_secret = token_details['client_secret']
 refresh_token = token_details['refresh_token']
 
-token_dict = {"client_id": client_id, "login_customer_id": login_customer_id, "developer_token": developer_token,
-              "client_secret": client_secret, "refresh_token": refresh_token}
+token_dict = {"developer_token": developer_token, "refresh_token": refresh_token, "client_id": client_id,
+              "client_secret": client_secret}
 
 
 # This interface allows the user to create and manage all the marketing fields,
