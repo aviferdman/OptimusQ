@@ -12,7 +12,7 @@ import requests
 from DataBaseService.main import DataBaseController, dataBaseController
 # deleteAccessTokenByUserId, writeAccessToken2db, getAccessTokenByUserId
 
-from FacebookService import MarketingManagement
+from FacebookService import MarketingManagement, GoogleAdsManagement
 # from GoogleAdsService import CampaignManagement
 # from GoogleAdsService2 import CampaignManagement
 
