@@ -22,10 +22,8 @@ ad2 = '120330000357977413'
 db = dataBaseController
 token = db.getAccessTokenByUserId('sandbox_token')
 
-token_details = db.get_GoogleAds_Token('1040281022647-soclnfbgmiujemuojhbopomnkf0o1724.apps.googleusercontent.com',
-                                '2838771052')
-developer_token = token_details['developer_token']
-client_secret = token_details['client_secret']
-refresh_token = token_details['refresh_token']
+# targeting = {"age_min": 12, "age_max": 40, "geo_locations": {"countries": ["US", "IL"]}}
+# res1 = mm.create_new_ad_set(token, sandbox_ad_account, 'adSet name 5', campaign)
+res2 = mm.get_all_ad_sets_by_campaign(token, campaign)
 
 print('hi')

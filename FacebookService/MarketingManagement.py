@@ -95,9 +95,16 @@ def get_all_campaigns(access_token, ad_account_id):
 def create_new_ad_set(access_token, AD_ACCOUNT_ID, ad_set_name, campaign_id, daily_budget="1000",
                       optimization_goal='REACH',
                       billing_event='IMPRESSIONS', bid_amount="1500",
-                      targeting={"geo_locations": {"countries": ["US"]}},
-                      start_time='2020-10-06T04:45:17+0000', status='PAUSED'):
+                      start_time='2020-10-06T04:45:17+0000', status='PAUSED',
+                      targeting_min_age='NONE', targeting_max_age='NONE', targeting_countries=["IL"]):
     url = 'https://graph.facebook.com/v13.0/act_' + AD_ACCOUNT_ID + '/adsets'
+    targeting = {}
+    if targeting_min_age != 'NONE':
+        targeting["age_min"] = targeting_min_age
+    if targeting_max_age != 'NONE':
+        targeting["age_max"] = targeting_max_age
+    targeting["geo_locations"] = {"countries": targeting_countries}
+
     payload = {'name': ad_set_name,
                'optimization_goal': optimization_goal,
                "billing_event": billing_event,
