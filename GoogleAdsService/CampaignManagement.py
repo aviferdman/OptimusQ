@@ -17,7 +17,7 @@ client = GoogleAdsClient.load_from_storage(path=curr_path, version="v9")
 
 
 # creates a new campaign
-def create_new_campaign(customer_id, budget, name, days_to_start, weeks_to_end, status):
+def create_new_campaign(customer_id, budget, name, days_to_start, weeks_to_end, status, delivery_method, explicitly_shared):
     campaign_budget_service = client.get_service("CampaignBudgetService")
     campaign_service = client.get_service("CampaignService")
 
@@ -26,10 +26,16 @@ def create_new_campaign(customer_id, budget, name, days_to_start, weeks_to_end, 
     campaign_budget_operation = client.get_type("CampaignBudgetOperation")
     campaign_budget = campaign_budget_operation.create
     campaign_budget.name = f"Interplanetary Budget {uuid.uuid4()}"
-    campaign_budget.delivery_method = client.get_type(
-        "BudgetDeliveryMethodEnum"
-    ).BudgetDeliveryMethod.STANDARD
+    if delivery_method == "STANDARD":
+        campaign_budget.delivery_method = client.get_type(
+            "BudgetDeliveryMethodEnum"
+        ).BudgetDeliveryMethod.STANDARD
+    elif delivery_method == "ACCELERATED":
+        campaign_budget.delivery_method = client.get_type(
+            "BudgetDeliveryMethodEnum"
+        ).BudgetDeliveryMethod.ACCELERATED
     campaign_budget.amount_micros = 1000000 * budget
+    campaign_budget.explicitly_shared = explicitly_shared
 
     # Add budget.
     try:
