@@ -17,7 +17,7 @@ client = GoogleAdsClient.load_from_storage(path=curr_path, version="v9")
 
 
 # creates a new campaign
-def create_new_campaign(customer_id, budget, name, days_to_start, weeks_to_end, status, delivery_method, explicitly_shared):
+def create_new_campaign(customer_id, budget, name, days_to_start, weeks_to_end, status, delivery_method, explicitly_shared, period, lifetime_budget):
     campaign_budget_service = client.get_service("CampaignBudgetService")
     campaign_service = client.get_service("CampaignService")
 
@@ -36,6 +36,9 @@ def create_new_campaign(customer_id, budget, name, days_to_start, weeks_to_end, 
         ).BudgetDeliveryMethod.ACCELERATED
     campaign_budget.amount_micros = 1000000 * budget
     campaign_budget.explicitly_shared = explicitly_shared
+    campaign_budget.period = period
+    if period != "DAILY":
+        campaign_budget.total_amount_micros = lifetime_budget
 
     # Add budget.
     try:
@@ -99,7 +102,8 @@ def get_all_campaigns(customer_id):
     query = """
             SELECT
               campaign.id,
-              campaign.name
+              campaign.name,
+              campaign.advertising_channel_type
             FROM campaign
             WHERE campaign.status != \"REMOVED\"
             ORDER BY campaign.id"""
@@ -110,7 +114,7 @@ def get_all_campaigns(customer_id):
     campaigns = []
     for batch in response:
         for row in batch.results:
-            campaigns.append((row.campaign.id,row.campaign.name))
+            campaigns.append((row.campaign.id,row.campaign.name,row.campaign.advertising_channel_type))
             # print(f"Campaign with ID {row.campaign.id} and name "
             #       f'"{row.campaign.name}" was found.')
     return {"body": campaigns}
