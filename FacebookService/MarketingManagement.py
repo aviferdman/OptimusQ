@@ -76,7 +76,7 @@ def get_campaign_by_id(access_token, campaign_id):
         'access_token': access_token
     }
     res = requests.get('https://graph.facebook.com/v13.0/' + campaign_id + '/?' +
-                        fields, params)
+                       fields, params)
     return {"status": res.status_code, "body": res.json()}
 
 
@@ -133,6 +133,7 @@ def get_all_ad_sets_by_ad_account(access_token, ad_account_id, with_status="['AC
     res = requests.get('https://graph.facebook.com/v13.0/act_' + ad_account_id + '/adsets?' + fields, params)
     return {"status": res.status_code, "body": res.json()}
 
+
 # 120330000357827313/adsets
 # returns all ad sets belongs to campaign with campaign_id
 def get_all_ad_sets_by_campaign(access_token, campaign_id):
@@ -140,8 +141,9 @@ def get_all_ad_sets_by_campaign(access_token, campaign_id):
     params = {
         'access_token': access_token
     }
-    res = requests.get('https://graph.facebook.com/v13.0/' + campaign_id +  '/adsets?' + fields, params)
+    res = requests.get('https://graph.facebook.com/v13.0/' + campaign_id + '/adsets?' + fields, params)
     return {"status": res.status_code, "body": res.json()}
+
 
 # returns all ad creatives belongs to ad account
 def get_all_ad_creatives(access_token, ad_account):
@@ -149,8 +151,9 @@ def get_all_ad_creatives(access_token, ad_account):
     params = {
         'access_token': access_token
     }
-    res = requests.get('https://graph.facebook.com/v13.0/act_' + ad_account +  '/adcreatives?' + fields, params)
+    res = requests.get('https://graph.facebook.com/v13.0/act_' + ad_account + '/adcreatives?' + fields, params)
     return {"status": res.status_code, "body": res.json()}
+
 
 # adds an image to ad creative repository.
 # image_path - path of image to upload, from local computer.
@@ -182,6 +185,7 @@ def upload_image_by_url(access_token, AD_ACCOUNT_ID, image_url):
     except Exception as e:
         return {"status": 400, "body": str(e)}
 
+
 # returns a A permanent URL of the image
 def get_permanent_url_for_image_by_hash(access_token, ad_account, hash):
     fields = 'fields=permalink_url'
@@ -190,8 +194,9 @@ def get_permanent_url_for_image_by_hash(access_token, ad_account, hash):
         'access_token': access_token
     }
     res = requests.get('https://graph.facebook.com/v13.0/act_' + ad_account + '/adimages?' +
-                        fields, params)
+                       fields, params)
     return {"status": res.status_code, "body": res.json()}
+
 
 # creates a new ad creative
 # todo: make this function generic
@@ -289,6 +294,7 @@ def get_all_ads_by_adSet_id(access_token, adSet_id):
     res = requests.get(url, params)
     return {"status": res.status_code, "body": res.json()}
 
+
 # get an adCreative preview
 def get_adCreative_preview(access_token, creative_id, ad_format='DESKTOP_FEED_STANDARD'):
     url = 'https://graph.facebook.com/v13.0/' + creative_id + '/previews'
@@ -297,6 +303,7 @@ def get_adCreative_preview(access_token, creative_id, ad_format='DESKTOP_FEED_ST
               }
     res = requests.get(url, params)
     return {"status": res.status_code, "body": res.json()}
+
 
 # get an ad preview
 def get_ad_preview(access_token, ad_id, ad_format='DESKTOP_FEED_STANDARD'):
@@ -319,14 +326,12 @@ def delete_ad_account(access_token, business_id, ad_account_id):
     return {"status": res.status_code, "body": res.json()}
 
 
-
 # returns: success: bool
 def delete_campaign(access_token, campaign_id):
     url = 'https://graph.facebook.com/v13.0/' + campaign_id
     payload = {"access_token": access_token}
     res = requests.delete(url, data=payload, headers={})
     return {"status": res.status_code, "body": res.json()}
-
 
 
 # returns: success: bool
@@ -337,14 +342,12 @@ def delete_adSet(access_token, adSet_id):
     return {"status": res.status_code, "body": res.json()}
 
 
-
 # returns: success: bool
 def delete_ad_creative(access_token, ad_creative_id):
     url = 'https://graph.facebook.com/v13.0/' + ad_creative_id
     payload = {"access_token": access_token}
     res = requests.delete(url, data=payload, headers={})
     return {"status": res.status_code, "body": res.json()}
-
 
 
 # returns: success: bool
@@ -355,7 +358,6 @@ def delete_ad(access_token, ad_id):
     return {"status": res.status_code, "body": res.json()}
 
 
-
 # get insights for ad account/campaign/ad set/ ad
 def get_insights(access_token, marketing_object_id, date_preset='maximum'):
     url = 'https://graph.facebook.com/v13.0/' + marketing_object_id + '/insights'
@@ -363,5 +365,30 @@ def get_insights(access_token, marketing_object_id, date_preset='maximum'):
               'date_preset': date_preset,
               "access_token": access_token
               }
+    res = requests.get(url, params)
+    return {"status": res.status_code, "body": res.json()}
+
+
+# ********** targeting ***********
+
+# search possible interests for ad targeting
+def search_for_possible_interests(access_token, q=''):
+    url = 'https://graph.facebook.com/v13.0/search'
+    params = {'type': 'adinterest',
+              'q': q,
+              "access_token": access_token
+              }
+
+    res = requests.get(url, params)
+    return {"status": res.status_code, "body": res.json()}
+
+# get all possible behaviors for ad targeting
+def get_all_possible_behaviors(access_token):
+    url = 'https://graph.facebook.com/v13.0/search'
+    params = {'type': 'adTargetingCategory',
+              'class': 'behaviors',
+              "access_token": access_token
+              }
+
     res = requests.get(url, params)
     return {"status": res.status_code, "body": res.json()}
