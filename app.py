@@ -369,7 +369,7 @@ def create_new_adset():
         bid_amount = '1500'
         if 'bid_amount' in rq:
             bid_amount = rq['bid_amount']
-        start_time = '2020-10-06T04:45:17+0000'
+        start_time = '1633851746'
         if 'start_time' in rq:
             start_time = rq['start_time']
         status = 'PAUSED'
@@ -386,7 +386,7 @@ def create_new_adset():
         res = MarketingManagement.create_new_ad_set(token, ad_account_id, ad_set_name, campaign_id, daily_budget,
                                                     optimization_goal, billing_event, bid_amount, start_time, status,
                                                     targeting_min_age, targeting_max_age,
-                                                    targeting_countries)
+                                                    targeting_countries, rq.get('end_time', 'NONE'))
         if res.get('status') == 200:
             try:
                 adset_id = res.get('body').get('id')

@@ -95,8 +95,8 @@ def get_all_campaigns(access_token, ad_account_id):
 def create_new_ad_set(access_token, AD_ACCOUNT_ID, ad_set_name, campaign_id, daily_budget="1000",
                       optimization_goal='REACH',
                       billing_event='IMPRESSIONS', bid_amount="1500",
-                      start_time='2020-10-06T04:45:17+0000', status='PAUSED',
-                      targeting_min_age='NONE', targeting_max_age='NONE', targeting_countries=["IL"]):
+                      start_time='1633851746', status='PAUSED',
+                      targeting_min_age='NONE', targeting_max_age='NONE', targeting_countries=["IL"], end_time='NONE'):
     url = 'https://graph.facebook.com/v13.0/act_' + AD_ACCOUNT_ID + '/adsets'
     targeting = {}
     if targeting_min_age != 'NONE':
@@ -116,13 +116,15 @@ def create_new_ad_set(access_token, AD_ACCOUNT_ID, ad_set_name, campaign_id, dai
                "status": status,
                "access_token": access_token
                }
+    if end_time != 'NONE':
+        payload["end_time"] = end_time
     res = requests.post(url, data=payload, headers={})
     return {"status": res.status_code, "body": res.json()}
 
 
 # returns all ad sets belongs to AD_ACCOUNT_ID
 def get_all_ad_sets_by_ad_account(access_token, ad_account_id, with_status="['ACTIVE', 'PAUSED']"):
-    fields = 'fields=daily_budget,name,targeting,effective_status'
+    fields = 'fields=daily_budget,name,targeting,created_time,billing_event,start_time,end_time,optimization_goal,status,updated_time'
     params = {
         'access_token': access_token
     }
@@ -134,7 +136,7 @@ def get_all_ad_sets_by_ad_account(access_token, ad_account_id, with_status="['AC
 # 120330000357827313/adsets
 # returns all ad sets belongs to campaign with campaign_id
 def get_all_ad_sets_by_campaign(access_token, campaign_id):
-    fields = 'fields=daily_budget,name,targeting'
+    fields = 'fields=daily_budget,name,targeting,created_time,billing_event,start_time,end_time,optimization_goal,status,updated_time'
     params = {
         'access_token': access_token
     }
