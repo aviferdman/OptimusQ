@@ -25,6 +25,9 @@ db = dataBaseController
 sandbox_token = db.getAccessTokenByUserId('sandbox_token')
 admin_token = db.getAccessTokenByUserId('admin_token')
 
+# updates FB_targeting_behaviors DB once a week
+threading.Thread(target=MarketingManagement.update_targeting_behaviors_once_a_week, args=(sandbox_token))
+
 
 @app.route("/")
 def hello():
