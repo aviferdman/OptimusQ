@@ -25,6 +25,9 @@ db = dataBaseController
 sandbox_token = db.getAccessTokenByUserId('sandbox_token')
 admin_token = db.getAccessTokenByUserId('admin_token')
 
+# updates FB_targeting_behaviors DB once a week
+threading.Thread(target=MarketingManagement.update_targeting_behaviors_once_a_week, args=(sandbox_token))
+
 
 @app.route("/")
 def hello():
@@ -394,6 +397,7 @@ def create_new_adset():
         status = 'PAUSED'
         if status in rq:
             status = rq['status']
+        targeting_gender = rq.get("targeting_gender", "NONE")
         targeting_min_age = rq.get('targeting_min_age', 'NONE')
         targeting_max_age = rq.get('targeting_max_age', 'NONE')
         targeting_countries = []
@@ -401,10 +405,35 @@ def create_new_adset():
         countries = countries.split(",")
         for country in countries:
             targeting_countries.append("" + country)
+
+        targeting_interests_lst = []
+        interests = rq.get('targeting_interests', [])
+        interests = interests.split(",")
+        for interest_id in interests:
+            targeting_interests_lst.append({"id": interest_id})
+
+        targeting_behaviors_lst = []
+        behaviors = rq.get('targeting_behaviors', [])
+        behaviors = behaviors.split(",")
+        for behavior_id in behaviors:
+            targeting_behaviors_lst.append({"id": behavior_id})
+
+        targeting_relationships = []
+        targeting_relationship_statuses = rq.get("targeting_relationship_statuses", "NONE")
+        if targeting_relationship_statuses != "NONE":
+            statuses = targeting_relationship_statuses.split(",")
+            for relationship_status in statuses:
+                targeting_relationships.append(relationship_status)
+        if len(targeting_relationships) == 0:
+            targeting_relationships = "NONE"
+
+
+
         res = MarketingManagement.create_new_ad_set(token, ad_account_id, ad_set_name, campaign_id, daily_budget,
                                                     optimization_goal, billing_event, bid_amount, start_time, status,
                                                     targeting_min_age, targeting_max_age,
-                                                    targeting_countries, rq.get('end_time', 'NONE'))
+                                                    targeting_countries, rq.get('end_time', 'NONE'), targeting_gender,
+                                                    targeting_relationships, targeting_interests_lst, targeting_behaviors_lst)
         if res.get('status') == 200:
             try:
                 adset_id = res.get('body').get('id')
@@ -570,6 +599,32 @@ def fb_api_delete_ad():
             except Exception as e:
                 print(str(e))
         return res
+
+# search possible interests for ad targeting
+@app.route("/api/fb/search_interests", methods=['GET'])
+def fb_api_search_interests():
+    if request.method == "GET":
+        rq = request.get_json()
+        is_sandbox_mode = rq['sandbox_mode']
+        token = ""
+        if is_sandbox_mode == "no":
+            return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+        else:
+            token = sandbox_token
+        res = MarketingManagement.search_for_possible_interests(token, rq.get("to_search", ""))
+        return res
+
+# search for behaviors in DB
+@app.route("/api/fb/search_behaviors", methods=['GET'])
+def fb_api_search_behaviors():
+    if request.method == "GET":
+        rq = request.get_json()
+        to_search = rq.get("to_search", "")
+        try:
+            res = MarketingManagement.search_for_behaviors_in_db(to_search)
+        except Exception as e:
+            return {"status": 400, "body": {str(e)}}
+        return {"status": 200, "body": res}
 
 
 ################################################# Google-Ads ##########################################################

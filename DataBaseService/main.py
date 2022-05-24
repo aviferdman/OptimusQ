@@ -512,6 +512,37 @@ class DataBaseController:
 
 
     ######################################################################
+    #  FB_Targeting_Behaviors
+    ######################################################################
+    def addFBTargetingBehavior(self, id, name, audience_size_lower_bound, audience_size_upper_bound, path, description):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                    INSERT INTO [dbo].[FB_Targeting_Behaviors] (id, name, audience_size_lower_bound, audience_size_upper_bound, path, description)
+                    VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}');
+                    """.format(id, name, audience_size_lower_bound, audience_size_upper_bound, path, description))
+
+    def getFBTargetingBehaviorById(self, id):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                                SELECT * FROM FB_Targeting_Behaviors
+                                WHERE "id"='{0}';
+                                """.format(id))
+                myresult = cursor.fetchall()
+                return myresult
+
+    def getAllFBTargetingBehaviors(self):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                SELECT * FROM FB_Targeting_Behaviors;""")
+                myresult = cursor.fetchall()
+                return myresult
+
+
+
+    ######################################################################
     #  GoogleAds_Tokens
     ######################################################################
     def get_GoogleAds_Token(self, client_id, login_customer_id):

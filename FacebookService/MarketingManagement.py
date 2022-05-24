@@ -1,11 +1,17 @@
+import time
+
 import requests
 import urllib.request
 import base64
+from DataBaseService.main import dataBaseController
 
 # This interface allows the user to create and manage all the marketing fields,
 # using Facebook APIs.
 
 business_id = 775308013448374  # initial business id
+db = dataBaseController
+
+behaviors_from_db = db.getAllFBTargetingBehaviors()
 
 
 # updated business_id
@@ -96,7 +102,9 @@ def create_new_ad_set(access_token, AD_ACCOUNT_ID, ad_set_name, campaign_id, dai
                       optimization_goal='REACH',
                       billing_event='IMPRESSIONS', bid_amount="1500",
                       start_time='1633851746', status='PAUSED',
-                      targeting_min_age='NONE', targeting_max_age='NONE', targeting_countries=["IL"], end_time='NONE'):
+                      targeting_min_age='NONE', targeting_max_age='NONE', targeting_countries=["IL"], end_time='NONE',
+                      targeting_gender="NONE", targeting_relationship_statuses="NONE",
+                      targeting_interests = [], targeting_behaviors = []):
     url = 'https://graph.facebook.com/v13.0/act_' + AD_ACCOUNT_ID + '/adsets'
     targeting = {}
     if targeting_min_age != 'NONE':
@@ -104,6 +112,16 @@ def create_new_ad_set(access_token, AD_ACCOUNT_ID, ad_set_name, campaign_id, dai
     if targeting_max_age != 'NONE':
         targeting["age_max"] = targeting_max_age
     targeting["geo_locations"] = {"countries": targeting_countries}
+    if targeting_gender != "NONE":
+        tmp_lst = list()
+        tmp_lst.append(targeting_gender)
+        targeting["genders"] = tmp_lst
+    if targeting_relationship_statuses != "NONE":
+        targeting["relationship_statuses"] = targeting_relationship_statuses
+    if len(targeting_interests) > 0:
+        targeting["interests"] = targeting_interests
+    if len(targeting_behaviors) > 0:
+        targeting["behaviors"] = targeting_behaviors
 
     payload = {'name': ad_set_name,
                'optimization_goal': optimization_goal,
@@ -181,6 +199,9 @@ def upload_image_by_url(access_token, AD_ACCOUNT_ID, image_url):
         file_obj = {'bytes': image_file}
         payload = {"access_token": access_token}
         res = requests.post(url, data=payload, params=file_obj)
+        if res.status_code == 200:
+            img_hash = res.json()['images'].get('bytes').get('hash')
+            return {"status": res.status_code, "body": {"hash": img_hash}}
         return {"status": res.status_code, "body": res.json()}
     except Exception as e:
         return {"status": 400, "body": str(e)}
@@ -382,6 +403,7 @@ def search_for_possible_interests(access_token, q=''):
     res = requests.get(url, params)
     return {"status": res.status_code, "body": res.json()}
 
+
 # get all possible behaviors for ad targeting
 def get_all_possible_behaviors(access_token):
     url = 'https://graph.facebook.com/v13.0/search'
@@ -392,3 +414,61 @@ def get_all_possible_behaviors(access_token):
 
     res = requests.get(url, params)
     return {"status": res.status_code, "body": res.json()}
+
+
+# behaviors table in DB must be empty before running this function
+def load_all_behaviors_to_db(access_token):
+    res = get_all_possible_behaviors(access_token)
+    if res.get('status') != 200:
+        return
+    for behavior in res.get("body").get("data"):
+        try:
+            id = behavior.get("id")
+            name = behavior.get("name")
+            path = behavior.get("path")
+            paths = ""
+            for p in path:
+                paths += p + ","
+            desc = behavior.get("description")
+            audience_size_lower_bound = str(behavior.get("audience_size_lower_bound"))
+            audience_size_upper_bound = str(behavior.get("audience_size_upper_bound"))
+            db.addFBTargetingBehavior(id, name, audience_size_lower_bound, audience_size_upper_bound, paths, desc)
+        except Exception as e:
+            print(str(e))
+
+
+# updates targeting_behaviors DB once a week
+def update_targeting_behaviors_once_a_week(access_token):
+    while True:
+        try:
+            time.sleep(604800)
+            res = get_all_possible_behaviors(access_token)
+            if res.get('status') != 200:
+                return
+
+            behaviors_in_db = db.getAllFBTargetingBehaviors()
+            behaviors_in_db_ids = list()
+            for b in behaviors_in_db:
+                behaviors_in_db_ids.append(b[0])
+            for behavior in res.get("body").get("data"):
+                if behavior.get("id") not in behaviors_in_db_ids:
+                    db.addFBTargetingBehavior(behavior.get("id"), behavior.get("name"),
+                                              behavior.get("audience_size_lower_bound"),
+                                              behavior.get("audience_size_upper_bound"), behavior.get("path"),
+                                              behavior.get("description"))
+
+        except Exception as e:
+            print(str(e))
+
+
+# search for behaviors in DB
+def search_for_behaviors_in_db(to_search):
+    to_search = to_search.lower()
+    res = list()
+    for b in behaviors_from_db:
+        b_str = "" + b[1] + b[4] + b[5]
+        b_str = b_str.lower()
+        if to_search in b_str:
+            res.append(tuple(b))
+
+    return res

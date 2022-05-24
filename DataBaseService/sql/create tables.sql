@@ -102,6 +102,17 @@ CREATE TABLE "FB_Ads"
     FOREIGN KEY("creative") REFERENCES [dbo].[FB_AdCreatives]("id")
 );
 
+CREATE TABLE "FB_Targeting_Behaviors"
+(
+	"id" VARCHAR(512),
+	"name" VARCHAR(512),
+	"audience_size_lower_bound" VARCHAR(256),
+	"audience_size_upper_bound" VARCHAR(256),
+	"path" VARCHAR(512),
+	"description" VARCHAR(512),
+	PRIMARY KEY("id")
+);
+
 CREATE TABLE "GoogleAds_Tokens"
 (
 	"client_id" VARCHAR(512),
