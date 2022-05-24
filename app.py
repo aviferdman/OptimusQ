@@ -3,6 +3,7 @@
 # That is, we can conveniently send a URL and see if what we expected to receive was received.
 
 # 'Flask' is a library of web applications written in Python.
+import threading
 from doctest import OutputChecker
 import json
 from flask import Flask, render_template, request, flash, Markup, jsonify, redirect
@@ -245,12 +246,23 @@ def fb_api_get_all_campaigns():
     if request.method == "GET":
         rq = request.get_json()
         is_sandbox_mode = rq['sandbox_mode']
+        token = ""
         if is_sandbox_mode == "no":
             return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+        else:
+            token = sandbox_token
         ad_account = rq['ad_account']
-        token = db.getAccessTokenByUserId('sandbox_token')
         return MarketingManagement.get_all_campaigns(token, ad_account)
 
+# uploads an image to DB
+def upload_img_from_url_to_db(res, token, ad_account_id):
+    try:
+        img_hash = res.get('body').get('images').get('bytes').get('hash')
+        res2 = MarketingManagement.get_permanent_url_for_image_by_hash(token, ad_account_id, img_hash)
+        img_permalink_url = res2.get('body').get('data')[0].get('permalink_url')
+        db.addFBImage(img_hash, img_permalink_url)
+    except Exception as e:
+        print(str(e))
 
 # upload_img_from_url
 @app.route("/api/fb/upload_img_from_url", methods=['POST'])
@@ -259,19 +271,15 @@ def upload_img_from_url():
         print("upload_img_from_url: POST!")
         rq = request.get_json()
         is_sandbox_mode = rq['sandbox_mode']
+        token = ""
         if is_sandbox_mode == "no":
             return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+        else:
+            token = sandbox_token;
         ad_account_id = rq['ad_account']
         img_url = rq['img_url']
-        token = db.getAccessTokenByUserId('sandbox_token')
         res = MarketingManagement.upload_image_by_url(token, ad_account_id, img_url)
-        try:
-            img_hash = res.get('body').get('images').get('bytes').get('hash')
-            res2 = MarketingManagement.get_permanent_url_for_image_by_hash(token, ad_account_id, img_hash)
-            img_permalink_url = res2.get('body').get('data')[0].get('permalink_url')
-            db.addFBImage(img_hash, img_permalink_url)
-        except Exception as e:
-            print(str(e))
+        threading.Thread(target=upload_img_from_url_to_db, args=(res, token, ad_account_id,)).start()
         return res
 
 
@@ -281,10 +289,12 @@ def fb_api_get_all_ad_sets_by_campaign():
     if request.method == "GET":
         rq = request.get_json()
         is_sandbox_mode = rq['sandbox_mode']
+        token = ""
         if is_sandbox_mode == "no":
             return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+        else:
+            token = sandbox_token;
         campaign_id = rq['campaign_id']
-        token = db.getAccessTokenByUserId('sandbox_token')
         return MarketingManagement.get_all_ad_sets_by_campaign(token, campaign_id)
 
 
@@ -293,11 +303,13 @@ def fb_api_upload_image_by_path():
     if request.method == "POST":
         rq = request.get_json()
         is_sandbox_mode = rq['sandbox_mode']
+        token = ""
         if is_sandbox_mode == "no":
             return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+        else:
+            token = sandbox_token;
         ad_account_id = rq['ad_account']
         img_url = rq['img_url']
-        token = db.getAccessTokenByUserId('sandbox_token')
         return MarketingManagement.upload_image_by_url(ad_account_id, token, img_url)
 
 
@@ -306,19 +318,21 @@ def create_adCreative():
     if request.method == "POST":
         rq = request.get_json()
         is_sandbox_mode = rq['sandbox_mode']
+        token = ""
         if is_sandbox_mode == "no":
             return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+        else:
+            token = sandbox_token
         ad_account_id = rq['ad_account']
         name = rq['name']
         img_hash = rq['img_hash']
         link = rq['link']
         msg = rq['msg']
         page_id = rq['page_id']
-        token = db.getAccessTokenByUserId('sandbox_token')
         res = MarketingManagement.create_ad_creative(token, name, img_hash, ad_account_id, link, msg, page_id)
         if res.get('status') == 200:
             try:
-                db.addFBAdCreative(res.get('body').get('id'), name, page_id, msg, img_hash)
+                threading.Thread(target=db.addFBAdCreative, args=(res.get('body').get('id'), name, page_id, msg, img_hash))
             except Exception as e:
                 print(str(e))
         return res
@@ -329,19 +343,21 @@ def create_ad():
     if request.method == "POST":
         rq = request.get_json()
         is_sandbox_mode = rq['sandbox_mode']
+        token = ""
         if is_sandbox_mode == "no":
             return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+        else:
+            token = sandbox_token
         ad_account_id = rq['ad_account']
         name = rq['name']
         adset = rq['adset']
         creative = rq['creative']
         status = rq['status']
-        token = db.getAccessTokenByUserId('sandbox_token')
         res = MarketingManagement.create_ad(token, ad_account_id, name, adset, creative, status)
         if res.get('status') == 200:
             try:
                 ad_id = res.get('body').get('id')
-                db.addFBAd(ad_id, adset, name, creative, status)
+                threading.Thread(target=db.addFBAd, args=(ad_id, adset, name, creative, status))
             except Exception as e:
                 print(str(e))
         return res
@@ -352,8 +368,11 @@ def create_new_adset():
     if request.method == "POST":
         rq = request.get_json()
         is_sandbox_mode = rq['sandbox_mode']
+        token = ""
         if is_sandbox_mode == "no":
             return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+        else:
+            token = sandbox_token
         ad_account_id = rq.get('ad_account', '-1')
         ad_set_name = rq.get('ad_set_name', '-1')
         campaign_id = rq.get('campaign_id', '-1')
@@ -382,7 +401,6 @@ def create_new_adset():
         countries = countries.split(",")
         for country in countries:
             targeting_countries.append("" + country)
-        token = db.getAccessTokenByUserId('sandbox_token')
         res = MarketingManagement.create_new_ad_set(token, ad_account_id, ad_set_name, campaign_id, daily_budget,
                                                     optimization_goal, billing_event, bid_amount, start_time, status,
                                                     targeting_min_age, targeting_max_age,
@@ -390,7 +408,7 @@ def create_new_adset():
         if res.get('status') == 200:
             try:
                 adset_id = res.get('body').get('id')
-                db.addAdSet(adset_id, ad_account_id, campaign_id, ad_set_name, daily_budget, 'targeting')
+                threading.Thread(target=db.addAdSet, args=(adset_id, ad_account_id, campaign_id, ad_set_name, daily_budget, 'targeting'))
             except Exception as e:
                 print(str(e))
         return res
@@ -402,20 +420,22 @@ def fb_api_create_new_campaign():
     if request.method == "POST":
         rq = request.get_json()
         is_sandbox_mode = rq['sandbox_mode']
+        token = ""
         if is_sandbox_mode == "no":
             return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+        else:
+            token = sandbox_token
         ad_account_id = rq['ad_account']
         campaign_name = rq.get('campaign_name')
         objective = rq.get('objective', 'LINK_CLICKS')
         status = rq.get('status', 'PAUSED')
         special_ad_categories = rq.get('special_ad_categories', "[]")
-        token = db.getAccessTokenByUserId('sandbox_token')
         res = MarketingManagement.create_new_campaign(token, ad_account_id, campaign_name, objective, status,
                                                       special_ad_categories)
         if res.get('status') == 200:
             try:
                 campaign_id = res.get('body').get('id')
-                db.addCampaign(campaign_id, ad_account_id, campaign_name, objective, status)
+                threading.Thread(target=db.addCampaign, args=(campaign_id, ad_account_id, campaign_name, objective, status))
             except Exception as e:
                 print(str(e))
         return res
@@ -427,11 +447,13 @@ def fb_api_get_ad_preview():
     if request.method == "GET":
         rq = request.get_json()
         is_sandbox_mode = rq['sandbox_mode']
+        token = ""
         if is_sandbox_mode == "no":
             return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+        else:
+            token = sandbox_token
         ad_id = rq['ad_id']
         ad_format = rq.get('ad_format', 'DESKTOP_FEED_STANDARD')
-        token = db.getAccessTokenByUserId('sandbox_token')
         return MarketingManagement.get_ad_preview(token, ad_id, ad_format)
 
 
@@ -441,10 +463,12 @@ def fb_api_get_all_ads_by_adSet_id():
     if request.method == "GET":
         rq = request.get_json()
         is_sandbox_mode = rq['sandbox_mode']
+        token = ""
         if is_sandbox_mode == "no":
             return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+        else:
+            token = sandbox_token
         adset_id = rq['adset_id']
-        token = db.getAccessTokenByUserId('sandbox_token')
         return MarketingManagement.get_all_ads_by_adSet_id(token, adset_id)
 
 
@@ -454,11 +478,13 @@ def fb_api_get_insights():
     if request.method == "GET":
         rq = request.get_json()
         is_sandbox_mode = rq['sandbox_mode']
+        token = ""
         if is_sandbox_mode == "no":
             return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+        else:
+            token = sandbox_token
         marketing_object_id = rq['marketing_object_id']
         date_preset = rq.get('date_preset', 'maximum')
-        token = db.getAccessTokenByUserId('sandbox_token')
         return MarketingManagement.get_insights(token, marketing_object_id, date_preset)
 
 
@@ -468,14 +494,16 @@ def fb_api_delete_campaign():
     if request.method == "DELETE":
         rq = request.get_json()
         is_sandbox_mode = rq['sandbox_mode']
+        token = ""
         if is_sandbox_mode == "no":
             return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+        else:
+            token = sandbox_token
         campaign_id = rq.get('campaign_id', '-1')
-        token = db.getAccessTokenByUserId('sandbox_token')
         res = MarketingManagement.delete_campaign(token, campaign_id)
         if res.get('status') == 200:
             try:
-                db.deleteCampaign(campaign_id)
+                threading.Thread(target=db.deleteCampaign, args=(campaign_id))
             except Exception as e:
                 print(str(e))
         return res
@@ -487,14 +515,16 @@ def fb_api_delete_adSet():
     if request.method == "DELETE":
         rq = request.get_json()
         is_sandbox_mode = rq['sandbox_mode']
+        token = ""
         if is_sandbox_mode == "no":
             return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+        else:
+            token = sandbox_token
         adset_id = rq.get('adset_id', '-1')
-        token = db.getAccessTokenByUserId('sandbox_token')
         res = MarketingManagement.delete_adSet(token, adset_id)
         if res.get('status') == 200:
             try:
-                db.deleteAdSet(adset_id)
+                threading.Thread(target=db.deleteAdSet, args=(adset_id))
             except Exception as e:
                 print(str(e))
         return res
@@ -506,14 +536,16 @@ def fb_api_delete_ad_creative():
     if request.method == "DELETE":
         rq = request.get_json()
         is_sandbox_mode = rq['sandbox_mode']
+        token =""
         if is_sandbox_mode == "no":
             return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+        else:
+            token = sandbox_token
         creative_id = rq.get('creative_id', '-1')
-        token = db.getAccessTokenByUserId('sandbox_token')
         res = MarketingManagement.delete_ad_creative(token, creative_id)
         if res.get('status') == 200:
             try:
-                db.deleteFBAdCreative(creative_id)
+                threading.Thread(target=db.deleteFBAdCreative, args=(creative_id))
             except Exception as e:
                 print(str(e))
         return res
@@ -525,14 +557,16 @@ def fb_api_delete_ad():
     if request.method == "DELETE":
         rq = request.get_json()
         is_sandbox_mode = rq['sandbox_mode']
+        token = ""
         if is_sandbox_mode == "no":
             return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+        else:
+            token = sandbox_token
         ad_id = rq.get('ad_id', '-1')
-        token = db.getAccessTokenByUserId('sandbox_token')
         res = MarketingManagement.delete_ad(token, ad_id)
         if res.get('status') == 200:
             try:
-                db.deleteFBAd(ad_id)
+                threading.Thread(target=db.deleteFBAd, args=(ad_id))
             except Exception as e:
                 print(str(e))
         return res
