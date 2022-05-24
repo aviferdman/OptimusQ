@@ -533,9 +533,17 @@ def googleAds_api_create_new_campaign():
         weeks_to_end = rq.get('weeks_to_end')
         status = rq.get('status', 'PAUSED')
         delivery_method = rq.get('delivery_method', 'STANDARD')
-        explicitly_shared = rq.get('explicitly_shared', 1)
         period = rq.get('period', 'DAILY')
-        res = CampaignManagement.create_new_campaign(customer_id, budget, name, days_to_start, weeks_to_end, status, delivery_method, explicitly_shared, period, lifetime_budget)
+        advertising_channel_type = rq.get('advertising_channel_type', 'SEARCH')
+        target_content_network = rq.get('target_content_network', False)
+        target_google_search = rq.get('target_google_search', True)
+        target_partner_search_network = rq.get('target_partner_search_network', False)
+        target_search_network = rq.get('target_search_network', True)
+        payment_mode = rq.get('payment_mode')
+        priority = rq.get('priority')
+        res = CampaignManagement.create_new_campaign(customer_id, budget, name, days_to_start, weeks_to_end, status, delivery_method, period, lifetime_budget, advertising_channel_type,
+                                                     target_content_network, target_google_search, target_partner_search_network, target_search_network,
+                                                     payment_mode, priority)
        # try:
        #      campaign_id = res.get('body').get('id')
        #      db.addCampaign(campaign_id, ad_account_id, campaign_name, objective, status)

@@ -2,6 +2,7 @@ import datetime
 import sys
 import uuid
 import os
+import csv
 
 from google.ads.googleads.client import GoogleAdsClient
 from google.ads.googleads.errors import GoogleAdsException
@@ -17,7 +18,9 @@ client = GoogleAdsClient.load_from_storage(path=curr_path, version="v9")
 
 
 # creates a new campaign
-def create_new_campaign(customer_id, budget, name, days_to_start, weeks_to_end, status, delivery_method, explicitly_shared, period, lifetime_budget):
+def create_new_campaign(customer_id, budget, name, days_to_start, weeks_to_end, status, delivery_method, period, lifetime_budget, advertising_channel_type,
+                        target_content_network, target_google_search, target_partner_search_network, target_search_network,
+                        payment_mode, priority):
     campaign_budget_service = client.get_service("CampaignBudgetService")
     campaign_service = client.get_service("CampaignService")
 
@@ -35,7 +38,6 @@ def create_new_campaign(customer_id, budget, name, days_to_start, weeks_to_end, 
             "BudgetDeliveryMethodEnum"
         ).BudgetDeliveryMethod.ACCELERATED
     campaign_budget.amount_micros = 1000000 * budget
-    campaign_budget.explicitly_shared = explicitly_shared
     campaign_budget.period = period
     if period != "DAILY":
         campaign_budget.total_amount_micros = lifetime_budget
@@ -54,9 +56,22 @@ def create_new_campaign(customer_id, budget, name, days_to_start, weeks_to_end, 
     campaign_operation = client.get_type("CampaignOperation")
     campaign = campaign_operation.create
     campaign.name = name
-    campaign.advertising_channel_type = client.get_type(
-        "AdvertisingChannelTypeEnum"
-    ).AdvertisingChannelType.SEARCH
+    # todo add more types
+    if advertising_channel_type == 'SEARCH':
+        campaign.advertising_channel_type = client.get_type(
+            "AdvertisingChannelTypeEnum"
+        ).AdvertisingChannelType.SEARCH
+    # todo check if working
+    if payment_mode == "CLICKS":
+        client.get_type("PaymentModeEnum").PaymentMode.CLICKS
+    elif payment_mode == "CONVERSIONS":
+        client.get_type("PaymentModeEnum").PaymentMode.CONVERSIONS
+    elif payment_mode == "CONVERSION_VALUE":
+        client.get_type("PaymentModeEnum").PaymentMode.CONVERSION_VALUE
+    elif payment_mode == "GUEST_STAY":
+        client.get_type("PaymentModeEnum").PaymentMode.GUEST_STAY
+    if priority:
+        campaign.priority = priority
 
     # Recommendation: Set the campaign to PAUSED when creating it to prevent
     # the ads from immediately serving. Set to ENABLED once you've added
@@ -71,10 +86,10 @@ def create_new_campaign(customer_id, budget, name, days_to_start, weeks_to_end, 
     campaign.campaign_budget = campaign_budget_response.results[0].resource_name
 
     # Set the campaign network options.
-    campaign.network_settings.target_google_search = True
-    campaign.network_settings.target_search_network = True
-    campaign.network_settings.target_content_network = False
-    campaign.network_settings.target_partner_search_network = False
+    campaign.network_settings.target_google_search = target_google_search
+    campaign.network_settings.target_search_network = target_search_network
+    campaign.network_settings.target_content_network = target_content_network
+    campaign.network_settings.target_partner_search_network = target_partner_search_network
     # [END add_campaigns_1]
 
     # Optional: Set the start date.
@@ -454,12 +469,80 @@ def delete_ad(customer_id, ad_group_id, ad_id):
     # print(f"Removed ad group ad {ad_group_ad_response.results[0].resource_name}.")
     return {"data": ad_group_ad_response.results[0].resource_name}
 
+
 def _ad_text_assets_to_strs(assets):
     """Converts a list of AdTextAssets to a list of user-friendly strings."""
     s = []
     for asset in assets:
         s.append(f"\t {asset.text} pinned to {asset.pinned_field.name}")
     return s
+
+
+def get_statistics_to_csv(customer_id, output_file, write_headers):
+    """Writes rows returned from a search_stream request to a CSV file.
+        Args:
+            customer_id (str): The client customer ID string.
+            output_file (str): Filename of the file to write the report data to.
+            write_headers (bool): From argparse, True if arg is provided.
+        """
+    ga_service = client.get_service("GoogleAdsService")
+
+    query = """
+            SELECT
+              customer.descriptive_name,
+              segments.date,
+              campaign.name,
+              metrics.impressions,
+              metrics.clicks,
+              metrics.cost_micros
+            FROM campaign
+            WHERE
+              segments.date DURING LAST_7_DAYS
+            ORDER BY metrics.impressions DESC
+            LIMIT 25"""
+
+    # Issues a search request using streaming.
+    search_request = client.get_type("SearchGoogleAdsStreamRequest")
+    search_request.customer_id = customer_id
+    search_request.query = query
+    response = ga_service.search_stream(search_request)
+    try:
+        with open(output_file, "w", newline="") as f:
+            writer = csv.writer(f)
+
+            # Define a list of headers for the first row.
+            headers = [
+                "Account",
+                "Date",
+                "Campaign",
+                "Impressions",
+                "Clicks",
+                "Cost",
+            ]
+
+            # If the write_headers flag was passed, write header row to the CSV
+            if write_headers:
+                writer.writerow(headers)
+
+            for batch in response:
+                for row in batch.results:
+                    # Use the CSV writer to write the individual GoogleAdsRow
+                    # fields returned in the SearchGoogleAdsStreamResponse.
+                    writer.writerow(
+                        [
+                            row.customer.descriptive_name,
+                            row.segments.date,
+                            row.campaign.name,
+                            row.metrics.impressions,
+                            row.metrics.clicks,
+                            row.metrics.cost_micros,
+                        ]
+                    )
+
+            print(f"Customer {customer_id} report written to {output_file}")
+
+    except GoogleAdsException as ex:
+        _handle_googleads_exception(ex)
 
 
 
