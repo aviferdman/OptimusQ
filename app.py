@@ -710,6 +710,38 @@ def googleAds_api_delete_ad():
         #         print(str(e))
         return res
 
+# get_campaign_statistics
+@app.route("/api/GoogleAds/get_campaign_statistics", methods=['GET'])
+def googleAds_api_get_campaign_statistics():
+    if request.method == "GET":
+        rq = request.get_json(force=True)
+        customer_id = rq['customer_id']
+        output_file = rq['output_file']
+        write_headers = rq.get('write_headers', True)
+        res = CampaignManagement.get_statistics_to_csv(customer_id, output_file, write_headers)
+        # if res.get('status') == 200:
+        #     try:
+        #         db.deleteFBAd(ad_id)
+        #     except Exception as e:
+        #         print(str(e))
+        return res
+
+# get_keyword_statistics
+@app.route("/api/GoogleAds/get_keyword_statistics", methods=['GET'])
+def googleAds_api_get_keyword_statistics():
+    if request.method == "GET":
+        rq = request.get_json(force=True)
+        customer_id = rq['customer_id']
+        output_file = rq['output_file']
+        write_headers = rq.get('write_headers', True)
+        res = CampaignManagement.get_keyword_stats(customer_id, output_file, write_headers)
+        # if res.get('status') == 200:
+        #     try:
+        #         db.deleteFBAd(ad_id)
+        #     except Exception as e:
+        #         print(str(e))
+        return res
+
 
 # for running in local host with HTTP
 if __name__ == '__main__':

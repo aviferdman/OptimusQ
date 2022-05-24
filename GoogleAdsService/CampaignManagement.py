@@ -486,6 +486,7 @@ def get_statistics_to_csv(customer_id, output_file, write_headers):
             write_headers (bool): From argparse, True if arg is provided.
         """
     ga_service = client.get_service("GoogleAdsService")
+    output = []
 
     query = """
             SELECT
@@ -538,11 +539,108 @@ def get_statistics_to_csv(customer_id, output_file, write_headers):
                             row.metrics.cost_micros,
                         ]
                     )
-
-            print(f"Customer {customer_id} report written to {output_file}")
+                    output.append(f'descriptive name "{row.customer.descriptive_name}" with '
+                                  f'date "{row.segments.date}" and'
+                                  f"campaign name {row.campaign.name}: "
+                                  f'impressions "{row.metrics.impressions}", '
+                                  f'clicks "{row.metrics.clicks}", '
+                                  f'cost (micros) "{row.metrics.cost_micros}"')
 
     except GoogleAdsException as ex:
         _handle_googleads_exception(ex)
+
+    return {"data": output}
+
+def get_keyword_stats(customer_id, output_file, write_headers):
+    # the statistics are from the last 7 days
+    ga_service = client.get_service("GoogleAdsService")
+    output = []
+
+    query = """
+            SELECT
+              campaign.id,
+              campaign.name,
+              ad_group.id,
+              ad_group.name,
+              ad_group_criterion.criterion_id,
+              ad_group_criterion.keyword.text,
+              ad_group_criterion.keyword.match_type,
+              metrics.impressions,
+              metrics.clicks,
+              metrics.cost_micros
+            FROM keyword_view WHERE segments.date DURING LAST_7_DAYS
+            AND campaign.advertising_channel_type = 'SEARCH'
+            AND ad_group.status = 'ENABLED'
+            AND ad_group_criterion.status IN ('ENABLED', 'PAUSED')
+            ORDER BY metrics.impressions DESC
+            LIMIT 50"""
+
+    # Issues a search request using streaming.
+    search_request = client.get_type("SearchGoogleAdsStreamRequest")
+    search_request.customer_id = customer_id
+    search_request.query = query
+    response = ga_service.search_stream(search_request)
+    try:
+        with open(output_file, "w", newline="") as f:
+            writer = csv.writer(f)
+
+            # Define a list of headers for the first row.
+            headers = [
+                "Keyword text",
+                "match type",
+                "Keyword ID",
+                "ad group name",
+                "ad group ID",
+                "campaign name",
+                "campaign ID",
+                "impression(s)",
+                "click(s)",
+                "cost (in micros)",
+            ]
+
+            # If the write_headers flag was passed, write header row to the CSV
+            if write_headers:
+                writer.writerow(headers)
+
+
+            for batch in response:
+                for row in batch.results:
+                    # Use the CSV writer to write the individual GoogleAdsRow
+                    # fields returned in the SearchGoogleAdsStreamResponse.
+                    campaign = row.campaign
+                    ad_group = row.ad_group
+                    criterion = row.ad_group_criterion
+                    metrics = row.metrics
+                    writer.writerow(
+                        [
+                            criterion.keyword.text,
+                            criterion.keyword.match_type.name,
+                            criterion.criterion_id,
+                            ad_group.name,
+                            ad_group.id,
+                            campaign.name,
+                            campaign.id,
+                            metrics.impressions,
+                            metrics.clicks,
+                            metrics.cost_micros,
+                        ]
+                    )
+                    output.append(f'Keyword text "{criterion.keyword.text}" with '
+                                  f'match type "{criterion.keyword.match_type.name}" '
+                                  f"and ID {criterion.criterion_id} in "
+                                  f'ad group "{ad_group.name}" '
+                                  f'with ID "{ad_group.id}" '
+                                  f'in campaign "{campaign.name}" '
+                                  f"with ID {campaign.id} "
+                                  f"had {metrics.impressions} impression(s), "
+                                  f"{metrics.clicks} click(s), and "
+                                  f"{metrics.cost_micros} cost (in micros) during "
+                                  "the last 7 days.")
+
+    except GoogleAdsException as ex:
+        _handle_googleads_exception(ex)
+
+    return {"data": output}
 
 
 
