@@ -1,3 +1,5 @@
+import json
+
 import MarketingManagement as mm
 from DataBaseService.main import dataBaseController
 
@@ -17,6 +19,10 @@ ad_creative = '120330000357828413'
 ad1 = '120330000357835013'
 # ad 2 id: {'id': '120330000357977413'}
 ad2 = '120330000357977413'
+interest1 = '6003539884903'
+interest2 = '6003107902433'
+behavior1 = '6002714895372'
+behavior2 = '6004385868372'
 
 
 db = dataBaseController
@@ -26,7 +32,6 @@ token = db.getAccessTokenByUserId('sandbox_token')
 # res1 = mm.create_new_ad_set(token, sandbox_ad_account, 'adSet name 5', campaign)
 # res2 = mm.get_all_ad_sets_by_campaign(token, campaign)
 
-res = mm.get_all_possible_behaviors(token)
-
+res = db.getAllFBTargetingBehaviors()
 
 print('hi')

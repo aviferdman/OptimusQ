@@ -102,7 +102,9 @@ def create_new_ad_set(access_token, AD_ACCOUNT_ID, ad_set_name, campaign_id, dai
                       optimization_goal='REACH',
                       billing_event='IMPRESSIONS', bid_amount="1500",
                       start_time='1633851746', status='PAUSED',
-                      targeting_min_age='NONE', targeting_max_age='NONE', targeting_countries=["IL"], end_time='NONE'):
+                      targeting_min_age='NONE', targeting_max_age='NONE', targeting_countries=["IL"], end_time='NONE',
+                      targeting_gender="NONE", targeting_relationship_statuses="NONE",
+                      targeting_interests = [], targeting_behaviors = []):
     url = 'https://graph.facebook.com/v13.0/act_' + AD_ACCOUNT_ID + '/adsets'
     targeting = {}
     if targeting_min_age != 'NONE':
@@ -110,6 +112,16 @@ def create_new_ad_set(access_token, AD_ACCOUNT_ID, ad_set_name, campaign_id, dai
     if targeting_max_age != 'NONE':
         targeting["age_max"] = targeting_max_age
     targeting["geo_locations"] = {"countries": targeting_countries}
+    if targeting_gender != "NONE":
+        tmp_lst = list()
+        tmp_lst.append(targeting_gender)
+        targeting["genders"] = tmp_lst
+    if targeting_relationship_statuses != "NONE":
+        targeting["relationship_statuses"] = targeting_relationship_statuses
+    if len(targeting_interests) > 0:
+        targeting["interests"] = targeting_interests
+    if len(targeting_behaviors) > 0:
+        targeting["behaviors"] = targeting_behaviors
 
     payload = {'name': ad_set_name,
                'optimization_goal': optimization_goal,
@@ -391,6 +403,7 @@ def search_for_possible_interests(access_token, q=''):
     res = requests.get(url, params)
     return {"status": res.status_code, "body": res.json()}
 
+
 # get all possible behaviors for ad targeting
 def get_all_possible_behaviors(access_token):
     url = 'https://graph.facebook.com/v13.0/search'
@@ -401,6 +414,7 @@ def get_all_possible_behaviors(access_token):
 
     res = requests.get(url, params)
     return {"status": res.status_code, "body": res.json()}
+
 
 # behaviors table in DB must be empty before running this function
 def load_all_behaviors_to_db(access_token):
@@ -421,6 +435,7 @@ def load_all_behaviors_to_db(access_token):
             db.addFBTargetingBehavior(id, name, audience_size_lower_bound, audience_size_upper_bound, paths, desc)
         except Exception as e:
             print(str(e))
+
 
 # updates targeting_behaviors DB once a week
 def update_targeting_behaviors_once_a_week(access_token):
@@ -445,6 +460,7 @@ def update_targeting_behaviors_once_a_week(access_token):
         except Exception as e:
             print(str(e))
 
+
 # search for behaviors in DB
 def search_for_behaviors_in_db(to_search):
     to_search = to_search.lower()
@@ -453,7 +469,6 @@ def search_for_behaviors_in_db(to_search):
         b_str = "" + b[1] + b[4] + b[5]
         b_str = b_str.lower()
         if to_search in b_str:
-            res.append(b)
+            res.append(tuple(b))
 
     return res
-
