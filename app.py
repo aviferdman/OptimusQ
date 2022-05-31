@@ -355,7 +355,9 @@ def create_ad():
         name = rq['name']
         adset = rq['adset']
         creative = rq['creative']
-        status = rq['status']
+        status = rq.get('status')
+        if (status is None) or (status == ''):
+            status = 'PAUSED'
         res = MarketingManagement.create_ad(token, ad_account_id, name, adset, creative, status)
         if res.get('status') == 200:
             try:
@@ -382,44 +384,72 @@ def create_new_adset():
         daily_budget = '1000'
         if 'daily_budget' in rq:
             daily_budget = rq['daily_budget']
+            if (daily_budget is None) or (daily_budget == -1):
+                daily_budget = '1000'
         optimization_goal = 'REACH'
         if 'optimization_goal' in rq:
             optimization_goal = rq['optimization_goal']
+            if (optimization_goal is None) or (optimization_goal == ""):
+                optimization_goal = 'REACH'
         billing_event = 'IMPRESSIONS'
         if 'billing_event' in rq:
             billing_event = rq['billing_event']
+            if (billing_event is None) or (billing_event == ""):
+                billing_event = 'IMPRESSIONS'
         bid_amount = '1500'
         if 'bid_amount' in rq:
             bid_amount = rq['bid_amount']
+            if (bid_amount is None) or (bid_amount == -1):
+                bid_amount = '1500'
         start_time = '1633851746'
         if 'start_time' in rq:
             start_time = rq['start_time']
+            if (start_time is None) or (start_time == ""):
+                start_time = "1633851746"
+
+        end_time = 'NONE'
+        if 'end_time' in rq:
+            end_time = rq['end_time']
+            if (end_time is None) or (end_time == ""):
+                end_time = "NONE"
+
+
         status = 'PAUSED'
         if status in rq:
             status = rq['status']
-        targeting_gender = rq.get("targeting_gender", "NONE")
+            if (status is None) or (status == ""):
+                status = "PAUSED"
+        targeting_gender = rq.get("targeting_gender")
+        if (targeting_gender is None) or (targeting_gender == -1):
+            targeting_gender = "NONE"
         if targeting_gender == -1:
             targeting_gender = "NONE"
         targeting_min_age = rq.get('targeting_min_age', 'NONE')
-        if targeting_min_age == -1:
+        if (targeting_min_age is None) or (targeting_min_age == -1):
             targeting_min_age = "NONE"
         targeting_max_age = rq.get('targeting_max_age', 'NONE')
-        if targeting_max_age == -1:
+        if (targeting_max_age is None) or (targeting_max_age == -1):
             targeting_max_age = "NONE"
         targeting_countries = []
-        countries = rq.get('targeting_countries', 'IL')
+        countries = rq.get('targeting_countries')
+        if (countries is None) or (countries == ""):
+            countries = 'IL'
         countries = countries.split(",")
         for country in countries:
             targeting_countries.append("" + country)
 
         targeting_interests_lst = []
-        interests = rq.get('targeting_interests', [])
+        interests = rq.get('targeting_interests')
+        if (interests is None) or (interests == ''):
+            interests = []
         if len(interests) > 0:
             interests = interests.split(",")
             for interest_id in interests:
                 targeting_interests_lst.append({"id": interest_id})
 
-        behaviors = rq.get('targeting_behaviors', [])
+        behaviors = rq.get('targeting_behaviors')
+        if (behaviors is None) or (behaviors == ''):
+            behaviors = []
         targeting_behaviors_lst = []
         if len(behaviors) > 0:
             behaviors = behaviors.split(",")
@@ -428,7 +458,7 @@ def create_new_adset():
 
         targeting_relationships = []
         targeting_relationship_statuses = rq.get("targeting_relationship_statuses")
-        if targeting_relationship_statuses is None:
+        if (targeting_relationship_statuses is None) or (targeting_relationship_statuses == ''):
             targeting_relationship_statuses = "NONE"
         else:
             statuses = targeting_relationship_statuses.split(",")
@@ -442,7 +472,7 @@ def create_new_adset():
         res = MarketingManagement.create_new_ad_set(token, ad_account_id, ad_set_name, campaign_id, daily_budget,
                                                     optimization_goal, billing_event, bid_amount, start_time, status,
                                                     targeting_min_age, targeting_max_age,
-                                                    targeting_countries, rq.get('end_time', 'NONE'), targeting_gender,
+                                                    targeting_countries, end_time, targeting_gender,
                                                     targeting_relationships, targeting_interests_lst, targeting_behaviors_lst)
         if res.get('status') == 200:
             try:
@@ -466,10 +496,14 @@ def fb_api_create_new_campaign():
             token = sandbox_token
         ad_account_id = rq['ad_account']
         campaign_name = rq.get('campaign_name')
-        objective = rq.get('objective', 'LINK_CLICKS')
-        status = rq.get('status', 'PAUSED')
-        special_ad_categories = rq.get('special_ad_categories', '')
-        if len(special_ad_categories) == 0:
+        objective = rq.get('objective')
+        if (objective is None) or (objective == ""):
+            objective = "LINK_CLICKS"
+        status = rq.get('status')
+        if (status is None) or (status == ""):
+            status = 'PAUSED'
+        special_ad_categories = rq.get('special_ad_categories')
+        if (special_ad_categories is None) or (len(special_ad_categories) == 0):
             special_ad_categories = "[]"
         else:
             special_ad_categories_lst = list()
@@ -499,7 +533,9 @@ def fb_api_get_ad_preview():
         else:
             token = sandbox_token
         ad_id = rq['ad_id']
-        ad_format = rq.get('ad_format', 'DESKTOP_FEED_STANDARD')
+        ad_format = rq.get('ad_format')
+        if (ad_format is None) or (ad_format == ''):
+            ad_format = 'DESKTOP_FEED_STANDARD'
         return MarketingManagement.get_ad_preview(token, ad_id, ad_format)
 
 
@@ -530,7 +566,9 @@ def fb_api_get_insights():
         else:
             token = sandbox_token
         marketing_object_id = rq['marketing_object_id']
-        date_preset = rq.get('date_preset', 'maximum')
+        date_preset = rq.get('date_preset')
+        if (date_preset is None) or (date_preset == ''):
+            date_preset = 'maximum'
         return MarketingManagement.get_insights(token, marketing_object_id, date_preset)
 
 
