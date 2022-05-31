@@ -718,7 +718,8 @@ def googleAds_api_get_campaign_statistics():
         customer_id = rq['customer_id']
         output_file = rq['output_file']
         write_headers = rq.get('write_headers', True)
-        res = CampaignManagement.get_statistics_to_csv(customer_id, output_file, write_headers)
+        period = rq.get('period', False)
+        res = CampaignManagement.get_statistics_to_csv(customer_id, output_file, write_headers, period)
         # if res.get('status') == 200:
         #     try:
         #         db.deleteFBAd(ad_id)
@@ -735,6 +736,25 @@ def googleAds_api_get_keyword_statistics():
         output_file = rq['output_file']
         write_headers = rq.get('write_headers', True)
         res = CampaignManagement.get_keyword_stats(customer_id, output_file, write_headers)
+        # if res.get('status') == 200:
+        #     try:
+        #         db.deleteFBAd(ad_id)
+        #     except Exception as e:
+        #         print(str(e))
+        return res
+
+# add_campaign_targeting_criteria
+@app.route("/api/GoogleAds/add_campaign_targeting_criteria", methods=['POST'])
+def add_campaign_targeting_criteria():
+    if request.method == "POST":
+        rq = request.get_json(force=True)
+        customer_id = rq['customer_id']
+        campaign_id = rq['campaign_id']
+        keyword_text = rq['keyword_text']
+        locations = rq['locations']
+        gender = rq['gender']
+        device_type = rq['device_type']
+        res = CampaignManagement.add_campaign_targeting_criteria(customer_id, campaign_id, keyword_text, locations, gender, device_type)
         # if res.get('status') == 200:
         #     try:
         #         db.deleteFBAd(ad_id)
