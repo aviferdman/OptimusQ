@@ -398,8 +398,14 @@ def create_new_adset():
         if status in rq:
             status = rq['status']
         targeting_gender = rq.get("targeting_gender", "NONE")
+        if targeting_gender == -1:
+            targeting_gender = "NONE"
         targeting_min_age = rq.get('targeting_min_age', 'NONE')
+        if targeting_min_age == -1:
+            targeting_min_age = "NONE"
         targeting_max_age = rq.get('targeting_max_age', 'NONE')
+        if targeting_max_age == -1:
+            targeting_max_age = "NONE"
         targeting_countries = []
         countries = rq.get('targeting_countries', 'IL')
         countries = countries.split(",")
@@ -408,19 +414,23 @@ def create_new_adset():
 
         targeting_interests_lst = []
         interests = rq.get('targeting_interests', [])
-        interests = interests.split(",")
-        for interest_id in interests:
-            targeting_interests_lst.append({"id": interest_id})
+        if len(interests) > 0:
+            interests = interests.split(",")
+            for interest_id in interests:
+                targeting_interests_lst.append({"id": interest_id})
 
-        targeting_behaviors_lst = []
         behaviors = rq.get('targeting_behaviors', [])
-        behaviors = behaviors.split(",")
-        for behavior_id in behaviors:
-            targeting_behaviors_lst.append({"id": behavior_id})
+        targeting_behaviors_lst = []
+        if len(behaviors) > 0:
+            behaviors = behaviors.split(",")
+            for behavior_id in behaviors:
+                targeting_behaviors_lst.append({"id": behavior_id})
 
         targeting_relationships = []
-        targeting_relationship_statuses = rq.get("targeting_relationship_statuses", "NONE")
-        if targeting_relationship_statuses != "NONE":
+        targeting_relationship_statuses = rq.get("targeting_relationship_statuses")
+        if targeting_relationship_statuses is None:
+            targeting_relationship_statuses = "NONE"
+        else:
             statuses = targeting_relationship_statuses.split(",")
             for relationship_status in statuses:
                 targeting_relationships.append(relationship_status)
