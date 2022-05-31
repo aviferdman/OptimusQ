@@ -458,7 +458,14 @@ def fb_api_create_new_campaign():
         campaign_name = rq.get('campaign_name')
         objective = rq.get('objective', 'LINK_CLICKS')
         status = rq.get('status', 'PAUSED')
-        special_ad_categories = rq.get('special_ad_categories', "[]")
+        special_ad_categories = rq.get('special_ad_categories', "")
+        if len(special_ad_categories == 0):
+            special_ad_categories = "[]"
+        else:
+            special_ad_categories_lst = list()
+            special_ad_categories_lst.append(special_ad_categories)
+            special_ad_categories = special_ad_categories_lst
+
         res = MarketingManagement.create_new_campaign(token, ad_account_id, campaign_name, objective, status,
                                                       special_ad_categories)
         if res.get('status') == 200:
