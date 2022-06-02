@@ -122,3 +122,10 @@ CREATE TABLE "GoogleAds_Tokens"
 	"refresh_token" VARCHAR(512),
 	PRIMARY KEY("client_id","login_customer_id")
 );
+
+CREATE TABLE FB_CLIENT_BM_SU_ACCESS_TOKEN (
+    "client_id" VARCHAR(512),
+	"assigned_partner_id" VARCHAR(512),
+    "su_access_token" VARCHAR(512),
+	PRIMARY KEY("client_id","assigned_partner_id")
+);
