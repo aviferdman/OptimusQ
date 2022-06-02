@@ -8,7 +8,8 @@ from DataBaseService.main import dataBaseController
 # This interface allows the user to create and manage all the marketing fields,
 # using Facebook APIs.
 
-business_id = 775308013448374  # initial business id
+business_id = 775308013448374  # OQ business id
+OQ_app_id = 331878552252931
 db = dataBaseController
 
 behaviors_from_db = db.getAllFBTargetingBehaviors()
@@ -535,14 +536,7 @@ def search_for_behaviors_in_db(to_search):
 # ************ BUSINESS MANAGEMENT ************
 # *********************************************
 
-def get_all_business_asset_groups(access_token, business_id):
-    params = {
-        'access_token': access_token
-    }
-    res = requests.get('https://graph.facebook.com/v13.0/' + business_id + '/business_asset_groups', params)
-    return {"status": res.status_code, "body": res.json()}
-
-
+# returns all businesses by user id: id and name
 def get_all_businesses_by_user_id(access_token, user_id):
     params = {
         'access_token': access_token
@@ -550,22 +544,103 @@ def get_all_businesses_by_user_id(access_token, user_id):
     res = requests.get('https://graph.facebook.com/v14.0/' + user_id + '/businesses', params)
     return {"status": res.status_code, "body": res.json()}
 
+# returns all business asset groups
+def get_all_business_asset_groups(access_token, business_id):
+    params = {
+        'access_token': access_token
+    }
+    res = requests.get('https://graph.facebook.com/v13.0/' + business_id + '/business_asset_groups', params)
+    return {"status": res.status_code, "body": res.json()}
+
+# returns all ASSETS_IDS for a business, for use in function create_on_behalf_of_relationship
+def get_all_business_assets(access_token, business_id):
+    fields = 'fields=owned_ad_accounts{name},owned_pages{name}'
+    params = {
+        'access_token': access_token
+    }
+    res = requests.get('https://graph.facebook.com/v13.0/' + business_id + '?' + fields, params)
+    return {"status": res.status_code, "body": res.json()}
+
 
 # Create the On Behalf Of relationship between the partner and client's Business Manager.
 # access token must be the user's and received by FB login - and not the app token.
-def create_on_behalf_of_relationship(access_token, PARTNER_BM_ID, CLIENT_BM_ID):
-    # *** STEP 1***
+# API tutorial for this function:
+# https://developers.facebook.com/docs/marketing-api/business-manager/guides/on-behalf-of
+# ASSETS_IDS is a list, containing assets ids for assigning from client BM to partner BM
+def create_on_behalf_of_relationship(client_admin_access_token, client_user_id):
+    PARTNER_BM_ID = business_id # OQ business id
+    res = get_all_businesses_by_user_id(client_admin_access_token, client_user_id)
+    if res.get('status') != 200:
+        return res
+    CLIENT_BM_ID = res.get('body').get('data')[1].get('id') # todo: and allow client user to choose client BM id.
+
+    # *** GET ALL BUSINESS ASSETS ***
+    ASSETS_IDS = list() # todo: allow client user to choose assets belongs to his business.
+    res =  get_all_business_assets(client_admin_access_token, CLIENT_BM_ID)
+    if res.get('status') != 200:
+        return res
+    owned_ad_accounts_ids = list()
+    for ad_account in res.get('body').get('owned_ad_accounts').get('data'):
+        owned_ad_accounts_ids.append(ad_account.get('id'))
+        ASSETS_IDS.append(ad_account.get('id'))
+
+    owned_pages_ids = list()
+    for page in res.get('body').get('owned_pages').get('data'):
+        owned_pages_ids.append(page.get('id'))
+        ASSETS_IDS.append(page.get('id'))
+
+    # *** STEP 1 ***
     # This creates an relationship edge between partner's Business Manager and client's Business Manager.
     # This enables the partner to be able to create a SU via the API in the next step
-    params = {
-        'existing_client_business_id': CLIENT_BM_ID,
-        'access_token': access_token
-    }
-    res = requests.post('https://graph.facebook.com/v13.0/' + PARTNER_BM_ID + '/managed_businesses', params)
 
-    # *** STEP 2***
-    # Fetch the access token of system user under the client's Business Manager
     params = {
         'existing_client_business_id': CLIENT_BM_ID,
-        'access_token': access_token
+        'access_token': client_admin_access_token
     }
+    res = requests.post('https://graph.facebook.com/v13.0/' + str(PARTNER_BM_ID) + '/managed_businesses', params)
+    if res.status_code != 200:
+        return {"status": res.status_code, "body": res.json()}
+
+    # *** STEP 2 ***
+    # Fetch the access token of system user under the client's Business Manager
+    PARTNER_BM_ADMIN_SYSTEM_USER_ACCESS_TOKEN = client_admin_access_token # fixed! todo: fetch PARTNER_BM_ADMIN_SYSTEM_USER_ACCESS_TOKEN
+
+    params = {
+        'scope': "ads_management,pages_read_engagement,ads_read",
+        'app_id': str(OQ_app_id),
+        'access_token': PARTNER_BM_ADMIN_SYSTEM_USER_ACCESS_TOKEN
+    }
+    res = requests.post('https://graph.facebook.com/v13.0/' + CLIENT_BM_ID + '/access_token', params)
+    if res.status_code != 200:
+        return {"status": res.status_code, "body": res.json()}
+
+    # The response contains the token for the system user who is linked to the On Behalf Of relationships.
+    CLIENT_BM_SU_ACCESS_TOKEN = res.json().get('access_token') # fixed! todo: get this system user token
+
+    # *** STEP 3 ***
+    # Get the ID of the system user.
+    params = {
+        'access_token': CLIENT_BM_SU_ACCESS_TOKEN
+    }
+    res = requests.get('https://graph.facebook.com/v13.0/me', params)
+    if res.status_code != 200:
+        return {"status": res.status_code, "body": res.json()}
+    SYSTEM_USER_ID = res.json().get('id')
+
+    # *** STEP 4 ***
+    # Assign assets to the system user in the client's Business Manager.
+    for asset in ASSETS_IDS:
+        params = {
+            "user": SYSTEM_USER_ID,
+            "tasks": "MANAGE",
+            'access_token': client_admin_access_token
+        }
+        time.sleep(5)
+        res = requests.post('https://graph.facebook.com/v13.0/' + asset + '/assigned_users', params)
+        if res.status_code != 200:
+            return {"status": res.status_code, "body": res.json()}
+
+    # todo: save CLIENT_BM_SU_ACCESS_TOKEN in DB
+    #  primary key: user ID is OQ system. save also FB_uid. save also CLIENT_BM_SU_ACCESS_TOKEN
+
+    return {"status": 200, "body": {"CLIENT_BM_SU_ACCESS_TOKEN": CLIENT_BM_SU_ACCESS_TOKEN}}
