@@ -74,6 +74,8 @@ def fb_login_handler():
     return render_template("fb_logged_in.html")
 
 
+
+
 @app.route("/fb_logged_in", methods=['POST', 'GET'])
 def fb_logged_in():
     res_preview = ""
@@ -82,47 +84,65 @@ def fb_logged_in():
         rq = request.get_json()
         user_id = rq["user_id"]
         access_token = rq["access_token"]
-        access_token = admin_token
         print("user_id: " + user_id)
-        ad_accounts = [{'account_id': '1394987677611796'}]
-        # ad_accounts_list = MarketingManagement.get_all_ad_accounts_in_business(access_token).json()
-        campaigns = []
-        ad_sets = []
+        print("access_token: " + access_token)
 
-        # ad_account_id = account['id'][4::] # only the id, without the prefix of act_
-        ad_account_id = '1394987677611796'
-        campaigns = campaigns + (
-            MarketingManagement.get_all_campaigns(access_token, ad_account_id).get('body').get('campaigns').get("data"))
-        ad_sets = ad_sets + (
-            MarketingManagement.get_all_ad_sets_by_ad_account(access_token, ad_account_id).json()['data'])
-        ads = []
-        ad_preview = {}
-        res_preview = ""
-        # preview = MarketingManagement.get_ad_preview(access_token, '120330000358031413').get('body').get('data')[0].get('body')
-        # print(preview)
-        # flash(Markup(preview))
-        # for ad_set in ad_sets:
-        #     ad_set_id = ad_set['id']
-        ads = ads + (
-            MarketingManagement.get_all_ads_by_adSet_id(access_token, '23850154047300253').get('body').get('data'))
-        # ads = ads[0:6]
-        # count = 0
-        for ad in ads:
-            # if count > 5:
-            #     break
-            # count += 1
-            preview = MarketingManagement.get_ad_preview(access_token, ad.get('id')).get('body').get('data')[0].get(
-                'body')
-            ad_id = ad.get('id')
-            res_preview += "id: " + ad_id + ", name: " + ad['name'] + "<br>preview:<br>" + preview + "<br><br>"
-            ad_preview[ad_id] = preview
-    list_of_images = []
-    list_of_images.append("1")
-    list_of_images.append("2")
-    flash(Markup(res_preview))
-    return render_template("fb_logged_in.html",
-                           output={"ad_accounts": ad_accounts, "campaigns": campaigns, "ad_sets": ad_sets, "ads": ads,
-                                   "ad_preview": ad_preview})
+
+
+
+
+
+
+
+# @app.route("/fb_logged_in", methods=['POST', 'GET'])
+# def fb_logged_in():
+#     res_preview = ""
+#     if request.method == "POST":
+#         print("POST!!!: ")
+#         rq = request.get_json()
+#         user_id = rq["user_id"]
+#         access_token = rq["access_token"]
+#         print("user_id: " + user_id)
+#         print("access_token: " + access_token)
+#         ad_accounts = [{'account_id': '1394987677611796'}]
+#         # ad_accounts_list = MarketingManagement.get_all_ad_accounts_in_business(access_token).json()
+#         campaigns = []
+#         ad_sets = []
+#
+#         # ad_account_id = account['id'][4::] # only the id, without the prefix of act_
+#         ad_account_id = '1394987677611796'
+#         campaigns = campaigns + (
+#             MarketingManagement.get_all_campaigns(access_token, ad_account_id).get('body').get('campaigns').get("data"))
+#         ad_sets = ad_sets + (
+#             MarketingManagement.get_all_ad_sets_by_ad_account(access_token, ad_account_id).json()['data'])
+#         ads = []
+#         ad_preview = {}
+#         res_preview = ""
+#         # preview = MarketingManagement.get_ad_preview(access_token, '120330000358031413').get('body').get('data')[0].get('body')
+#         # print(preview)
+#         # flash(Markup(preview))
+#         # for ad_set in ad_sets:
+#         #     ad_set_id = ad_set['id']
+#         ads = ads + (
+#             MarketingManagement.get_all_ads_by_adSet_id(access_token, '23850154047300253').get('body').get('data'))
+#         # ads = ads[0:6]
+#         # count = 0
+#         for ad in ads:
+#             # if count > 5:
+#             #     break
+#             # count += 1
+#             preview = MarketingManagement.get_ad_preview(access_token, ad.get('id')).get('body').get('data')[0].get(
+#                 'body')
+#             ad_id = ad.get('id')
+#             res_preview += "id: " + ad_id + ", name: " + ad['name'] + "<br>preview:<br>" + preview + "<br><br>"
+#             ad_preview[ad_id] = preview
+#     list_of_images = []
+#     list_of_images.append("1")
+#     list_of_images.append("2")
+#     flash(Markup(res_preview))
+#     return render_template("fb_logged_in.html",
+#                            output={"ad_accounts": ad_accounts, "campaigns": campaigns, "ad_sets": ad_sets, "ads": ads,
+#                                    "ad_preview": ad_preview})
     # return render_template("fb_logged_in.html", output=list_of_images)
 
 
@@ -681,6 +701,35 @@ def fb_api_search_behaviors():
             return {"status": 400, "body": {str(e)}}
         return {"status": 200, "body": res}
 
+# get all possible campaign objectives
+@app.route("/api/fb/campaign_objectives", methods=['GET'])
+def fb_api_get_all_possible_campaign_objectives():
+    if request.method == "GET":
+        return MarketingManagement.get_all_possible_campaign_objectives()
+
+# get all optimization goals for objective
+@app.route("/api/fb/optimization_goals_for_objective", methods=['GET'])
+def fb_api_get_all_optimization_goals_for_objective():
+    if request.method == "GET":
+        rq = request.get_json()
+        objective = rq.get("objective")
+        if (objective is None) or (objective == ""):
+            return {"status": 400, "body": "error: objective cannot be null or empty string"}
+        if objective not in MarketingManagement.all_possible_campaign_objectives_lst:
+            return {"status": 400, "body": "error: objective is not valid"}
+        return MarketingManagement.get_all_optimization_goals_for_objective(objective)
+
+# get all possible billing events for opt goal
+@app.route("/api/fb/billing_events_for_opt_goal", methods=['GET'])
+def fb_api_get_all_billing_events_for_opt_goal():
+    if request.method == "GET":
+        rq = request.get_json()
+        optimization_goal = rq.get("optimization_goal")
+        if (optimization_goal is None) or (optimization_goal == ""):
+            return {"status": 400, "body": "error: optimization_goal cannot be null or empty string"}
+        if optimization_goal not in MarketingManagement.all_possible_opt_goals:
+            return {"status": 400, "body": "error: optimization_goal is not valid"}
+        return MarketingManagement.get_all_possible_billing_events_for_opt_goal(optimization_goal)
 
 ################################################# Google-Ads ##########################################################
 
@@ -878,12 +927,12 @@ def fb_api_search_behaviors():
 
 
 # for running in local host with HTTP
-if __name__ == '__main__':
-    app.run()
+# if __name__ == '__main__':
+#     app.run()
 
 # for running in local host with HTTPS
 # first, create cert.pem and key.pem with the following cmd command:
 # openssl req -x509 -newkey rsa:4096 -nodes -out cert.pem -keyout key.pem -days 365
 # run with cmd command: python app.py
-# if __name__ == '__main__':
-#     app.run(ssl_context=('cert.pem', 'key.pem'), debug=True)
+if __name__ == '__main__':
+    app.run(ssl_context=('cert.pem', 'key.pem'), debug=True)
