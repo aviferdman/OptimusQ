@@ -13,6 +13,64 @@ db = dataBaseController
 
 behaviors_from_db = db.getAllFBTargetingBehaviors()
 
+# maps campaign objective to its possible optimization goals
+map_objective_to_possible_opt_goal = {
+    "APP_INSTALLS": "APP_INSTALLS",
+    "BRAND_AWARENESS": "AD_RECALL_LIFT,REACH",
+    "CONVERSIONS": "OFFSITE_CONVERSIONS,IMPRESSIONS,LINK_CLICKS,POST_ENGAGEMENT,REACH,VALUE,LANDING_PAGE_VIEWS,CONVERSATIONS",
+    "EVENT_RESPONSES": "EVENT_RESPONSES,IMPRESSIONS,REACH",
+    "LEAD_GENERATION": "LEAD_GENERATION,QUALITY_LEAD,LINK_CLICKS,QUALITY_CALL",
+    "LINK_CLICKS": "LINK_CLICKS,IMPRESSIONS,POST_ENGAGEMENT,REACH,LANDING_PAGE_VIEWS",
+    "MESSAGES": "CONVERSATIONS,IMPRESSIONS,POST_ENGAGEMENT,LEAD_GENERATION,LINK_CLICKS",
+    "PAGE_LIKES": "PAGE_LIKES,IMPRESSIONS,POST_ENGAGEMENT,REACH",
+    "POST_ENGAGEMENT": "POST_ENGAGEMENT,IMPRESSIONS,REACH,LINK_CLICKS",
+    "PRODUCT_CATALOG_SALES": "OFFSITE_CONVERSIONS,LINK_CLICKS,IMPRESSIONS,POST_ENGAGEMENT,REACH,CONVERSATIONS,VALUE",
+    "REACH": "REACH,IMPRESSIONS",
+    "VIDEO_VIEWS": "THRUPLAY"
+}
+
+# maps optimization goal to possible billing events
+map_opt_goal_to_possible_billing_events = {
+    "APP_INSTALLS": "IMPRESSIONS",
+    "AD_RECALL_LIFT": "IMPRESSIONS",
+    "ENGAGED_USERS": "IMPRESSIONS",
+    "EVENT_RESPONSES": "IMPRESSIONS",
+    "IMPRESSIONS": "IMPRESSIONS",
+    "LEAD_GENERATION": "IMPRESSIONS",
+    "LINK_CLICKS": "LINK_CLICKS,IMPRESSIONS",
+    "OFFSITE_CONVERSIONS": "IMPRESSIONS",
+    "PAGE_LIKES": "IMPRESSIONS",
+    "POST_ENGAGEMENT": "IMPRESSIONS",
+    "REACH": "IMPRESSIONS",
+    "REPLIES": "IMPRESSIONS",
+    "SOCIAL_IMPRESSIONS": "IMPRESSIONS",
+    "THRUPLAY": "IMPRESSIONS,THRUPLAY",
+    "VALUE": "IMPRESSIONS",
+    "LANDING_PAGE_VIEWS": "IMPRESSIONS"
+}
+
+all_possible_campaign_objectives = "APP_INSTALLS,BRAND_AWARENESS,CONVERSIONS,EVENT_RESPONSES,LEAD_GENERATION,"\
+                                   "LINK_CLICKS,MESSAGES,PAGE_LIKES,POST_ENGAGEMENT,PRODUCT_CATALOG_SALES,REACH,"\
+                                   "VIDEO_VIEWS"
+all_possible_campaign_objectives_lst = all_possible_campaign_objectives.split(",")
+
+all_possible_opt_goals = set()
+for objective in all_possible_campaign_objectives_lst:
+    for opt_goal in map_objective_to_possible_opt_goal[objective].split(","):
+        all_possible_opt_goals.add(opt_goal)
+
+# get all possible campaign objectives
+def get_all_possible_campaign_objectives():
+    return {"status": 200, "body": all_possible_campaign_objectives}
+
+# get all optimization goals for objective
+def get_all_optimization_goals_for_objective(objective):
+    return {"status": 200, "body": map_objective_to_possible_opt_goal[objective]}
+
+# get all possible billing events for opt goal
+def get_all_possible_billing_events_for_opt_goal(opt_goal):
+    return {"status": 200, "body": map_opt_goal_to_possible_billing_events[opt_goal]}
+
 
 # updated business_id
 def set_business_id(new_id):
@@ -77,7 +135,7 @@ def create_new_campaign(access_token, ad_account_id, campaign_name, objective="L
 
 # returns a campaign by id
 def get_campaign_by_id(access_token, campaign_id):
-    fields = 'fields=id,name,budget_remaining,daily_budget'
+    fields = 'fields=id,name,budget_remaining,daily_budget,objective'
     params = {
         'access_token': access_token
     }
@@ -104,7 +162,7 @@ def create_new_ad_set(access_token, AD_ACCOUNT_ID, ad_set_name, campaign_id, dai
                       start_time='1633851746', status='PAUSED',
                       targeting_min_age='NONE', targeting_max_age='NONE', targeting_countries=["IL"], end_time='NONE',
                       targeting_gender="NONE", targeting_relationship_statuses="NONE",
-                      targeting_interests = [], targeting_behaviors = []):
+                      targeting_interests=[], targeting_behaviors=[]):
     url = 'https://graph.facebook.com/v13.0/act_' + AD_ACCOUNT_ID + '/adsets'
     targeting = {}
     if targeting_min_age != 'NONE':
@@ -472,3 +530,42 @@ def search_for_behaviors_in_db(to_search):
             res.append(tuple(b))
 
     return res
+
+
+# ************ BUSINESS MANAGEMENT ************
+# *********************************************
+
+def get_all_business_asset_groups(access_token, business_id):
+    params = {
+        'access_token': access_token
+    }
+    res = requests.get('https://graph.facebook.com/v13.0/' + business_id + '/business_asset_groups', params)
+    return {"status": res.status_code, "body": res.json()}
+
+
+def get_all_businesses_by_user_id(access_token, user_id):
+    params = {
+        'access_token': access_token
+    }
+    res = requests.get('https://graph.facebook.com/v14.0/' + user_id + '/businesses', params)
+    return {"status": res.status_code, "body": res.json()}
+
+
+# Create the On Behalf Of relationship between the partner and client's Business Manager.
+# access token must be the user's and received by FB login - and not the app token.
+def create_on_behalf_of_relationship(access_token, PARTNER_BM_ID, CLIENT_BM_ID):
+    # *** STEP 1***
+    # This creates an relationship edge between partner's Business Manager and client's Business Manager.
+    # This enables the partner to be able to create a SU via the API in the next step
+    params = {
+        'existing_client_business_id': CLIENT_BM_ID,
+        'access_token': access_token
+    }
+    res = requests.post('https://graph.facebook.com/v13.0/' + PARTNER_BM_ID + '/managed_businesses', params)
+
+    # *** STEP 2***
+    # Fetch the access token of system user under the client's Business Manager
+    params = {
+        'existing_client_business_id': CLIENT_BM_ID,
+        'access_token': access_token
+    }

@@ -27,11 +27,11 @@ behavior2 = '6004385868372'
 
 db = dataBaseController
 token = db.getAccessTokenByUserId('sandbox_token')
+admin_token = db.getAccessTokenByUserId('admin_token')
 
 # targeting = {"age_min": 12, "age_max": 40, "geo_locations": {"countries": ["US", "IL"]}}
 # res1 = mm.create_new_ad_set(token, sandbox_ad_account, 'adSet name 5', campaign)
 # res2 = mm.get_all_ad_sets_by_campaign(token, campaign)
-
-res = db.getAllFBTargetingBehaviors()
+res = mm.get_all_possible_campaign_objectives()
 
 print('hi')
