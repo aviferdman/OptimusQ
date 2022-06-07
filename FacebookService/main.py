@@ -31,7 +31,8 @@ admin_token = db.getAccessTokenByUserId('admin_token')
 
 # targeting = {"age_min": 12, "age_max": 40, "geo_locations": {"countries": ["US", "IL"]}}
 # res1 = mm.create_new_ad_set(token, sandbox_ad_account, 'adSet name 5', campaign)
-# res2 = mm.get_all_ad_sets_by_campaign(token, campaign)
+# res = mm.upload_image_by_url(token, "1107831820072468", "https://en.spitogatos.gr/frontend/images/homepage/sg_04.jpg")
+# res = mm.upload_image_by_path(token, sandbox_ad_account, 'C:\\Users\\rulid\\Desktop\\graduation-2613183_1920.jpg')
 
 
 print('hi')

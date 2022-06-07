@@ -4,6 +4,9 @@ import requests
 import urllib.request
 import base64
 from DataBaseService.main import dataBaseController
+import io
+
+from PIL import Image
 
 # This interface allows the user to create and manage all the marketing fields,
 # using Facebook APIs.
@@ -236,6 +239,7 @@ def get_all_ad_creatives(access_token, ad_account):
 # image_path - path of image to upload, from local computer.
 # returns image's hash
 def upload_image_by_path(access_token, AD_ACCOUNT_ID, image_path):
+    access_token = access_token[0][1]
     image_file = open(image_path, "rb")
     url = 'https://graph.facebook.com/v13.0/act_' + AD_ACCOUNT_ID + '/adimages'
     file_obj = {'filename': image_file}
@@ -251,13 +255,17 @@ def upload_image_by_url(access_token, AD_ACCOUNT_ID, image_url):
     headers = {'User-Agent': user_agent}
     try:
         request = urllib.request.Request(image_url, None, headers)  # The assembled request
-        response = urllib.request.urlopen(request)
-        data = response.read()  # The data we need
-        image_file = base64.b64encode(data).decode()
+        # response = urllib.request.urlopen(request)
+        # data = response.read()  # The data we need
+        # image_file = base64.b64encode(data).decode()
         url = 'https://graph.facebook.com/v13.0/act_' + AD_ACCOUNT_ID + '/adimages'
-        file_obj = {'bytes': image_file}
-        payload = {"access_token": access_token}
-        res = requests.post(url, data=payload, params=file_obj)
+
+        urllib.request.urlretrieve(image_url, "local-img.jpg")
+        image_file = open("local-img.jpg", "rb")
+
+        file_obj = {'filename': image_file}
+        payload = {"access_token": access_token[0][1]}
+        res = requests.post(url, data=payload, files=file_obj)
         if res.status_code == 200:
             img_hash = res.json()['images'].get('bytes').get('hash')
             return {"status": res.status_code, "body": {"hash": img_hash}}
@@ -575,7 +583,7 @@ def create_on_behalf_of_relationship(client_admin_access_token, client_user_id):
     CLIENT_BM_ID = res.get('body').get('data')[1].get('id') # todo: and allow client user to choose client BM id.
 
     # *** GET ALL BUSINESS ASSETS ***
-    ASSETS_IDS = list() # todo: allow client user to choose assets belongs to his business.
+    ASSETS_IDS = list() # todo: allow client user to choose assets that belong to his business.
     res =  get_all_business_assets(client_admin_access_token, CLIENT_BM_ID)
     if res.get('status') != 200:
         return res
