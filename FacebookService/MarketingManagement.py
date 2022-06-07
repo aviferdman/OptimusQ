@@ -6,7 +6,6 @@ import base64
 from DataBaseService.main import dataBaseController
 import io
 
-from PIL import Image
 
 # This interface allows the user to create and manage all the marketing fields,
 # using Facebook APIs.
