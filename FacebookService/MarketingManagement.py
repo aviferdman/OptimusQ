@@ -535,7 +535,9 @@ def search_for_behaviors_in_db(to_search):
         b_str = "" + b[1] + b[4] + b[5]
         b_str = b_str.lower()
         if to_search in b_str:
-            res.append(tuple(b))
+            res.append({"id": b[0], "name": b[1], "audience_size_lower_bound": b[2],
+                        "audience_size_upper_bound": b[3], "path": b[4], "description": b[5]})
+            # res.append(tuple(b))
 
     return res
 
