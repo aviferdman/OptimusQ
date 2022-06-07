@@ -286,7 +286,6 @@ def get_permanent_url_for_image_by_hash(access_token, ad_account, hash):
 
 
 # creates a new ad creative
-# todo: make this function generic
 def create_ad_creative(access_token, name, image_hash, ad_account_id, link, message, page_id='107414948611212'):
     object_story_spec = {
         "page_id": page_id,

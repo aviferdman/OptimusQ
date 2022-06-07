@@ -352,7 +352,9 @@ def create_adCreative():
         img_hash = rq['img_hash']
         link = rq['link']
         msg = rq['msg']
-        page_id = rq['page_id']
+        page_id = rq.get('page_id')
+        if (page_id is None) or (page_id == ''):
+            page_id = '107414948611212'
         res = MarketingManagement.create_ad_creative(token, name, img_hash, ad_account_id, link, msg, page_id)
         if res.get('status') == 200:
             try:
