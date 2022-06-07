@@ -14,18 +14,19 @@ _DEFAULT_PAGE_SIZE = 1000
 # using Google Ads APIs.
 dir_path = os.path.dirname(os.path.realpath(__file__))
 curr_path = dir_path + "\google-ads.yaml"
-client = GoogleAdsClient.load_from_storage(path=curr_path, version="v9")
+client = GoogleAdsClient.load_from_storage(path=curr_path, version="v10")
 
 
 # creates a new campaign
-def create_new_campaign(customer_id, budget, name, days_to_start, weeks_to_end, status, delivery_method, period, lifetime_budget, advertising_channel_type,
-                        target_content_network, target_google_search, target_partner_search_network, target_search_network,
-                        payment_mode, priority):
+def create_new_campaign(customer_id, budget, name, days_to_start, weeks_to_end, status, delivery_method, period,
+                        advertising_channel_type, payment_mode,
+                        targeting_locations, targeting_gender, targeting_device_type, targeting_min_age,
+                        targeting_max_age, targeting_interest
+                        ):
     campaign_budget_service = client.get_service("CampaignBudgetService")
     campaign_service = client.get_service("CampaignService")
 
-    # [START add_campaigns]
-    # Create a budget, which can be shared by multiple campaigns.
+    # Create a budget
     campaign_budget_operation = client.get_type("CampaignBudgetOperation")
     campaign_budget = campaign_budget_operation.create
     campaign_budget.name = f"Interplanetary Budget {uuid.uuid4()}"
@@ -39,8 +40,6 @@ def create_new_campaign(customer_id, budget, name, days_to_start, weeks_to_end, 
         ).BudgetDeliveryMethod.ACCELERATED
     campaign_budget.amount_micros = 1000000 * budget
     campaign_budget.period = period
-    if period != "DAILY":
-        campaign_budget.total_amount_micros = lifetime_budget
 
     # Add budget.
     try:
@@ -51,17 +50,14 @@ def create_new_campaign(customer_id, budget, name, days_to_start, weeks_to_end, 
         _handle_googleads_exception(ex)
         # [END add_campaigns]
 
-    # [START add_campaigns_1]
     # Create campaign.
     campaign_operation = client.get_type("CampaignOperation")
     campaign = campaign_operation.create
     campaign.name = name
-    # todo add more types
     if advertising_channel_type == 'SEARCH':
         campaign.advertising_channel_type = client.get_type(
             "AdvertisingChannelTypeEnum"
         ).AdvertisingChannelType.SEARCH
-    # todo check if working
     if payment_mode == "CLICKS":
         client.get_type("PaymentModeEnum").PaymentMode.CLICKS
     elif payment_mode == "CONVERSIONS":
@@ -70,8 +66,6 @@ def create_new_campaign(customer_id, budget, name, days_to_start, weeks_to_end, 
         client.get_type("PaymentModeEnum").PaymentMode.CONVERSION_VALUE
     elif payment_mode == "GUEST_STAY":
         client.get_type("PaymentModeEnum").PaymentMode.GUEST_STAY
-    if priority:
-        campaign.priority = priority
 
     # Recommendation: Set the campaign to PAUSED when creating it to prevent
     # the ads from immediately serving. Set to ENABLED once you've added
@@ -86,11 +80,10 @@ def create_new_campaign(customer_id, budget, name, days_to_start, weeks_to_end, 
     campaign.campaign_budget = campaign_budget_response.results[0].resource_name
 
     # Set the campaign network options.
-    campaign.network_settings.target_google_search = target_google_search
-    campaign.network_settings.target_search_network = target_search_network
-    campaign.network_settings.target_content_network = target_content_network
-    campaign.network_settings.target_partner_search_network = target_partner_search_network
-    # [END add_campaigns_1]
+    campaign.network_settings.target_google_search = True
+    campaign.network_settings.target_search_network = True
+    campaign.network_settings.target_content_network = False
+    campaign.network_settings.target_partner_search_network = False
 
     # Optional: Set the start date.
     start_time = datetime.date.today() + datetime.timedelta(days=days_to_start)
@@ -103,12 +96,33 @@ def create_new_campaign(customer_id, budget, name, days_to_start, weeks_to_end, 
     # Add the campaign.
     try:
         campaign_response = campaign_service.mutate_campaigns(
-            customer_id="5103537456", operations=[campaign_operation]
+            customer_id=customer_id, operations=[campaign_operation])
+        campaign_id = campaign_response.results[0].resource_name.split("/")[3]
+
+        # Add the targeting
+        campaign_criterion_service = client.get_service("CampaignCriterionService")
+
+        operations = [
+            _create_location_op(client, customer_id, campaign_id, targeting_locations),
+            _create_age_op(client, customer_id, campaign_id, targeting_min_age, targeting_max_age),
+            _create_gender_op(client, customer_id, campaign_id, targeting_gender),
+            _create_device_op(client, customer_id, campaign_id, targeting_device_type),
+            # _create_operating_system_op(client, customer_id, campaign_id),
+            _create_user_interest_op(client, customer_id, campaign_id, targeting_interest),
+        ]
+
+        campaign_criterion_response = campaign_criterion_service.mutate_campaign_criteria(
+            customer_id=customer_id, operations=operations
         )
-        return {"body": campaign_response.results[0].resource_name}
-        # print(f"Created campaign {campaign_response.results[0].resource_name}.")
+
+        for result in campaign_criterion_response.results:
+            print(f'Added campaign criterion "{result.resource_name}".')
+
+        return {"body": "campaign with id " + campaign_id + " created"}
     except GoogleAdsException as ex:
         _handle_googleads_exception(ex)
+
+
 
 # returns all campaign belongs to AD_ACCOUNT_ID
 def get_all_campaigns(customer_id):
@@ -706,27 +720,6 @@ def get_keyword_stats(customer_id, output_file, write_headers):
     return {"data": output}
 
 
-def add_campaign_targeting_criteria(customer_id, campaign_id, keyword_text, locations, gender, device_type):
-    campaign_criterion_service = client.get_service("CampaignCriterionService")
-
-    operations = [
-        _create_location_op(client, customer_id, campaign_id, locations),
-        # _create_negative_keyword_op(client, customer_id, campaign_id, keyword_text),
-        # _create_proximity_op(client, customer_id, campaign_id),
-        _create_age_op(client, customer_id, campaign_id),
-        _create_gender_op(client, customer_id, campaign_id, gender),
-        _create_device_op(client, customer_id, campaign_id, device_type),
-        # _create_operating_system_op(client, customer_id, campaign_id),
-    ]
-
-    campaign_criterion_response = campaign_criterion_service.mutate_campaign_criteria(
-        customer_id=customer_id, operations=operations
-    )
-
-    for result in campaign_criterion_response.results:
-        print(f'Added campaign criterion "{result.resource_name}".')
-
-
 # [START add_campaign_targeting_criteria_1]
 def _create_location_op(client, customer_id, campaign_id, locations):
     campaign_service = client.get_service("CampaignService")
@@ -800,31 +793,7 @@ def _create_negative_keyword_op(client, customer_id, campaign_id, keyword_text):
 
 
 # [START add_campaign_targeting_criteria_3]
-def _create_proximity_op(client, customer_id, campaign_id):
-    campaign_service = client.get_service("CampaignService")
-
-    # Create the campaign criterion.
-    campaign_criterion_operation = client.get_type("CampaignCriterionOperation")
-    campaign_criterion = campaign_criterion_operation.create
-    campaign_criterion.campaign = campaign_service.campaign_path(
-        customer_id, campaign_id
-    )
-    campaign_criterion.proximity.address.street_address = "38 avenue de l'Opera"
-    campaign_criterion.proximity.address.city_name = "Paris"
-    campaign_criterion.proximity.address.postal_code = "75002"
-    campaign_criterion.proximity.address.country_code = "FR"
-    campaign_criterion.proximity.radius = 10
-    # Default is kilometers.
-    campaign_criterion.proximity.radius_units = client.get_type(
-        "ProximityRadiusUnitsEnum"
-    ).ProximityRadiusUnits.MILES
-
-    return campaign_criterion_operation
-    # [END add_campaign_targeting_criteria_3]
-
-
-# [START add_campaign_targeting_criteria_4]
-def _create_age_op(client, customer_id, campaign_id):
+def _create_age_op(client, customer_id, campaign_id, min_age, max_age):
     campaign_service = client.get_service("CampaignService")
 
     # Create the campaign criterion.
@@ -835,12 +804,14 @@ def _create_age_op(client, customer_id, campaign_id):
     )
 
     campaign_criterion.negative = True
-    campaign_criterion.age_range.type_ = client.get_type("AgeRangeTypeEnum").AgeRangeType.AGE_RANGE_25_34
+    # todo add all enums
+    if min_age == 25 and max_age == 34:
+        campaign_criterion.age_range.type_ = client.get_type("AgeRangeTypeEnum").AgeRangeType.AGE_RANGE_25_34
     return campaign_criterion_operation
-    # [END add_campaign_targeting_criteria_4]
+    # [END add_campaign_targeting_criteria_3]
 
 
-# [START add_campaign_targeting_criteria_5]
+# [START add_campaign_targeting_criteria_4]
 def _create_gender_op(client, customer_id, campaign_id, gender):
     campaign_service = client.get_service("CampaignService")
 
@@ -851,13 +822,17 @@ def _create_gender_op(client, customer_id, campaign_id, gender):
         customer_id, campaign_id
     )
 
+    # todo add all enums
     campaign_criterion.negative = True
-    campaign_criterion.gender.type_ = client.get_type("GenderTypeEnum").GenderType.FEMALE
+    if gender == "FEMALE":
+        campaign_criterion.gender.type_ = client.get_type("GenderTypeEnum").GenderType.FEMALE
+    elif gender == "MALE":
+        campaign_criterion.gender.type_ = client.get_type("GenderTypeEnum").GenderType.MALE
     return campaign_criterion_operation
-    # [END add_campaign_targeting_criteria_5]
+    # [END add_campaign_targeting_criteria_4]
 
 
-# [START add_campaign_targeting_criteria_6]
+# [START add_campaign_targeting_criteria_5]
 def _create_device_op(client, customer_id, campaign_id, device_type):
     campaign_service = client.get_service("CampaignService")
 
@@ -868,12 +843,14 @@ def _create_device_op(client, customer_id, campaign_id, device_type):
         customer_id, campaign_id
     )
 
-    campaign_criterion.device.type_ = client.get_type("DeviceEnum").Device.DESKTOP
+    # todo add all enums
+    if device_type == "DESKTOP":
+        campaign_criterion.device.type_ = client.get_type("DeviceEnum").Device.DESKTOP
     return campaign_criterion_operation
-    # [END add_campaign_targeting_criteria_6]
+    # [END add_campaign_targeting_criteria_5]
 
 
-# [START add_campaign_targeting_criteria_7]
+# [START add_campaign_targeting_criteria_6]
 def _create_operating_system_op(client, customer_id, campaign_id):
     campaign_service = client.get_service("CampaignService")
 
@@ -886,9 +863,51 @@ def _create_operating_system_op(client, customer_id, campaign_id):
 
     campaign_criterion.operating_system_version.operating_system_version_constant = "operatingSystemVersionConstants/Android4.2.2"
     return campaign_criterion_operation
+    # [END add_campaign_targeting_criteria_6]
+
+
+# [START add_campaign_targeting_criteria_7]
+def _create_user_interest_op(client, customer_id, campaign_id, interest):
+    campaign_service = client.get_service("CampaignService")
+
+    # Get the id of the interests
+    # Get the GoogleAdsService client.
+    googleads_service = client.get_service("GoogleAdsService")
+
+    # Create a query that retrieves the targetable user interests constants by name.
+
+    query = f"""
+                SELECT user_interest.name, user_interest.user_interest_id, user_interest.resource_name
+                FROM user_interest
+                WHERE user_interest.name LIKE '%{interest}%'
+                """
+
+    # Issue a search request and process the stream response to print the
+    # requested field values for the user interest constant in each row.
+    response = googleads_service.search_stream(
+        customer_id=customer_id, query=query
+    )
+
+    for batch in response:
+        for row in batch.results:
+            print(
+                f"User interest with ID {row.user_interest.user_interest_id}, "
+                f"category '{row.user_interest.name}'"
+                f"resource name '{row.user_interest.resource_name}' "
+            )
+            resource_name = row.user_interest.resource_name
+
+    # Create the campaign criterion.
+    campaign_criterion_operation = client.get_type("CampaignCriterionOperation")
+    campaign_criterion = campaign_criterion_operation.create
+    campaign_criterion.campaign = campaign_service.campaign_path(
+        customer_id, campaign_id
+    )
+
+    campaign_criterion.user_interest.user_interest_category = resource_name
+
+    return campaign_criterion_operation
     # [END add_campaign_targeting_criteria_7]
-
-
 
 
 
