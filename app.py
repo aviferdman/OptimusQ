@@ -302,7 +302,8 @@ def upload_img_from_url():
         ad_account_id = rq['ad_account']
         img_url = rq['img_url']
         res = MarketingManagement.upload_image_by_url(token, ad_account_id, img_url)
-        threading.Thread(target=upload_img_from_url_to_db, args=(res, token, ad_account_id,)).start()
+        if res.get('status') == 200:
+            threading.Thread(target=upload_img_from_url_to_db, args=(res, token, ad_account_id,)).start()
         return res
 
 
