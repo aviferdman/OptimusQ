@@ -280,9 +280,9 @@ def fb_api_get_all_campaigns():
 # uploads an image to DB
 def upload_img_from_url_to_db(res, token, ad_account_id):
     try:
-        img_hash = res.get('body').get('images').get('bytes').get('hash')
+        img_hash = res.get('body').get('hash')
         res2 = MarketingManagement.get_permanent_url_for_image_by_hash(token, ad_account_id, img_hash)
-        img_permalink_url = res2.get('body').get('data')[0].get('permalink_url')
+        img_permalink_url = "Not Relevant"
         db.addFBImage(img_hash, img_permalink_url)
     except Exception as e:
         print(str(e))
