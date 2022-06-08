@@ -685,6 +685,8 @@ def fb_api_search_interests():
         rq = request.get_json()
         is_sandbox_mode = rq['sandbox_mode']
         token = ""
+        if (rq.get("to_search") is None) or (rq.get("to_search") == ""):
+            return {'status': 400, 'body': 'to_search param cannot be null or empty string.'}
         if is_sandbox_mode == "no":
             return {'status': 400, 'body': 'currently working in sandbox mode only.'}
         else:
@@ -702,7 +704,7 @@ def fb_api_search_behaviors():
             res = MarketingManagement.search_for_behaviors_in_db(to_search)
         except Exception as e:
             return {"status": 400, "body": {str(e)}}
-        return {"status": 200, "body": res}
+        return {"status": 200, "body": {"data": res}}
 
 # get all possible campaign objectives
 @app.route("/api/fb/campaign_objectives", methods=['GET'])
