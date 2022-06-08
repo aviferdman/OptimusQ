@@ -7,6 +7,8 @@ import csv
 from google.ads.googleads.client import GoogleAdsClient
 from google.ads.googleads.errors import GoogleAdsException
 
+from GoogleAdsService import Enum
+
 _DATE_FORMAT = "%Y%m%d"
 _DEFAULT_PAGE_SIZE = 1000
 
@@ -56,20 +58,26 @@ def create_new_campaign(customer_id, budget, name, days_to_start, weeks_to_end, 
     campaign_operation = client.get_type("CampaignOperation")
     campaign = campaign_operation.create
     campaign.name = name
-    # todo add more types
-    if advertising_channel_type == 'SEARCH':
-        campaign.advertising_channel_type = client.get_type(
-            "AdvertisingChannelTypeEnum"
-        ).AdvertisingChannelType.SEARCH
-    # todo check if working
-    if payment_mode == "CLICKS":
+
+    # todo add more types- not working more types
+    # if advertising_channel_type == 'SEARCH':
+    campaign.advertising_channel_type = client.get_type("AdvertisingChannelTypeEnum").AdvertisingChannelType.SEARCH
+
+    if payment_mode in Enum.Payments.keys():
+        Enum.Payments[payment_mode]()
+    # todo check default, check if working
+    else:
         client.get_type("PaymentModeEnum").PaymentMode.CLICKS
-    elif payment_mode == "CONVERSIONS":
-        client.get_type("PaymentModeEnum").PaymentMode.CONVERSIONS
-    elif payment_mode == "CONVERSION_VALUE":
-        client.get_type("PaymentModeEnum").PaymentMode.CONVERSION_VALUE
-    elif payment_mode == "GUEST_STAY":
-        client.get_type("PaymentModeEnum").PaymentMode.GUEST_STAY
+
+    # if payment_mode == "CLICKS":
+    #     client.get_type("PaymentModeEnum").PaymentMode.CLICKS
+    # elif payment_mode == "CONVERSIONS":
+    #     client.get_type("PaymentModeEnum").PaymentMode.CONVERSIONS
+    # elif payment_mode == "CONVERSION_VALUE":
+    #     client.get_type("PaymentModeEnum").PaymentMode.CONVERSION_VALUE
+    # elif payment_mode == "GUEST_STAY":
+    #     client.get_type("PaymentModeEnum").PaymentMode.GUEST_STAY
+
     if priority:
         campaign.priority = priority
 
