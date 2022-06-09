@@ -719,8 +719,8 @@ def googleAds_api_get_campaign_statistics():
         rq = request.get_json(force=True)
         customer_id = rq['customer_id']
         output_file = rq['output_file']
-        write_headers = rq.get('write_headers', True)
-        period = rq.get('period', False)
+        write_headers = rq.get('write_headers')
+        period = rq.get('period')
         res = CampaignManagement.get_statistics_to_csv(customer_id, output_file, write_headers, period)
         # if res.get('status') == 200:
         #     try:
@@ -736,7 +736,7 @@ def googleAds_api_get_keyword_statistics():
         rq = request.get_json(force=True)
         customer_id = rq['customer_id']
         output_file = rq['output_file']
-        write_headers = rq.get('write_headers', True)
+        write_headers = rq.get('write_headers')
         res = CampaignManagement.get_keyword_stats(customer_id, output_file, write_headers)
         # if res.get('status') == 200:
         #     try:

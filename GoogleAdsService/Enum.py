@@ -1,12 +1,28 @@
 import os
 
 from google.ads.googleads.client import GoogleAdsClient
+from DataBaseService.main import dataBaseController
 
 # This interface allows the user to create and manage all the marketing fields,
 # using Google Ads APIs.
-dir_path = os.path.dirname(os.path.realpath(__file__))
-curr_path = dir_path + "\google-ads.yaml"
-client = GoogleAdsClient.load_from_storage(path=curr_path, version="v9")
+# fetching token details from database
+db = dataBaseController
+client_id = '1040281022647-soclnfbgmiujemuojhbopomnkf0o1724.apps.googleusercontent.com'
+login_customer_id = '2838771052'
+
+token_details = db.get_GoogleAds_Token(client_id, login_customer_id)
+
+developer_token = token_details['developer_token']
+client_secret = token_details['client_secret']
+refresh_token = token_details['refresh_token']
+
+token_dict = {"developer_token": developer_token, "refresh_token": refresh_token, "client_id": client_id,
+              "client_secret": client_secret, "login_customer_id": login_customer_id, "use_proto_plus": True}
+
+
+# This interface allows the user to create and manage all the marketing fields,
+# using Google Ads APIs.
+client = GoogleAdsClient.load_from_dict(token_dict, version="v10")
 
 Payments = {}
 Payments.update({"CLICKS": lambda : client.get_type("PaymentModeEnum").PaymentMode.CLICKS})

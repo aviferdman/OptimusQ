@@ -56,16 +56,19 @@ def create_new_campaign(customer_id, budget, name, days_to_start, weeks_to_end, 
     campaign_budget_operation = client.get_type("CampaignBudgetOperation")
     campaign_budget = campaign_budget_operation.create
     campaign_budget.name = f"Interplanetary Budget {uuid.uuid4()}"
-    if delivery_method == "STANDARD":
+    if delivery_method == "STANDARD" or delivery_method is None or delivery_method == "":
         campaign_budget.delivery_method = client.get_type(
-            "BudgetDeliveryMethodEnum"
-        ).BudgetDeliveryMethod.STANDARD
+            "BudgetDeliveryMethodEnum").BudgetDeliveryMethod.STANDARD
     elif delivery_method == "ACCELERATED":
         campaign_budget.delivery_method = client.get_type(
-            "BudgetDeliveryMethodEnum"
-        ).BudgetDeliveryMethod.ACCELERATED
+            "BudgetDeliveryMethodEnum").BudgetDeliveryMethod.ACCELERATED
     campaign_budget.amount_micros = 1000000 * budget
-    campaign_budget.period = period
+    if period == "DAILY" or period is None or period == "":
+        campaign_budget.period = client.get_type(
+                "BudgetPeriodEnum").BudgetPeriod.DAILY
+    elif period == "CUSTOM_PERIOD":
+        campaign_budget.period = client.get_type(
+            "BudgetPeriodEnum").BudgetPeriod.CUSTOM_PERIOD
 
     # Add budget.
     try:
@@ -82,13 +85,12 @@ def create_new_campaign(customer_id, budget, name, days_to_start, weeks_to_end, 
     campaign.name = name
 
     # todo not working more types
-    # if advertising_channel_type == 'SEARCH':
     campaign.advertising_channel_type = client.get_type("AdvertisingChannelTypeEnum").AdvertisingChannelType.SEARCH
 
     if payment_mode in Enum.Payments.keys():
         campaign.payment_mode = Enum.Payments[payment_mode]()
     # todo check if working
-    else:
+    elif payment_mode == "" or payment_mode is None:
         campaign.payment_mode = client.get_type("PaymentModeEnum").PaymentMode.CLICKS
 
     # Recommendation: Set the campaign to PAUSED when creating it to prevent
@@ -127,22 +129,21 @@ def create_new_campaign(customer_id, budget, name, days_to_start, weeks_to_end, 
         campaign_criterion_service = client.get_service("CampaignCriterionService")
 
         operations = [
-            _create_location_op(client, customer_id, campaign_id, targeting_locations),
-            _create_age_op(client, customer_id, campaign_id, targeting_min_age, targeting_max_age),
-            _create_gender_op(client, customer_id, campaign_id, targeting_gender),
-            _create_device_op(client, customer_id, campaign_id, targeting_device_type),
-            # _create_operating_system_op(client, customer_id, campaign_id),
-            _create_user_interest_op(client, customer_id, campaign_id, targeting_interest),
+            _create_location_op(customer_id, campaign_id, targeting_locations),
+            _create_age_op(customer_id, campaign_id, targeting_min_age, targeting_max_age),
+            _create_gender_op(customer_id, campaign_id, targeting_gender),
+            _create_device_op(customer_id, campaign_id, targeting_device_type),
+            _create_user_interest_op(customer_id, campaign_id, targeting_interest),
         ]
 
-        # campaign_criterion_response = campaign_criterion_service.mutate_campaign_criteria(
-        #     customer_id=customer_id, operations=operations
-        # )
-        #
-        # for result in campaign_criterion_response.results:
-        #     print(f'Added campaign criterion "{result.resource_name}".')
+        campaign_criterion_response = campaign_criterion_service.mutate_campaign_criteria(
+            customer_id=customer_id, operations=operations
+        )
 
-        return {"body": "campaign with id " + campaign_id + " created"}
+        for result in campaign_criterion_response.results:
+            print(f'Added campaign criterion "{result.resource_name}".')
+
+        return {"status": 200, "body": "campaign with id " + campaign_id + " created"}
     except GoogleAdsException as ex:
         return _handle_googleads_exception(ex)
 
@@ -170,10 +171,10 @@ def get_all_campaigns(customer_id):
                 campaigns.append((row.campaign.id,row.campaign.name,row.campaign.advertising_channel_type))
                 # print(f"Campaign with ID {row.campaign.id} and name "
                 #       f'"{row.campaign.name}" was found.')
-        return {"body": campaigns}
+        return {"status": 200, "body": campaigns}
 
     except GoogleAdsException as ex:
-        _handle_googleads_exception(ex)
+        return _handle_googleads_exception(ex)
 
 
 # returns a campaign by id
@@ -196,10 +197,10 @@ def get_campaign_by_id(customer_id, campaign_id):
         for batch in response:
             for row in batch.results:
                 campaigns.append((row.campaign.id, row.campaign.name))
-        return {"body": campaigns}
+        return {"status": 200, "body": campaigns}
 
     except GoogleAdsException as ex:
-        _handle_googleads_exception(ex)
+        return _handle_googleads_exception(ex)
 
 
 # deletes a campaign
@@ -215,11 +216,12 @@ def delete_campaign(customer_id, campaign_id):
             customer_id=customer_id, operations=[campaign_operation]
         )
 
+        campaign_id = campaign_response.results[0].resource_name.split("/")[3]
         # print(f"Removed campaign {campaign_response.results[0].resource_name}.")
-        return {"data": campaign_response.results[0].resource_name}
+        return {"status": 200, "data": "campaign with id " + campaign_id + " deleted"}
 
     except GoogleAdsException as ex:
-        _handle_googleads_exception(ex)
+        return _handle_googleads_exception(ex)
 
 
 # creates a new ad group
@@ -245,10 +247,10 @@ def create_new_ad_group(customer_id, campaign_id, name, status, cpc_bid):
     try:
         ad_group_response = ad_group_service.mutate_ad_groups(
             customer_id=customer_id, operations=[ad_group_operation])
-        return {"body": ad_group_response.results[0].resource_name}
+        return {"status": 200, "body": ad_group_response.results[0].resource_name}
 
     except GoogleAdsException as ex:
-        _handle_googleads_exception(ex)
+        return _handle_googleads_exception(ex)
 
 
 # returns all ad groups belongs to campaign_id
@@ -281,10 +283,10 @@ def get_all_ad_groups(customer_id, campaign_id):
             #     f"Ad group with ID {row.ad_group.id} and name "
             #     f'"{row.ad_group.name}" was found in campaign with '
             #     f"ID {row.campaign.id}.")
-        return {"body": ad_groups}
+        return {"status": 200, "body": ad_groups}
 
     except GoogleAdsException as ex:
-        _handle_googleads_exception(ex)
+        return _handle_googleads_exception(ex)
 
 
 # deletes an ad group
@@ -301,10 +303,10 @@ def delete_ad_group(customer_id, ad_group_id):
         )
 
         # print(f"Removed ad group {ad_group_response.results[0].resource_name}.")
-        return {"data": ad_group_response.results[0].resource_name}
+        return {"status": 200, "data": ad_group_response.results[0].resource_name}
 
     except GoogleAdsException as ex:
-        _handle_googleads_exception(ex)
+        return _handle_googleads_exception(ex)
 
 
 # adds a keyword to an ad group
@@ -342,10 +344,10 @@ def add_keyword(customer_id, ad_group_id, keyword_text):
         #     "Created keyword "
         #     f"{ad_group_criterion_response.results[0].resource_name}."
         # )
-        return {"body": ad_group_criterion_response.results[0].resource_name}
+        return {"status": 200, "body": ad_group_criterion_response.results[0].resource_name}
 
     except GoogleAdsException as ex:
-        _handle_googleads_exception(ex)
+        return _handle_googleads_exception(ex)
 
 
 # gets the keywords of an ad group
@@ -394,10 +396,10 @@ def get_keywords(customer_id, ad_group_id):
             #     f"with ID {ad_group.id}."
             # )
 
-        return {"data": keywords}
+        return {"status": 200, "data": keywords}
 
     except GoogleAdsException as ex:
-        _handle_googleads_exception(ex)
+        return _handle_googleads_exception(ex)
 
 
 # deletes a keyword
@@ -416,13 +418,12 @@ def delete_keyword(customer_id, ad_group_id, criterion_id):
         )
 
         # print(f"Removed keyword {agc_response.results[0].resource_name}.")
-        return {"data": agc_response.results[0].resource_name}
+        return {"status": 200, "data": agc_response.results[0].resource_name}
 
     except GoogleAdsException as ex:
-        _handle_googleads_exception(ex)
+        return _handle_googleads_exception(ex)
 
 
-# todo throw exception if the headings is less than 3and descriptions is less than 2
 # creates a responsive search ad
 def create_new_responsive_search_ad(customer_id, ad_group_id, headlines_texts, descriptions_texts, final_url, pinned_text=None):
     ad_group_ad_service = client.get_service("AdGroupAdService")
@@ -478,10 +479,10 @@ def create_new_responsive_search_ad(customer_id, ad_group_id, headlines_texts, d
             #     f"Created responsive search ad with resource name "
             #     f'"{result.resource_name}".'
             # )
-        return {"body": res}
+        return {"status": 200, "body": res}
 
     except GoogleAdsException as ex:
-        _handle_googleads_exception(ex)
+        return _handle_googleads_exception(ex)
 
 
 def _create_ad_text_asset(text, pinned_field=None):
@@ -538,10 +539,10 @@ def get_all_responsive_search_ads(customer_id, ad_group_id):
         if not one_found:
             return {"data": "No responsive search ads were found."}
             # print("No responsive search ads were found.")
-        return {"data": ads}
+        return {"status": 200, "data": ads}
 
     except GoogleAdsException as ex:
-        _handle_googleads_exception(ex)
+        return _handle_googleads_exception(ex)
 
 
 # deletes a keyword
@@ -560,10 +561,10 @@ def delete_ad(customer_id, ad_group_id, ad_id):
         )
 
         # print(f"Removed ad group ad {ad_group_ad_response.results[0].resource_name}.")
-        return {"data": ad_group_ad_response.results[0].resource_name}
+        return {"status": 200, "data": ad_group_ad_response.results[0].resource_name}
 
     except GoogleAdsException as ex:
-        _handle_googleads_exception(ex)
+        return _handle_googleads_exception(ex)
 
 
 def _ad_text_assets_to_strs(assets):
@@ -632,7 +633,7 @@ def get_statistics_to_csv(customer_id, output_file, write_headers, period):
             ]
 
             # If the write_headers flag was passed, write header row to the CSV
-            if write_headers:
+            if write_headers or write_headers is None:
                 writer.writerow(headers)
 
             for batch in response:
@@ -656,10 +657,10 @@ def get_statistics_to_csv(customer_id, output_file, write_headers, period):
                                   f'clicks "{row.metrics.clicks}", '
                                   f'cost (micros) "{row.metrics.cost_micros}"')
 
-    except GoogleAdsException as ex:
-        _handle_googleads_exception(ex)
+        return {"status": 200, "data": output}
 
-    return {"data": output}
+    except GoogleAdsException as ex:
+        return _handle_googleads_exception(ex)
 
 
 def get_keyword_stats(customer_id, output_file, write_headers):
@@ -710,7 +711,7 @@ def get_keyword_stats(customer_id, output_file, write_headers):
             ]
 
             # If the write_headers flag was passed, write header row to the CSV
-            if write_headers:
+            if write_headers or write_headers is None:
                 writer.writerow(headers)
 
 
@@ -748,21 +749,21 @@ def get_keyword_stats(customer_id, output_file, write_headers):
                                   f"{metrics.cost_micros} cost (in micros) during "
                                   "the last 7 days.")
 
-    except GoogleAdsException as ex:
-        _handle_googleads_exception(ex)
+        return {"status": 200, "data": output}
 
-    return {"data": output}
+    except GoogleAdsException as ex:
+        return _handle_googleads_exception(ex)
 
 
 # [START add_campaign_targeting_criteria_1]
-def _create_location_op(client, customer_id, campaign_id, locations):
+def _create_location_op(customer_id, campaign_id, locations):
     campaign_service = client.get_service("CampaignService")
     geo_target_constant_service = client.get_service("GeoTargetConstantService")
 
     gtc_request = client.get_type("SuggestGeoTargetConstantsRequest")
 
     gtc_request.locale = "en"
-    gtc_request.country_code = "ES"
+    gtc_request.country_code = "US"
 
     # The location names to get suggested geo target constants.
     gtc_request.location_names.names.extend(locations)
@@ -770,6 +771,9 @@ def _create_location_op(client, customer_id, campaign_id, locations):
     results = geo_target_constant_service.suggest_geo_target_constants(gtc_request)
 
     location_id = 0
+
+    # if not results.geo_target_constant_suggestions:
+    #     return {"status": 400, "body": "There is no locations that match your request"}
 
     for suggestion in results.geo_target_constant_suggestions:
         geo_target_constant = suggestion.geo_target_constant
@@ -806,7 +810,7 @@ def _create_location_op(client, customer_id, campaign_id, locations):
 
 
 # [START add_campaign_targeting_criteria_2]
-def _create_negative_keyword_op(client, customer_id, campaign_id, keyword_text):
+def _create_negative_keyword_op(customer_id, campaign_id, keyword_text):
     campaign_service = client.get_service("CampaignService")
 
     # Create the campaign criterion.
@@ -827,7 +831,7 @@ def _create_negative_keyword_op(client, customer_id, campaign_id, keyword_text):
 
 
 # [START add_campaign_targeting_criteria_3]
-def _create_age_op(client, customer_id, campaign_id, min_age, max_age):
+def _create_age_op(customer_id, campaign_id, min_age, max_age):
     campaign_service = client.get_service("CampaignService")
 
     # Create the campaign criterion.
@@ -848,12 +852,12 @@ def _create_age_op(client, customer_id, campaign_id, min_age, max_age):
     # else:
     #      campaign_criterion.age_range.type_ = client.get_type("AgeRangeTypeEnum").AgeRangeType.AGE_RANGE_25_34
     #
-    # return campaign_criterion_operation
+    return campaign_criterion_operation
     # [END add_campaign_targeting_criteria_3]
 
 
 # [START add_campaign_targeting_criteria_4]
-def _create_gender_op(client, customer_id, campaign_id, gender):
+def _create_gender_op(customer_id, campaign_id, gender):
     campaign_service = client.get_service("CampaignService")
 
     # Create the campaign criterion.
@@ -863,7 +867,7 @@ def _create_gender_op(client, customer_id, campaign_id, gender):
         customer_id, campaign_id
     )
 
-    # todo check if work
+    campaign_criterion.negative = True
     if gender in Enum.Gender.keys():
         campaign_criterion.gender.type_ = Enum.Gender[gender]()
     else:
@@ -875,7 +879,7 @@ def _create_gender_op(client, customer_id, campaign_id, gender):
 
 
 # [START add_campaign_targeting_criteria_5]
-def _create_device_op(client, customer_id, campaign_id, device_type):
+def _create_device_op(customer_id, campaign_id, device_type):
     campaign_service = client.get_service("CampaignService")
 
     # Create the campaign criterion.
@@ -895,7 +899,7 @@ def _create_device_op(client, customer_id, campaign_id, device_type):
 
 
 # [START add_campaign_targeting_criteria_6]
-def _create_operating_system_op(client, customer_id, campaign_id):
+def _create_operating_system_op(customer_id, campaign_id):
     campaign_service = client.get_service("CampaignService")
 
     # Create the campaign criterion.
@@ -911,7 +915,7 @@ def _create_operating_system_op(client, customer_id, campaign_id):
 
 
 # [START add_campaign_targeting_criteria_7]
-def _create_user_interest_op(client, customer_id, campaign_id, interest):
+def _create_user_interest_op(customer_id, campaign_id, interest):
     campaign_service = client.get_service("CampaignService")
 
     # Get the id of the interests
@@ -954,6 +958,7 @@ def _create_user_interest_op(client, customer_id, campaign_id, interest):
     # [END add_campaign_targeting_criteria_7]
 
 # todo fix the \n in the message
+# todo status code 400??
 def _handle_googleads_exception(exception):
     res = f'Request with ID "{exception.request_id}" failed with status "{exception.error.code().name}" and includes the following errors:\n'
     # print(
@@ -968,4 +973,4 @@ def _handle_googleads_exception(exception):
             for field_path_element in error.location.field_path_elements:
                 temp = temp + f"\t\tOn field: {field_path_element.field_name}\n"
                 # print(f"\t\tOn field: {field_path_element.field_name}")
-    return {"body": res+temp}
+    return {"status": 400, "body": res+temp}
