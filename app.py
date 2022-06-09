@@ -6,7 +6,7 @@
 import threading
 from doctest import OutputChecker
 import json
-from flask import Flask, render_template, request, flash, Markup, jsonify, redirect
+from flask import Flask, render_template, request, flash, Markup, jsonify, redirect, session
 import time
 import requests
 
@@ -26,7 +26,7 @@ sandbox_token = db.getAccessTokenByUserId('sandbox_token')
 admin_token = db.getAccessTokenByUserId('admin_token')
 
 # updates FB_targeting_behaviors DB once a week
-threading.Thread(target=MarketingManagement.update_targeting_behaviors_once_a_week, args=(sandbox_token)).start()
+threading.Thread(target=MarketingManagement.update_targeting_behaviors_once_a_week, args=(sandbox_token,)).start()
 
 
 @app.route("/")
@@ -56,6 +56,8 @@ def fb_index():
     :param : None
     :return: HTML page
     """
+    oq_user_id = request.args.get('oq_user_id')
+    session['oq_user_id'] = oq_user_id
     return render_template("fb_index.html")
 
 
@@ -84,11 +86,30 @@ def fb_logged_in():
         rq = request.get_json()
         user_id = rq["user_id"]
         access_token = rq["access_token"]
+        oq_user_id = session.get('oq_user_id', None)
         print("user_id: " + user_id)
         print("access_token: " + access_token)
+        print("oq_user_id:" + oq_user_id)
+        return MarketingManagement.create_on_behalf_of_relationship(access_token, user_id, oq_user_id)
 
 
+@app.route("/api/fb/get_all_businesses_by_user_id", methods=['GET'])
+def fb_api_get_all_businesses_by_user_id():
+    if request.method == "GET":
+        rq = request.get_json()
+        user_id = rq["user_id"]
+        access_token = rq["access_token"]
+        print("user_id: " + user_id)
+        print("access_token: " + access_token)
+        return MarketingManagement.get_all_businesses_by_user_id(access_token, user_id)
 
+@app.route("/api/fb/get_all_ad_accounts_in_business", methods=['GET'])
+def fb_api_get_all_ad_accounts_in_business():
+    if request.method == "GET":
+        rq = request.get_json()
+        business_id = rq["business_id"]
+        access_token = rq["access_token"]
+        return MarketingManagement.get_all_ad_accounts_in_business(access_token, business_id)
 
 
 
@@ -277,6 +298,15 @@ def fb_api_get_all_campaigns():
         ad_account = rq['ad_account']
         return MarketingManagement.get_all_campaigns(token, ad_account)
 
+# get_all_campaigns
+@app.route("/api/fb/get_all_campaigns_for_client", methods=['GET'])
+def fb_api_get_all_campaigns_for_client():
+    if request.method == "GET":
+        rq = request.get_json()
+        token = rq["token"]
+        ad_account = rq["ad_account"]
+        return MarketingManagement.get_all_campaigns(token, ad_account)
+
 # uploads an image to DB
 def upload_img_from_url_to_db(res, token, ad_account_id):
     try:
@@ -298,7 +328,15 @@ def upload_img_from_url():
         if is_sandbox_mode == "no":
             return {'status': 400, 'body': 'currently working in sandbox mode only.'}
         else:
-            token = sandbox_token;
+            token = sandbox_token
+        
+        oq_user_id = rq.get('oq_user_id')
+        BM_id = rq.get('BM_id')
+        if (oq_user_id is not None) and (oq_user_id != "") and (BM_id is not None) and (BM_id != ""):
+            token = MarketingManagement.get_token_for_client_by_oq_user_id_and_business_id(oq_user_id, BM_id)
+            if token == -1:
+                return {"status": 400, "body": "error: OptimusQ userid or Client's Business Manager id not found"}
+
         ad_account_id = rq['ad_account']
         img_url = rq['img_url']
         res = MarketingManagement.upload_image_by_url(token, ad_account_id, img_url)
@@ -347,6 +385,14 @@ def create_adCreative():
             return {'status': 400, 'body': 'currently working in sandbox mode only.'}
         else:
             token = sandbox_token
+
+        oq_user_id = rq.get('oq_user_id')
+        BM_id = rq.get('BM_id')
+        if (oq_user_id is not None) and (oq_user_id != "") and (BM_id is not None) and (BM_id != ""):
+            token = MarketingManagement.get_token_for_client_by_oq_user_id_and_business_id(oq_user_id, BM_id)
+            if token == -1:
+                return {"status": 400, "body": "error: OptimusQ userid or Client's Business Manager id not found"}
+
         ad_account_id = rq['ad_account']
         name = rq['name']
         img_hash = rq['img_hash']
@@ -374,6 +420,14 @@ def create_ad():
             return {'status': 400, 'body': 'currently working in sandbox mode only.'}
         else:
             token = sandbox_token
+
+        oq_user_id = rq.get('oq_user_id')
+        BM_id = rq.get('BM_id')
+        if (oq_user_id is not None) and (oq_user_id != "") and (BM_id is not None) and (BM_id != ""):
+            token = MarketingManagement.get_token_for_client_by_oq_user_id_and_business_id(oq_user_id, BM_id)
+            if token == -1:
+                return {"status": 400, "body": "error: OptimusQ userid or Client's Business Manager id not found"}
+
         ad_account_id = rq['ad_account']
         name = rq['name']
         adset = rq['adset']
@@ -401,6 +455,14 @@ def create_new_adset():
             return {'status': 400, 'body': 'currently working in sandbox mode only.'}
         else:
             token = sandbox_token
+
+        oq_user_id = rq.get('oq_user_id')
+        BM_id = rq.get('BM_id')
+        if (oq_user_id is not None) and (oq_user_id != "") and (BM_id is not None) and (BM_id != ""):
+            token = MarketingManagement.get_token_for_client_by_oq_user_id_and_business_id(oq_user_id, BM_id)
+            if token == -1:
+                return {"status": 400, "body": "error: OptimusQ userid or Client's Business Manager id not found"}
+
         ad_account_id = rq.get('ad_account', '-1')
         ad_set_name = rq.get('ad_set_name', '-1')
         campaign_id = rq.get('campaign_id', '-1')
@@ -517,6 +579,13 @@ def fb_api_create_new_campaign():
             return {'status': 400, 'body': 'currently working in sandbox mode only.'}
         else:
             token = sandbox_token
+
+        oq_user_id = rq.get('oq_user_id')
+        BM_id = rq.get('BM_id')
+        if (oq_user_id is not None) and (oq_user_id != "") and (BM_id is not None) and (BM_id != ""):
+            token = MarketingManagement.get_token_for_client_by_oq_user_id_and_business_id(oq_user_id, BM_id)
+            if token == -1:
+                return {"status": 400, "body": "error: OptimusQ userid or Client's Business Manager id not found"}
         ad_account_id = rq['ad_account']
         campaign_name = rq.get('campaign_name')
         objective = rq.get('objective')
@@ -555,6 +624,14 @@ def fb_api_get_ad_preview():
             return {'status': 400, 'body': 'currently working in sandbox mode only.'}
         else:
             token = sandbox_token
+
+        oq_user_id = rq.get('oq_user_id')
+        BM_id = rq.get('BM_id')
+        if (oq_user_id is not None) and (oq_user_id != "") and (BM_id is not None) and (BM_id != ""):
+            token = MarketingManagement.get_token_for_client_by_oq_user_id_and_business_id(oq_user_id, BM_id)
+            if token == -1:
+                return {"status": 400, "body": "error: OptimusQ userid or Client's Business Manager id not found"}
+        
         ad_id = rq['ad_id']
         ad_format = rq.get('ad_format')
         if (ad_format is None) or (ad_format == ''):
@@ -735,6 +812,41 @@ def fb_api_get_all_billing_events_for_opt_goal():
         if optimization_goal not in MarketingManagement.all_possible_opt_goals:
             return {"status": 400, "body": "error: optimization_goal is not valid"}
         return MarketingManagement.get_all_possible_billing_events_for_opt_goal(optimization_goal)
+
+
+# ************ BUSINESS MANAGEMENT ************
+# *********************************************
+
+# get all client Business Managers by OQ user id
+@app.route("/api/fb/get_all_client_BMs_by_oq_user_id", methods=['GET'])
+def fb_api_get_all_client_BMs_by_oq_user_id():
+    if request.method == "GET":
+        rq = request.get_json()
+        oq_user_id = rq.get("oq_user_id")
+        if (oq_user_id is None) or (oq_user_id == ""):
+            return {"status": 400, "body": "error: oq_user_id cannot be null or empty string"}
+        return MarketingManagement.get_all_client_BMs_by_oq_user_id(oq_user_id)
+
+# get all client ad accounts by Business Manager id
+@app.route("/api/fb/get_all_client_ad_accounts_by_BM_id", methods=['GET'])
+def fb_api_get_all_client_ad_accounts_by_BM_id():
+    if request.method == "GET":
+        rq = request.get_json()
+        BM_id = rq.get("BM_id")
+        if (BM_id is None) or (BM_id == ""):
+            return {"status": 400, "body": "error: BM_id cannot be null or empty string"}
+        return MarketingManagement.get_all_client_ad_accounts_by_BM_id(BM_id)
+
+# get all client pages by Business Manager id
+@app.route("/api/fb/get_all_client_pages_by_BM_id", methods=['GET'])
+def fb_api_get_all_client_pages_by_BM_id():
+    if request.method == "GET":
+        rq = request.get_json()
+        BM_id = rq.get("BM_id")
+        if (BM_id is None) or (BM_id == ""):
+            return {"status": 400, "body": "error: BM_id cannot be null or empty string"}
+        return MarketingManagement.get_all_client_pages_by_BM_id(BM_id)
+
 
 ################################################# Google-Ads ##########################################################
 

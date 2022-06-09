@@ -56,7 +56,7 @@ CREATE TABLE "FB_Campaigns"
     "objective" VARCHAR(256),
     "status" VARCHAR(256),
 	PRIMARY KEY("id"),
-    FOREIGN KEY("ad_account") REFERENCES [dbo].[FB_Ad_Accounts]("id")
+--     FOREIGN KEY("ad_account") REFERENCES [dbo].[FB_Ad_Accounts]("id")
 );
 
 CREATE TABLE "FB_AdSets"
@@ -68,8 +68,8 @@ CREATE TABLE "FB_AdSets"
     "daily_budget" INTEGER,
     "targeting" VARCHAR(256),
 	PRIMARY KEY("id"),
-    FOREIGN KEY("ad_account") REFERENCES [dbo].[FB_Ad_Accounts]("id"),
-    FOREIGN KEY("campaign") REFERENCES [dbo].[FB_Campaigns]("id")
+--     FOREIGN KEY("ad_account") REFERENCES [dbo].[FB_Ad_Accounts]("id"),
+--     FOREIGN KEY("campaign") REFERENCES [dbo].[FB_Campaigns]("id")
 );
 
 CREATE TABLE "FB_Images"
@@ -87,7 +87,7 @@ CREATE TABLE "FB_AdCreatives"
     "body" VARCHAR(256),
     "image_hash" VARCHAR(512),
 	PRIMARY KEY("id"),
-    FOREIGN KEY("image_hash") REFERENCES [dbo].[FB_Images]("hash")
+--     FOREIGN KEY("image_hash") REFERENCES [dbo].[FB_Images]("hash")
 );
 
 CREATE TABLE "FB_Ads"
@@ -98,8 +98,8 @@ CREATE TABLE "FB_Ads"
     "creative" VARCHAR(256),
     "status" VARCHAR(256),
 	PRIMARY KEY("id"),
-    FOREIGN KEY("adSet") REFERENCES [dbo].[FB_AdSets]("id"),
-    FOREIGN KEY("creative") REFERENCES [dbo].[FB_AdCreatives]("id")
+--     FOREIGN KEY("adSet") REFERENCES [dbo].[FB_AdSets]("id"),
+--     FOREIGN KEY("creative") REFERENCES [dbo].[FB_AdCreatives]("id")
 );
 
 CREATE TABLE "FB_Targeting_Behaviors"
@@ -123,9 +123,23 @@ CREATE TABLE "GoogleAds_Tokens"
 	PRIMARY KEY("client_id","login_customer_id")
 );
 
-CREATE TABLE FB_CLIENT_BM_SU_ACCESS_TOKEN (
-    "client_id" VARCHAR(512),
+CREATE TABLE "FB_CLIENT_BM_SU_ACCESS_TOKEN" (
+    "OQ_user_id" VARCHAR(512),
+    "FB_client_BM_id" VARCHAR(512),
 	"assigned_partner_id" VARCHAR(512),
+	"FB_client_user_id" VARCHAR(512),
     "su_access_token" VARCHAR(512),
-	PRIMARY KEY("client_id","assigned_partner_id")
+	PRIMARY KEY("OQ_user_id","FB_client_BM_id", "assigned_partner_id")
+);
+
+CREATE TABLE "FB_CLIENT_AD_ACCOUNTS_BY_BM_ID" (
+    "FB_client_BM_id" VARCHAR(512),
+    "Ad_Account_Id" VARCHAR(512),
+	PRIMARY KEY("FB_client_BM_id","Ad_Account_Id")
+);
+
+CREATE TABLE "FB_CLIENT_PAGES_BY_BM_ID" (
+    "FB_client_BM_id" VARCHAR(512),
+    "Page_Id" VARCHAR(512),
+	PRIMARY KEY("FB_client_BM_id","Page_Id")
 );

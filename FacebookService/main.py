@@ -26,14 +26,13 @@ behavior2 = '6004385868372'
 
 
 db = dataBaseController
-token = db.getAccessTokenByUserId('sandbox_token')
-admin_token = db.getAccessTokenByUserId('admin_token')
+token = db.getAccessTokenByUserId('sandbox_token')[0][1]
+admin_token = db.getAccessTokenByUserId('admin_token')[0][1]
 
 # targeting = {"age_min": 12, "age_max": 40, "geo_locations": {"countries": ["US", "IL"]}}
 # res1 = mm.create_new_ad_set(token, sandbox_ad_account, 'adSet name 5', campaign)
 # res = mm.get_permanent_url_for_image_by_hash(token, sandbox_ad_account, "f6aec5188cd94f2f378e66f4055731c4")
-# res = mm.upload_image_by_path(token, sandbox_ad_account, 'C:\\Users\\rulid\\Desktop\\graduation-2613183_1920.jpg')
-res = mm.search_for_behaviors_in_db("sport")
 
+res = mm.get_token_for_client_by_oq_user_id_and_business_id("lidor", "2")
 
 print('hi')
