@@ -580,7 +580,7 @@ def create_on_behalf_of_relationship(client_admin_access_token, client_user_id):
     res = get_all_businesses_by_user_id(client_admin_access_token, client_user_id)
     if res.get('status') != 200:
         return res
-    CLIENT_BM_ID = res.get('body').get('data')[1].get('id') # todo: and allow client user to choose client BM id.
+    CLIENT_BM_ID = res.get('body').get('data')[1].get('id') # todo: allow client user to choose client BM id.
 
     # *** GET ALL BUSINESS ASSETS ***
     ASSETS_IDS = list() # todo: allow client user to choose assets that belong to his business.
