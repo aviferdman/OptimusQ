@@ -15,6 +15,53 @@ Payments.update({"CONVERSION_VALUE": lambda : client.get_type("PaymentModeEnum")
 Payments.update({"GUEST_STAY": lambda : client.get_type("PaymentModeEnum").PaymentMode.GUEST_STAY})
 
 
+Gender = {}
+Gender.update({"UNSPECIFIED" : lambda: client.get_type("GenderTypeEnum").GenderType.UNSPECIFIED})
+Gender.update({"UNKNOWN" : lambda: client.get_type("GenderTypeEnum").GenderType.UNKNOWN})
+Gender.update({"MALE" : lambda: client.get_type("GenderTypeEnum").GenderType.MALE})
+Gender.update({"FEMALE" : lambda: client.get_type("GenderTypeEnum").GenderType.FEMALE})
+Gender.update({"UNDETERMINED" : lambda: client.get_type("GenderTypeEnum").GenderType.UNDETERMINED})
+
+Device = {}
+Device.update({"UNSPECIFIED" : lambda: client.get_type("DeviceEnum").Device.UNSPECIFIED })
+Device.update({"UNKNOWN" : lambda: client.get_type("DeviceEnum").Device.UNKNOWN })
+Device.update({"MOBILE" : lambda: client.get_type("DeviceEnum").Device.MOBILE })
+Device.update({"TABLET" : lambda: client.get_type("DeviceEnum").Device.TABLET })
+Device.update({"DESKTOP" : lambda: client.get_type("DeviceEnum").Device.DESKTOP })
+Device.update({"CONNECTED_TV" : lambda: client.get_type("DeviceEnum").Device.CONNECTED_TV })
+Device.update({"OTHER" : lambda: client.get_type("DeviceEnum").Device.OTHER })
+
+
+Age_1 = {}
+Age_1.update({"UNSPECIFIED" : lambda : client.get_type("AgeRangeTypeEnum").AgeRangeType.UNSPECIFIED})
+Age_1.update({"UNKNOWN" : lambda : client.get_type("AgeRangeTypeEnum").AgeRangeType.UNKNOWN})
+Age_1.update({"AGE_RANGE_18_24" : lambda : client.get_type("AgeRangeTypeEnum").AgeRangeType.AGE_RANGE_18_24})
+Age_1.update({"AGE_RANGE_25_34" : lambda : client.get_type("AgeRangeTypeEnum").AgeRangeType.AGE_RANGE_25_34})
+Age_1.update({"AGE_RANGE_35_44" : lambda : client.get_type("AgeRangeTypeEnum").AgeRangeType.AGE_RANGE_35_44})
+Age_1.update({"AGE_RANGE_45_54" : lambda : client.get_type("AgeRangeTypeEnum").AgeRangeType.AGE_RANGE_45_54})
+Age_1.update({"AGE_RANGE_55_64" : lambda : client.get_type("AgeRangeTypeEnum").AgeRangeType.AGE_RANGE_55_64})
+Age_1.update({"AGE_RANGE_65_UP" : lambda : client.get_type("AgeRangeTypeEnum").AgeRangeType.AGE_RANGE_65_UP})
+Age_1.update({"AGE_RANGE_UNDETERMINED" : lambda : client.get_type("AgeRangeTypeEnum").AgeRangeType.AGE_RANGE_UNDETERMINED})
+
+Age_2= {}
+Age_2.update({(0,1) : lambda : client.get_type("AgeRangeTypeEnum").AgeRangeType.UNSPECIFIED})
+Age_2.update({(0,0): lambda : client.get_type("AgeRangeTypeEnum").AgeRangeType.UNKNOWN})
+Age_2.update({(18,24) : lambda : client.get_type("AgeRangeTypeEnum").AgeRangeType.AGE_RANGE_18_24})
+Age_2.update({(25,34) : lambda : client.get_type("AgeRangeTypeEnum").AgeRangeType.AGE_RANGE_25_34})
+Age_2.update({(35,44) : lambda : client.get_type("AgeRangeTypeEnum").AgeRangeType.AGE_RANGE_35_44})
+Age_2.update({(45,54): lambda : client.get_type("AgeRangeTypeEnum").AgeRangeType.AGE_RANGE_45_54})
+Age_2.update({(55,64) : lambda : client.get_type("AgeRangeTypeEnum").AgeRangeType.AGE_RANGE_55_64})
+Age_2.update({(65,120) : lambda : client.get_type("AgeRangeTypeEnum").AgeRangeType.AGE_RANGE_65_UP})
+Age_2.update({(1,1) : lambda : client.get_type("AgeRangeTypeEnum").AgeRangeType.AGE_RANGE_UNDETERMINED})
+
+
+
+
+
+
+
+
+
 
 
 

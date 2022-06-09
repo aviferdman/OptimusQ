@@ -57,27 +57,15 @@ def create_new_campaign(customer_id, budget, name, days_to_start, weeks_to_end, 
     campaign = campaign_operation.create
     campaign.name = name
 
-    # todo add more types- not working more types
+    # todo not working more types
     # if advertising_channel_type == 'SEARCH':
     campaign.advertising_channel_type = client.get_type("AdvertisingChannelTypeEnum").AdvertisingChannelType.SEARCH
 
     if payment_mode in Enum.Payments.keys():
-        Enum.Payments[payment_mode]()
-    # todo check default, check if working
+        campaign.payment_mode = Enum.Payments[payment_mode]()
+    # todo check if working
     else:
-        client.get_type("PaymentModeEnum").PaymentMode.CLICKS
-
-    # if payment_mode == "CLICKS":
-    #     client.get_type("PaymentModeEnum").PaymentMode.CLICKS
-    # elif payment_mode == "CONVERSIONS":
-    #     client.get_type("PaymentModeEnum").PaymentMode.CONVERSIONS
-    # elif payment_mode == "CONVERSION_VALUE":
-    #     client.get_type("PaymentModeEnum").PaymentMode.CONVERSION_VALUE
-    # elif payment_mode == "GUEST_STAY":
-    #     client.get_type("PaymentModeEnum").PaymentMode.GUEST_STAY
-
-    # if priority:
-    #     campaign.priority = priority
+        campaign.payment_mode = client.get_type("PaymentModeEnum").PaymentMode.CLICKS
 
     # Recommendation: Set the campaign to PAUSED when creating it to prevent
     # the ads from immediately serving. Set to ENABLED once you've added
@@ -135,7 +123,6 @@ def create_new_campaign(customer_id, budget, name, days_to_start, weeks_to_end, 
         _handle_googleads_exception(ex)
 
 
-
 # returns all campaign belongs to AD_ACCOUNT_ID
 def get_all_campaigns(customer_id):
     ga_service = client.get_service("GoogleAdsService")
@@ -164,6 +151,7 @@ def get_all_campaigns(customer_id):
     except GoogleAdsException as ex:
         _handle_googleads_exception(ex)
 
+
 # returns a campaign by id
 def get_campaign_by_id(customer_id, campaign_id):
     ga_service = client.get_service("GoogleAdsService")
@@ -189,6 +177,7 @@ def get_campaign_by_id(customer_id, campaign_id):
     except GoogleAdsException as ex:
         _handle_googleads_exception(ex)
 
+
 # deletes a campaign
 def delete_campaign(customer_id, campaign_id):
     campaign_service = client.get_service("CampaignService")
@@ -207,6 +196,7 @@ def delete_campaign(customer_id, campaign_id):
 
     except GoogleAdsException as ex:
         _handle_googleads_exception(ex)
+
 
 # creates a new ad group
 def create_new_ad_group(customer_id, campaign_id, name, status, cpc_bid):
@@ -235,6 +225,7 @@ def create_new_ad_group(customer_id, campaign_id, name, status, cpc_bid):
 
     except GoogleAdsException as ex:
         _handle_googleads_exception(ex)
+
 
 # returns all ad groups belongs to campaign_id
 def get_all_ad_groups(customer_id, campaign_id):
@@ -271,6 +262,7 @@ def get_all_ad_groups(customer_id, campaign_id):
     except GoogleAdsException as ex:
         _handle_googleads_exception(ex)
 
+
 # deletes an ad group
 def delete_ad_group(customer_id, ad_group_id):
     ad_group_service = client.get_service("AdGroupService")
@@ -289,6 +281,7 @@ def delete_ad_group(customer_id, ad_group_id):
 
     except GoogleAdsException as ex:
         _handle_googleads_exception(ex)
+
 
 # adds a keyword to an ad group
 def add_keyword(customer_id, ad_group_id, keyword_text):
@@ -329,6 +322,7 @@ def add_keyword(customer_id, ad_group_id, keyword_text):
 
     except GoogleAdsException as ex:
         _handle_googleads_exception(ex)
+
 
 # gets the keywords of an ad group
 def get_keywords(customer_id, ad_group_id):
@@ -381,6 +375,7 @@ def get_keywords(customer_id, ad_group_id):
     except GoogleAdsException as ex:
         _handle_googleads_exception(ex)
 
+
 # deletes a keyword
 def delete_keyword(customer_id, ad_group_id, criterion_id):
     agc_service = client.get_service("AdGroupCriterionService")
@@ -401,6 +396,7 @@ def delete_keyword(customer_id, ad_group_id, criterion_id):
 
     except GoogleAdsException as ex:
         _handle_googleads_exception(ex)
+
 
 # todo throw exception if the headings is less than 3and descriptions is less than 2
 # creates a responsive search ad
@@ -472,6 +468,7 @@ def _create_ad_text_asset(text, pinned_field=None):
         ad_text_asset.pinned_field = pinned_field
     return ad_text_asset
 
+
 # returns all responsive search ads belongs to ad_group_id
 def get_all_responsive_search_ads(customer_id, ad_group_id):
     ga_service = client.get_service("GoogleAdsService")
@@ -521,6 +518,7 @@ def get_all_responsive_search_ads(customer_id, ad_group_id):
 
     except GoogleAdsException as ex:
         _handle_googleads_exception(ex)
+
 
 # deletes a keyword
 def delete_ad(customer_id, ad_group_id, ad_id):
@@ -816,10 +814,17 @@ def _create_age_op(client, customer_id, campaign_id, min_age, max_age):
     )
 
     campaign_criterion.negative = True
-    # todo add all enums
+    # todo handle the problem
     if min_age == 25 and max_age == 34:
         campaign_criterion.age_range.type_ = client.get_type("AgeRangeTypeEnum").AgeRangeType.AGE_RANGE_25_34
-    return campaign_criterion_operation
+
+    # if age in Enum.Age_1.keys():
+    #     Enum.Age_1[age]()
+    # # todo check default, check if working
+    # else:
+    #      campaign_criterion.age_range.type_ = client.get_type("AgeRangeTypeEnum").AgeRangeType.AGE_RANGE_25_34
+    #
+    # return campaign_criterion_operation
     # [END add_campaign_targeting_criteria_3]
 
 
@@ -834,12 +839,13 @@ def _create_gender_op(client, customer_id, campaign_id, gender):
         customer_id, campaign_id
     )
 
-    # todo add all enums
-    campaign_criterion.negative = True
-    if gender == "FEMALE":
-        campaign_criterion.gender.type_ = client.get_type("GenderTypeEnum").GenderType.FEMALE
-    elif gender == "MALE":
-        campaign_criterion.gender.type_ = client.get_type("GenderTypeEnum").GenderType.MALE
+    # todo check if work
+    if gender in Enum.Gender.keys():
+        campaign_criterion.gender.type_ = Enum.Gender[gender]()
+    else:
+        campaign_criterion.gender.type_ =client.get_type("GenderTypeEnum").GenderType.UNDETERMINED
+
+        # campaign_criterion.gender.type_ = client.get_type("GenderTypeEnum").GenderType.FEMALE
     return campaign_criterion_operation
     # [END add_campaign_targeting_criteria_4]
 
@@ -854,10 +860,12 @@ def _create_device_op(client, customer_id, campaign_id, device_type):
     campaign_criterion.campaign = campaign_service.campaign_path(
         customer_id, campaign_id
     )
-
-    # todo add all enums
-    if device_type == "DESKTOP":
+    #todo check if work, defult
+    if device_type in Enum.Gender.keys():
+        campaign_criterion.device.type_= Enum.Gender[device_type]()
+    else:
         campaign_criterion.device.type_ = client.get_type("DeviceEnum").Device.DESKTOP
+
     return campaign_criterion_operation
     # [END add_campaign_targeting_criteria_5]
 
@@ -920,10 +928,6 @@ def _create_user_interest_op(client, customer_id, campaign_id, interest):
 
     return campaign_criterion_operation
     # [END add_campaign_targeting_criteria_7]
-
-
-
-
 
 
 def _handle_googleads_exception(exception):
