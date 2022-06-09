@@ -114,11 +114,12 @@ def get_ad_account_by_id(access_token, ad_account_id):
                         fields, params)
 
 
-# returns all ad accounts belongs to business_id
-def get_all_ad_accounts_in_business(access_token):
-    fields = 'fields=amount_spent,business,name,account_id'
+# returns all ad accounts belong to business_id
+def get_all_ad_accounts_in_business(access_token, business_id):
+    fields = 'fields=owned_ad_accounts{name,account_id}'
     params = {'access_token': access_token}
-    return requests.get('https://graph.facebook.com/v13.0/' + str(business_id) + '/owned_ad_accounts?' + fields, params)
+    res = requests.get('https://graph.facebook.com/v13.0/' + business_id + '?' + fields, params)
+    return res
 
 
 # creates a new campaign.
@@ -126,7 +127,10 @@ def get_all_ad_accounts_in_business(access_token):
 # returns: new campaign's id
 def create_new_campaign(access_token, ad_account_id, campaign_name, objective="LINK_CLICKS",
                         status="PAUSED", special_ad_categories="[]"):
-    url = 'https://graph.facebook.com/v13.0/act_' + ad_account_id + '/campaigns'
+    
+    if "act_" not in ad_account_id:
+        ad_account_id = "act_" + ad_account_id
+    url = 'https://graph.facebook.com/v13.0/' + ad_account_id + '/campaigns'
     payload = {'name': campaign_name,
                'objective': objective,
                "status": status,
@@ -166,7 +170,10 @@ def create_new_ad_set(access_token, AD_ACCOUNT_ID, ad_set_name, campaign_id, dai
                       targeting_min_age='NONE', targeting_max_age='NONE', targeting_countries=["IL"], end_time='NONE',
                       targeting_gender="NONE", targeting_relationship_statuses="NONE",
                       targeting_interests=[], targeting_behaviors=[]):
-    url = 'https://graph.facebook.com/v13.0/act_' + AD_ACCOUNT_ID + '/adsets'
+
+    if "act_" not in AD_ACCOUNT_ID:
+        AD_ACCOUNT_ID = "act_" + AD_ACCOUNT_ID
+    url = 'https://graph.facebook.com/v13.0/' + AD_ACCOUNT_ID + '/adsets'
     targeting = {}
     if targeting_min_age != 'NONE':
         targeting["age_min"] = targeting_min_age
@@ -238,7 +245,7 @@ def get_all_ad_creatives(access_token, ad_account):
 # image_path - path of image to upload, from local computer.
 # returns image's hash
 def upload_image_by_path(access_token, AD_ACCOUNT_ID, image_path):
-    access_token = access_token[0][1]
+    access_token = access_token
     image_file = open(image_path, "rb")
     url = 'https://graph.facebook.com/v13.0/act_' + AD_ACCOUNT_ID + '/adimages'
     file_obj = {'filename': image_file}
@@ -250,6 +257,8 @@ def upload_image_by_path(access_token, AD_ACCOUNT_ID, image_path):
 # image_path - path of image to upload, from local computer.
 # returns image's hash
 def upload_image_by_url(access_token, AD_ACCOUNT_ID, image_url):
+    if "act_" not in AD_ACCOUNT_ID:
+        AD_ACCOUNT_ID = "act_" + AD_ACCOUNT_ID
     user_agent = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.7) Gecko/2009021910 Firefox/3.0.7'
     headers = {'User-Agent': user_agent}
     try:
@@ -257,13 +266,13 @@ def upload_image_by_url(access_token, AD_ACCOUNT_ID, image_url):
         # response = urllib.request.urlopen(request)
         # data = response.read()  # The data we need
         # image_file = base64.b64encode(data).decode()
-        url = 'https://graph.facebook.com/v13.0/act_' + AD_ACCOUNT_ID + '/adimages'
+        url = 'https://graph.facebook.com/v13.0/' + AD_ACCOUNT_ID + '/adimages'
 
         urllib.request.urlretrieve(image_url, "local-img.jpg")
         image_file = open("local-img.jpg", "rb")
 
         file_obj = {'filename': image_file}
-        payload = {"access_token": access_token[0][1]}
+        payload = {"access_token": access_token}
         res = requests.post(url, data=payload, files=file_obj)
         if res.status_code == 200:
             img_hash = res.json().get('images').get('local-img.jpg').get('hash')
@@ -287,6 +296,8 @@ def get_permanent_url_for_image_by_hash(access_token, ad_account, hash):
 
 # creates a new ad creative
 def create_ad_creative(access_token, name, image_hash, ad_account_id, link, message, page_id='107414948611212'):
+    if "act_" not in ad_account_id:
+        ad_account_id = "act_" + ad_account_id
     object_story_spec = {
         "page_id": page_id,
         "link_data": {
@@ -295,7 +306,7 @@ def create_ad_creative(access_token, name, image_hash, ad_account_id, link, mess
             "message": message
         }
     }
-    url = 'https://graph.facebook.com/v13.0/act_' + ad_account_id + '/adcreatives'
+    url = 'https://graph.facebook.com/v13.0/' + ad_account_id + '/adcreatives'
     payload = {'name': name,
                'object_story_spec': str(object_story_spec),
                "access_token": access_token
@@ -340,7 +351,9 @@ def create_carousel_ad(access_token, name, image_hash, link, description, page_i
 
 # creates a new ad
 def create_ad(access_token, AD_ACCOUNT_ID, name, adset_id, creative_id, status="PAUSED"):
-    url = 'https://graph.facebook.com/v13.0/act_' + AD_ACCOUNT_ID + '/ads'
+    if "act_" not in AD_ACCOUNT_ID:
+        AD_ACCOUNT_ID = "act_" + AD_ACCOUNT_ID
+    url = 'https://graph.facebook.com/v13.0/' + AD_ACCOUNT_ID + '/ads'
     payload = {'name': name,
                'adset_id': adset_id,
                'creative': str({"creative_id": creative_id}),
@@ -543,13 +556,49 @@ def search_for_behaviors_in_db(to_search):
 
 # ************ BUSINESS MANAGEMENT ************
 # *********************************************
+def get_all_client_BMs_by_oq_user_id(oq_user_id):
+    res_BMs = list()
+    try:
+        for BM_record in db.getFB_CLIENT_BM_IDS_BY_OQ_USER_ID(oq_user_id):
+            res_BMs.append(BM_record[1])
+        return {"status": 200, "body": {"data": res_BMs}}
+    except Exception as e:
+        return {"status": 400, "body": str(e)}
+
+def get_all_client_ad_accounts_by_BM_id(BM_id):
+    ad_accounts_ids = list()
+    try:
+        for record in db.getFB_CLIENT_AD_ACCOUNTS_BY_BM_ID(BM_id):
+            ad_accounts_ids.append(record[1])
+        return {"status": 200, "body": {"data": ad_accounts_ids}}
+    except Exception as e:
+        return {"status": 400, "body": str(e)}
+
+def get_all_client_pages_by_BM_id(BM_id):
+    pages_ids = list()
+    try:
+        for record in db.getFB_CLIENT_PAGES_BY_BM_ID(BM_id):
+            pages_ids.append(record[1])
+        return {"status": 200, "body": {"data": pages_ids}}
+    except Exception as e:
+        return {"status": 400, "body": str(e)}
+
+# get token for client by oq user id
+def get_token_for_client_by_oq_user_id_and_business_id(oq_user_id, BM_id):
+    try:
+        return db.getFB_CLIENT_TOKEN_BY_OQ_USER_ID_AND_BM_ID(oq_user_id, BM_id)[0][4]
+    except Exception as e:
+        return -1
+
+
 
 # returns all businesses by user id: id and name
 def get_all_businesses_by_user_id(access_token, user_id):
+    fields = 'fields=businesses{id,name}'
     params = {
         'access_token': access_token
     }
-    res = requests.get('https://graph.facebook.com/v14.0/' + user_id + '/businesses', params)
+    res = requests.get('https://graph.facebook.com/v14.0/' + user_id + '?' + fields, params)
     return {"status": res.status_code, "body": res.json()}
 
 # returns all business asset groups
@@ -570,85 +619,133 @@ def get_all_business_assets(access_token, business_id):
     return {"status": res.status_code, "body": res.json()}
 
 
+
+
 # Create the On Behalf Of relationship between the partner and client's Business Manager.
 # access token must be the user's and received by FB login - and not the app token.
 # API tutorial for this function:
 # https://developers.facebook.com/docs/marketing-api/business-manager/guides/on-behalf-of
 # ASSETS_IDS is a list, containing assets ids for assigning from client BM to partner BM
-def create_on_behalf_of_relationship(client_admin_access_token, client_user_id):
+def create_on_behalf_of_relationship(client_admin_access_token, client_user_id, oq_user_id):
     PARTNER_BM_ID = business_id # OQ business id
     res = get_all_businesses_by_user_id(client_admin_access_token, client_user_id)
     if res.get('status') != 200:
         return res
-    CLIENT_BM_ID = res.get('body').get('data')[1].get('id') # todo: and allow client user to choose client BM id.
+    BMs_id_list = list()
 
-    # *** GET ALL BUSINESS ASSETS ***
-    ASSETS_IDS = list() # todo: allow client user to choose assets that belong to his business.
-    res =  get_all_business_assets(client_admin_access_token, CLIENT_BM_ID)
-    if res.get('status') != 200:
-        return res
-    owned_ad_accounts_ids = list()
-    for ad_account in res.get('body').get('owned_ad_accounts').get('data'):
-        owned_ad_accounts_ids.append(ad_account.get('id'))
-        ASSETS_IDS.append(ad_account.get('id'))
+    BMs_in_DB = list()
+    for BM_record in db.getFB_CLIENT_BM_IDS_BY_OQ_USER_ID(oq_user_id):
+        BMs_in_DB.append(BM_record[1])
 
-    owned_pages_ids = list()
-    for page in res.get('body').get('owned_pages').get('data'):
-        owned_pages_ids.append(page.get('id'))
-        ASSETS_IDS.append(page.get('id'))
+    for BM in res.get('body').get('businesses').get('data'): #get all businesses belong to user
+        if BM.get('id') == str(PARTNER_BM_ID):
+            continue
+        BMs_id_list.append(BM.get('id'))
+    # CLIENT_BM_ID = res.get('body').get('data')[1].get('id') # todo: allow client user to choose client BM id.
 
-    # *** STEP 1 ***
-    # This creates an relationship edge between partner's Business Manager and client's Business Manager.
-    # This enables the partner to be able to create a SU via the API in the next step
+    succeeded_BMs_id_list = ""
 
-    params = {
-        'existing_client_business_id': CLIENT_BM_ID,
-        'access_token': client_admin_access_token
-    }
-    res = requests.post('https://graph.facebook.com/v13.0/' + str(PARTNER_BM_ID) + '/managed_businesses', params)
-    if res.status_code != 200:
-        return {"status": res.status_code, "body": res.json()}
+    for CLIENT_BM_ID in BMs_id_list:
+        # *** GET ALL BUSINESS ASSETS ***
+        ASSETS_IDS = list() # todo: allow client user to choose assets that belong to his business.
+        res = get_all_business_assets(client_admin_access_token, CLIENT_BM_ID)
+        if res.get('status') != 200:
+            return res
+        owned_ad_accounts_ids = list()
+        for ad_account in res.get('body').get('owned_ad_accounts').get('data'):
+            owned_ad_accounts_ids.append(ad_account.get('id'))
+            ASSETS_IDS.append(ad_account.get('id'))
 
-    # *** STEP 2 ***
-    # Fetch the access token of system user under the client's Business Manager
-    PARTNER_BM_ADMIN_SYSTEM_USER_ACCESS_TOKEN = client_admin_access_token # fixed! todo: fetch PARTNER_BM_ADMIN_SYSTEM_USER_ACCESS_TOKEN
+        owned_pages_ids = list()
+        for page in res.get('body').get('owned_pages').get('data'):
+            owned_pages_ids.append(page.get('id'))
+            ASSETS_IDS.append(page.get('id'))
 
-    params = {
-        'scope': "ads_management,pages_read_engagement,ads_read",
-        'app_id': str(OQ_app_id),
-        'access_token': PARTNER_BM_ADMIN_SYSTEM_USER_ACCESS_TOKEN
-    }
-    res = requests.post('https://graph.facebook.com/v13.0/' + CLIENT_BM_ID + '/access_token', params)
-    if res.status_code != 200:
-        return {"status": res.status_code, "body": res.json()}
+        # *** STEP 1 ***
+        # This creates an relationship edge between partner's Business Manager and client's Business Manager.
+        # This enables the partner to be able to create a SU via the API in the next step
 
-    # The response contains the token for the system user who is linked to the On Behalf Of relationships.
-    CLIENT_BM_SU_ACCESS_TOKEN = res.json().get('access_token') # fixed! todo: get this system user token
-
-    # *** STEP 3 ***
-    # Get the ID of the system user.
-    params = {
-        'access_token': CLIENT_BM_SU_ACCESS_TOKEN
-    }
-    res = requests.get('https://graph.facebook.com/v13.0/me', params)
-    if res.status_code != 200:
-        return {"status": res.status_code, "body": res.json()}
-    SYSTEM_USER_ID = res.json().get('id')
-
-    # *** STEP 4 ***
-    # Assign assets to the system user in the client's Business Manager.
-    for asset in ASSETS_IDS:
         params = {
-            "user": SYSTEM_USER_ID,
-            "tasks": "MANAGE",
+            'existing_client_business_id': CLIENT_BM_ID,
             'access_token': client_admin_access_token
         }
-        time.sleep(5)
-        res = requests.post('https://graph.facebook.com/v13.0/' + asset + '/assigned_users', params)
+        res = requests.post('https://graph.facebook.com/v13.0/' + str(PARTNER_BM_ID) + '/managed_businesses', params)
         if res.status_code != 200:
             return {"status": res.status_code, "body": res.json()}
 
+        # *** STEP 2 ***
+        # Fetch the access token of system user under the client's Business Manager
+        PARTNER_BM_ADMIN_SYSTEM_USER_ACCESS_TOKEN = client_admin_access_token # fixed! todo: fetch PARTNER_BM_ADMIN_SYSTEM_USER_ACCESS_TOKEN
+
+        params = {
+            'scope': "ads_management,pages_read_engagement,ads_read",
+            'app_id': str(OQ_app_id),
+            'access_token': PARTNER_BM_ADMIN_SYSTEM_USER_ACCESS_TOKEN
+        }
+        res = requests.post('https://graph.facebook.com/v13.0/' + CLIENT_BM_ID + '/access_token', params)
+        if res.status_code != 200:
+            return {"status": res.status_code, "body": res.json()}
+
+        # The response contains the token for the system user who is linked to the On Behalf Of relationships.
+        CLIENT_BM_SU_ACCESS_TOKEN = res.json().get('access_token') # fixed! todo: get this system user token
+
+        # *** STEP 3 ***
+        # Get the ID of the system user.
+        params = {
+            'access_token': CLIENT_BM_SU_ACCESS_TOKEN
+        }
+        res = requests.get('https://graph.facebook.com/v13.0/me', params)
+        if res.status_code != 200:
+            return {"status": res.status_code, "body": res.json()}
+        SYSTEM_USER_ID = res.json().get('id')
+
+        # *** STEP 4 ***
+        # Assign assets to the system user in the client's Business Manager.
+        ad_accounts_in_DB = list()
+        for ad_account_record in db.getFB_CLIENT_AD_ACCOUNTS_BY_BM_ID(CLIENT_BM_ID):
+            ad_accounts_in_DB.append(ad_account_record[1])
+
+        pages_in_DB = list()
+        for page_record in db.getFB_CLIENT_PAGES_BY_BM_ID(CLIENT_BM_ID):
+            pages_in_DB.append(page_record[1])
+
+        for asset in owned_ad_accounts_ids:
+            params = {
+                "user": SYSTEM_USER_ID,
+                "tasks": "MANAGE",
+                'access_token': client_admin_access_token
+            }
+            time.sleep(2)
+            res = requests.post('https://graph.facebook.com/v13.0/' + asset + '/assigned_users', params)
+            if res.status_code != 200:
+                return {"status": res.status_code, "body": res.json()}
+            if asset not in ad_accounts_in_DB:
+                db.addFB_CLIENT_AD_ACCOUNTS_BY_BM_ID(CLIENT_BM_ID, asset)
+
+        for asset in owned_pages_ids:
+            params = {
+                "user": SYSTEM_USER_ID,
+                "tasks": "MANAGE",
+                'access_token': client_admin_access_token
+            }
+            time.sleep(2)
+            res = requests.post('https://graph.facebook.com/v13.0/' + asset + '/assigned_users', params)
+            if res.status_code != 200:
+                return {"status": res.status_code, "body": res.json()}
+            if asset not in pages_in_DB:
+                db.addFB_CLIENT_PAGES_BY_BM_ID(CLIENT_BM_ID, asset)
+
+        if CLIENT_BM_ID not in BMs_in_DB:
+            db.addFB_CLIENT_BM_SU_ACCESS_TOKEN(oq_user_id, CLIENT_BM_ID, str(PARTNER_BM_ID), client_user_id, CLIENT_BM_SU_ACCESS_TOKEN)
+        succeeded_BMs_id_list += CLIENT_BM_ID + ","
+
+
+
+    # ** DONE: **
     # todo: save CLIENT_BM_SU_ACCESS_TOKEN in DB
     #  primary key: user ID is OQ system. save also FB_uid. save also CLIENT_BM_SU_ACCESS_TOKEN
 
-    return {"status": 200, "body": {"CLIENT_BM_SU_ACCESS_TOKEN": CLIENT_BM_SU_ACCESS_TOKEN}}
+    if len(succeeded_BMs_id_list) == 0:
+        return {"status": 400, "body": {"No business added as a client"}}
+
+    return {"status": 200, "body": {"client_businesses_added": succeeded_BMs_id_list}}

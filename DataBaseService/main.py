@@ -540,6 +540,79 @@ class DataBaseController:
                 myresult = cursor.fetchall()
                 return myresult
 
+    ######################################################################
+    #  FB_CLIENT_BM_SU_ACCESS_TOKEN
+    ######################################################################
+    def addFB_CLIENT_BM_SU_ACCESS_TOKEN(self, OQ_user_id, FB_client_BM_id, assigned_partner_id, FB_client_user_id, su_access_token):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                    INSERT INTO [dbo].[FB_CLIENT_BM_SU_ACCESS_TOKEN] (OQ_user_id, FB_client_BM_id, assigned_partner_id, FB_client_user_id, su_access_token)
+                    VALUES ('{0}', '{1}', '{2}', '{3}', '{4}');
+                    """.format(OQ_user_id, FB_client_BM_id, assigned_partner_id, FB_client_user_id, su_access_token))
+
+    def getFB_CLIENT_BM_IDS_BY_OQ_USER_ID(self, OQ_user_id):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                                SELECT * FROM FB_CLIENT_BM_SU_ACCESS_TOKEN
+                                WHERE "OQ_user_id"='{0}';
+                                """.format(OQ_user_id))
+                myresult = cursor.fetchall()
+                return myresult
+
+    def getFB_CLIENT_TOKEN_BY_OQ_USER_ID_AND_BM_ID(self, OQ_user_id, FB_client_BM_id):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                                SELECT * FROM FB_CLIENT_BM_SU_ACCESS_TOKEN
+                                WHERE "OQ_user_id"='{0}' and "FB_client_BM_id"='{1}';
+                                """.format(OQ_user_id, FB_client_BM_id))
+                myresult = cursor.fetchall()
+                return myresult
+
+    ######################################################################
+    #  FB_CLIENT_AD_ACCOUNTS_BY_BM_ID
+    ######################################################################
+    def addFB_CLIENT_AD_ACCOUNTS_BY_BM_ID(self, FB_client_BM_id, Ad_Account_Id):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                    INSERT INTO [dbo].[FB_CLIENT_AD_ACCOUNTS_BY_BM_ID] (FB_client_BM_id, Ad_Account_Id)
+                    VALUES ('{0}', '{1}');
+                    """.format(FB_client_BM_id, Ad_Account_Id))
+
+    def getFB_CLIENT_AD_ACCOUNTS_BY_BM_ID(self, FB_client_BM_id):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                                SELECT * FROM FB_CLIENT_AD_ACCOUNTS_BY_BM_ID
+                                WHERE "FB_client_BM_id"='{0}';
+                                """.format(FB_client_BM_id))
+                myresult = cursor.fetchall()
+                return myresult
+
+    ######################################################################
+    #  FB_CLIENT_PAGES_BY_BM_ID
+    ######################################################################
+    def addFB_CLIENT_PAGES_BY_BM_ID(self, FB_client_BM_id, Page_Id):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                    INSERT INTO [dbo].[FB_CLIENT_PAGES_BY_BM_ID] (FB_client_BM_id, Page_Id)
+                    VALUES ('{0}', '{1}');
+                    """.format(FB_client_BM_id, Page_Id))
+
+    def getFB_CLIENT_PAGES_BY_BM_ID(self, FB_client_BM_id):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                                SELECT * FROM FB_CLIENT_PAGES_BY_BM_ID
+                                WHERE "FB_client_BM_id"='{0}';
+                                """.format(FB_client_BM_id))
+                myresult = cursor.fetchall()
+                return myresult
+
 
 
     ######################################################################
