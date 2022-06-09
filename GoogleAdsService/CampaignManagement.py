@@ -7,16 +7,40 @@ import csv
 from google.ads.googleads.client import GoogleAdsClient
 from google.ads.googleads.errors import GoogleAdsException
 
+from DataBaseService.main import dataBaseController
+
+
 from GoogleAdsService import Enum
 
 _DATE_FORMAT = "%Y%m%d"
 _DEFAULT_PAGE_SIZE = 1000
 
+
+# fetching token details from database
+db = dataBaseController
+client_id = '1040281022647-soclnfbgmiujemuojhbopomnkf0o1724.apps.googleusercontent.com'
+login_customer_id = '2838771052'
+
+token_details = db.get_GoogleAds_Token(client_id, login_customer_id)
+
+developer_token = token_details['developer_token']
+client_secret = token_details['client_secret']
+refresh_token = token_details['refresh_token']
+
+token_dict = {"developer_token": developer_token, "refresh_token": refresh_token, "client_id": client_id,
+              "client_secret": client_secret, "login_customer_id": login_customer_id, "use_proto_plus": True}
+
+
 # This interface allows the user to create and manage all the marketing fields,
 # using Google Ads APIs.
-dir_path = os.path.dirname(os.path.realpath(__file__))
-curr_path = dir_path + "\google-ads.yaml"
-client = GoogleAdsClient.load_from_storage(path=curr_path, version="v10")
+client = GoogleAdsClient.load_from_dict(token_dict, version="v10")
+
+
+# This interface allows the user to create and manage all the marketing fields,
+# using Google Ads APIs.
+# dir_path = os.path.dirname(os.path.realpath(__file__))
+# curr_path = dir_path + "\google-ads.yaml"
+# client = GoogleAdsClient.load_from_storage(path=curr_path, version="v10")
 
 
 # creates a new campaign
@@ -111,16 +135,16 @@ def create_new_campaign(customer_id, budget, name, days_to_start, weeks_to_end, 
             _create_user_interest_op(client, customer_id, campaign_id, targeting_interest),
         ]
 
-        campaign_criterion_response = campaign_criterion_service.mutate_campaign_criteria(
-            customer_id=customer_id, operations=operations
-        )
-
-        for result in campaign_criterion_response.results:
-            print(f'Added campaign criterion "{result.resource_name}".')
+        # campaign_criterion_response = campaign_criterion_service.mutate_campaign_criteria(
+        #     customer_id=customer_id, operations=operations
+        # )
+        #
+        # for result in campaign_criterion_response.results:
+        #     print(f'Added campaign criterion "{result.resource_name}".')
 
         return {"body": "campaign with id " + campaign_id + " created"}
     except GoogleAdsException as ex:
-        _handle_googleads_exception(ex)
+        return _handle_googleads_exception(ex)
 
 
 # returns all campaign belongs to AD_ACCOUNT_ID
@@ -843,7 +867,7 @@ def _create_gender_op(client, customer_id, campaign_id, gender):
     if gender in Enum.Gender.keys():
         campaign_criterion.gender.type_ = Enum.Gender[gender]()
     else:
-        campaign_criterion.gender.type_ =client.get_type("GenderTypeEnum").GenderType.UNDETERMINED
+        campaign_criterion.gender.type_ = client.get_type("GenderTypeEnum").GenderType.UNDETERMINED
 
         # campaign_criterion.gender.type_ = client.get_type("GenderTypeEnum").GenderType.FEMALE
     return campaign_criterion_operation
@@ -929,15 +953,19 @@ def _create_user_interest_op(client, customer_id, campaign_id, interest):
     return campaign_criterion_operation
     # [END add_campaign_targeting_criteria_7]
 
-
+# todo fix the \n in the message
 def _handle_googleads_exception(exception):
-    print(
-        f'Request with ID "{exception.request_id}" failed with status '
-        f'"{exception.error.code().name}" and includes the following errors:'
-    )
+    res = f'Request with ID "{exception.request_id}" failed with status "{exception.error.code().name}" and includes the following errors:\n'
+    # print(
+    #     f'Request with ID "{exception.request_id}" failed with status '
+    #     f'"{exception.error.code().name}" and includes the following errors:'
+    # )
+    temp = ""
     for error in exception.failure.errors:
-        print(f'\tError with message "{error.message}".')
+        temp = temp + f'\tError with message "{error.message}".\n'
+        # print(f'\tError with message "{error.message}".')
         if error.location:
             for field_path_element in error.location.field_path_elements:
-                print(f"\t\tOn field: {field_path_element.field_name}")
-    sys.exit(1)
+                temp = temp + f"\t\tOn field: {field_path_element.field_name}\n"
+                # print(f"\t\tOn field: {field_path_element.field_name}")
+    return {"body": res+temp}

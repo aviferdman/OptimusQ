@@ -550,6 +550,7 @@ def googleAds_api_create_new_campaign():
        #      db.addCampaign(campaign_id, ad_account_id, campaign_name, objective, status)
        #  except Exception as e:
        #      print(str(e))
+        print(res)
         return res
 
 # get_all_campaigns

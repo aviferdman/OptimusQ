@@ -21,13 +21,6 @@ class Test(TestCase):
         self.assertEqual(status, 200)
         self.assertNotEqual(body.get('id'), "")
 
-    def test_create_new_campaign_valid(self):
-        res = mm.create_new_campaign(self.token, self.ad_account, "test name1", "LINK_CLICKS")
-        status = res.get('status')
-        body = res.get('body')
-        self.assertEqual(status, 200)
-        self.assertNotEqual(body.get('id'), "")
-
     def test_create_new_campaign_invalid_token(self):
         res = mm.create_new_campaign('abc', self.ad_account, "test name1", "LINK_CLICKS")
         status = res.get('status')

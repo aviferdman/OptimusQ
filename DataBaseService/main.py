@@ -510,6 +510,20 @@ class DataBaseController:
                         DELETE FROM FB_Ads WHERE "id" = '{0}';
                         """.format(id))
 
+    ######################################################################
+    #  GoogleAds_Tokens
+    ######################################################################
+    def get_GoogleAds_Token(self, client_id, login_customer_id):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                                SELECT * FROM GoogleAds_Tokens
+                                WHERE "client_id"='{0}'
+                                AND "login_customer_id"='{1}';
+                                """.format(client_id, login_customer_id))
+                myresult = cursor.fetchall()[0]
+                res = {"developer_token": myresult[2], "client_secret": myresult[3], "refresh_token": myresult[4]}
+                return res
 
 
 dataBaseController=DataBaseController()
