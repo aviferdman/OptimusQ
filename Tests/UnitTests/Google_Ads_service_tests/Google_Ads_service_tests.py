@@ -18,6 +18,8 @@ class Test(TestCase):
         self.assertNotEqual(body.get('id'), "")
 
     def test_create_new_campaign_invalid_customer_id(self):
-        res = cm.create_new_campaign("123", 10, "test name1", 2, 4, "PAUSED", "STANDARD", "DAILY", "SEARCH",
-                                     "CLICKS",
+        res = cm.create_new_campaign("123", 10, "test name1", 2, 4, "PAUSED", "STANDARD", "DAILY", "SEARCH", "CLICKS",
                                      ["New York"], "FEMALE", "DESKTOP", 25, 34, "Subaru")
+        status = res.get('status')
+        body = res.get('body')
+        self.assertNotEqual(status, 200)
