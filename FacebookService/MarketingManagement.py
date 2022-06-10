@@ -621,7 +621,14 @@ def get_all_business_assets(access_token, business_id):
     res = requests.get('https://graph.facebook.com/v13.0/' + business_id + '?' + fields, params)
     return {"status": res.status_code, "body": res.json()}
 
-
+# returns all pixels ids for business
+def get_all_business_assets(access_token, business_id):
+    fields = 'fields=owned_pixels{id,name}'
+    params = {
+        'access_token': access_token
+    }
+    res = requests.get('https://graph.facebook.com/v13.0/' + business_id + '?' + fields, params)
+    return {"status": res.status_code, "body": res.json()}
 
 
 # Create the On Behalf Of relationship between the partner and client's Business Manager.
