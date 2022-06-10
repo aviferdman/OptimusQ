@@ -169,7 +169,7 @@ def create_new_ad_set(access_token, AD_ACCOUNT_ID, ad_set_name, campaign_id, dai
                       start_time='1633851746', status='PAUSED',
                       targeting_min_age='NONE', targeting_max_age='NONE', targeting_countries=["IL"], end_time='NONE',
                       targeting_gender="NONE", targeting_relationship_statuses="NONE",
-                      targeting_interests=[], targeting_behaviors=[]):
+                      targeting_interests=[], targeting_behaviors=[], promoted_object=None):
 
     if "act_" not in AD_ACCOUNT_ID:
         AD_ACCOUNT_ID = "act_" + AD_ACCOUNT_ID
@@ -202,6 +202,9 @@ def create_new_ad_set(access_token, AD_ACCOUNT_ID, ad_set_name, campaign_id, dai
                "status": status,
                "access_token": access_token
                }
+    if promoted_object is not None:
+        payload["promoted_object"] = str(promoted_object)
+
     if end_time != 'NONE':
         payload["end_time"] = end_time
     res = requests.post(url, data=payload, headers={})

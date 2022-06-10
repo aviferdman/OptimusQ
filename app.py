@@ -463,6 +463,11 @@ def create_new_adset():
             if token == -1:
                 return {"status": 400, "body": "error: OptimusQ userid or Client's Business Manager id not found"}
 
+        promoted_object = rq.get("promoted_object")
+        if promoted_object == "":
+            promoted_object = None
+
+
         ad_account_id = rq.get('ad_account', '-1')
         ad_set_name = rq.get('ad_set_name', '-1')
         campaign_id = rq.get('campaign_id', '-1')
@@ -552,13 +557,12 @@ def create_new_adset():
         if len(targeting_relationships) == 0:
             targeting_relationships = "NONE"
 
-
-
         res = MarketingManagement.create_new_ad_set(token, ad_account_id, ad_set_name, campaign_id, daily_budget,
                                                     optimization_goal, billing_event, bid_amount, start_time, status,
                                                     targeting_min_age, targeting_max_age,
                                                     targeting_countries, end_time, targeting_gender,
-                                                    targeting_relationships, targeting_interests_lst, targeting_behaviors_lst)
+                                                    targeting_relationships, targeting_interests_lst, targeting_behaviors_lst,
+                                                    promoted_object)
         if res.get('status') == 200:
             try:
                 adset_id = res.get('body').get('id')
