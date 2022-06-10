@@ -715,7 +715,7 @@ def create_on_behalf_of_relationship(client_admin_access_token, client_user_id, 
                 "tasks": "MANAGE",
                 'access_token': client_admin_access_token
             }
-            time.sleep(2)
+            # time.sleep(2)
             res = requests.post('https://graph.facebook.com/v13.0/' + asset + '/assigned_users', params)
             if res.status_code != 200:
                 return {"status": res.status_code, "body": res.json()}
@@ -728,7 +728,7 @@ def create_on_behalf_of_relationship(client_admin_access_token, client_user_id, 
                 "tasks": "MANAGE",
                 'access_token': client_admin_access_token
             }
-            time.sleep(2)
+            # time.sleep(2)
             res = requests.post('https://graph.facebook.com/v13.0/' + asset + '/assigned_users', params)
             if res.status_code != 200:
                 return {"status": res.status_code, "body": res.json()}
