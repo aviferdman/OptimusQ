@@ -627,8 +627,7 @@ def get_all_business_pixels(access_token, business_id):
     params = {
         'access_token': access_token
     }
-    res = requests.get('https://graph.facebook.com/v13.0/' + business_id + '?' + fields, params)
-    return {"status": res.status_code, "body": res.json()}
+    return requests.get('https://graph.facebook.com/v13.0/' + business_id + '?' + fields, params)
 
 
 # Create the On Behalf Of relationship between the partner and client's Business Manager.
@@ -746,10 +745,29 @@ def create_on_behalf_of_relationship(client_admin_access_token, client_user_id, 
                 db.addFB_CLIENT_PAGES_BY_BM_ID(CLIENT_BM_ID, asset)
 
         owned_pixels_ids = list()
-        # pixels_res =
-        for pixel in res.get('body').get('owned_pages').get('data'):
-            owned_pages_ids.append(pixel.get('id'))
-            ASSETS_IDS.append(pixel.get('id'))
+        pixels_res = get_all_business_pixels(client_admin_access_token, CLIENT_BM_ID)
+        if pixels_res.status_code != 200:
+            return {"status": pixels_res.status_code, "body": pixels_res.json()}
+
+        print("pixels_res: " + str(pixels_res.json()))
+
+        if (pixels_res.json() is not None) and (pixels_res.json().get('owned_pixels') is not None) and (pixels_res.json().get('owned_pixels').get('data') is not None):
+            for pixel in pixels_res.json().get('owned_pixels').get('data'):
+                owned_pixels_ids.append(pixel.get('id'))
+                ASSETS_IDS.append(pixel.get('id'))
+
+        for asset in owned_pixels_ids:
+            params = {
+                "user": SYSTEM_USER_ID,
+                "tasks": "EDIT, ANALYZE, UPLOAD, ADVERTISE, AA_ANALYZE",
+                'access_token': client_admin_access_token
+            }
+            # time.sleep(2)
+            res = requests.post('https://graph.facebook.com/v13.0/' + asset + '/assigned_users', params)
+            if res.status_code != 200:
+                return {"status": res.status_code, "body": res.json()}
+            # if asset not in pages_in_DB: #todo
+            #     db.addFB_CLIENT_PAGES_BY_BM_ID(CLIENT_BM_ID, asset)
 
 
         if CLIENT_BM_ID not in BMs_in_DB:
