@@ -622,7 +622,7 @@ def get_all_business_assets(access_token, business_id):
     return {"status": res.status_code, "body": res.json()}
 
 # returns all pixels ids for business
-def get_all_business_assets(access_token, business_id):
+def get_all_business_pixels(access_token, business_id):
     fields = 'fields=owned_pixels{id,name}'
     params = {
         'access_token': access_token
@@ -744,6 +744,13 @@ def create_on_behalf_of_relationship(client_admin_access_token, client_user_id, 
                 return {"status": res.status_code, "body": res.json()}
             if asset not in pages_in_DB:
                 db.addFB_CLIENT_PAGES_BY_BM_ID(CLIENT_BM_ID, asset)
+
+        owned_pixels_ids = list()
+        # pixels_res =
+        for pixel in res.get('body').get('owned_pages').get('data'):
+            owned_pages_ids.append(pixel.get('id'))
+            ASSETS_IDS.append(pixel.get('id'))
+
 
         if CLIENT_BM_ID not in BMs_in_DB:
             db.addFB_CLIENT_BM_SU_ACCESS_TOKEN(oq_user_id, CLIENT_BM_ID, str(PARTNER_BM_ID), client_user_id, CLIENT_BM_SU_ACCESS_TOKEN)
