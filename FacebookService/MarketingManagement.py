@@ -623,11 +623,26 @@ def get_all_business_assets(access_token, business_id):
 
 # returns all pixels ids for business
 def get_all_business_pixels(access_token, business_id):
-    fields = 'fields=owned_pixels{id,name}'
+    fields = 'fields=owned_pixels{id,name,owner_ad_account}'
     params = {
         'access_token': access_token
     }
     return requests.get('https://graph.facebook.com/v13.0/' + business_id + '?' + fields, params)
+
+# returns all pixels for ad account
+def get_all_ad_account_pixels(access_token, ad_account_id):
+    if "act_" not in ad_account_id:
+        ad_account_id = "act_" + ad_account_id
+    fields = 'fields=adspixels{id,name}'
+    params = {
+        'access_token': access_token
+    }
+    res = requests.get('https://graph.facebook.com/v13.0/' + ad_account_id + '?' + fields, params)
+    if (res.json() is not None) and (res.json().get('adspixels') is not None) and (res.json().get('adspixels').get('data') is not None):
+        return {"status": res.status_code, "body": {"data": res.json().get('adspixels').get('data')}}
+    return {"status": res.status_code, "body": {"data": []}}
+
+
 
 
 # Create the On Behalf Of relationship between the partner and client's Business Manager.
@@ -661,6 +676,9 @@ def create_on_behalf_of_relationship(client_admin_access_token, client_user_id, 
         if res.get('status') != 200:
             return res
         owned_ad_accounts_ids = list()
+        if (res.get('body') is None) or (res.get('body').get('owned_ad_accounts') is None ) or (res.get('body').get('owned_ad_accounts').get('data') is None):
+            continue
+
         for ad_account in res.get('body').get('owned_ad_accounts').get('data'):
             owned_ad_accounts_ids.append(ad_account.get('id'))
             ASSETS_IDS.append(ad_account.get('id'))
@@ -687,7 +705,7 @@ def create_on_behalf_of_relationship(client_admin_access_token, client_user_id, 
         PARTNER_BM_ADMIN_SYSTEM_USER_ACCESS_TOKEN = client_admin_access_token # fixed! todo: fetch PARTNER_BM_ADMIN_SYSTEM_USER_ACCESS_TOKEN
 
         params = {
-            'scope': "ads_management,pages_read_engagement,ads_read",
+            'scope': "ads_management,pages_read_engagement,ads_read,business_management",
             'app_id': str(OQ_app_id),
             'access_token': PARTNER_BM_ADMIN_SYSTEM_USER_ACCESS_TOKEN
         }

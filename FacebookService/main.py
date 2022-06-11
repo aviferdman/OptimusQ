@@ -33,6 +33,5 @@ admin_token = db.getAccessTokenByUserId('admin_token')[0][1]
 # res1 = mm.create_new_ad_set(token, sandbox_ad_account, 'adSet name 5', campaign)
 # res = mm.get_permanent_url_for_image_by_hash(token, sandbox_ad_account, "f6aec5188cd94f2f378e66f4055731c4")
 
-res = mm.get_token_for_client_by_oq_user_id_and_business_id("lidor", "2")
 
 print('hi')

@@ -851,6 +851,25 @@ def fb_api_get_all_client_pages_by_BM_id():
             return {"status": 400, "body": "error: BM_id cannot be null or empty string"}
         return MarketingManagement.get_all_client_pages_by_BM_id(BM_id)
 
+# get all pixels for ad account
+@app.route("/api/fb/get_all_ad_account_pixels", methods=['GET'])
+def fb_api_get_all_ad_account_pixels():
+    if request.method == "GET":
+        rq = request.get_json()
+        token = ''
+
+        oq_user_id = rq.get('oq_user_id')
+        BM_id = rq.get('BM_id')
+        if (oq_user_id is not None) and (oq_user_id != "") and (BM_id is not None) and (BM_id != ""):
+            token = MarketingManagement.get_token_for_client_by_oq_user_id_and_business_id(oq_user_id, BM_id)
+            if token == -1:
+                return {"status": 400, "body": "error: OptimusQ userid or Client's Business Manager id not found"}
+
+        ad_account = rq.get("ad_account")
+        if (ad_account is None) or (ad_account == ""):
+            return {"status": 400, "body": "error: ad_account cannot be null or empty string"}
+        return MarketingManagement.get_all_ad_account_pixels(token, ad_account)
+
 
 ################################################# Google-Ads ##########################################################
 
