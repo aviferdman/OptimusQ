@@ -623,7 +623,7 @@ def get_all_business_assets(access_token, business_id):
 
 # returns all pixels ids for business
 def get_all_business_pixels(access_token, business_id):
-    fields = 'fields=owned_pixels{id,name,owner_ad_account}'
+    fields = 'fields=owned_pixels{id,name}'
     params = {
         'access_token': access_token
     }
