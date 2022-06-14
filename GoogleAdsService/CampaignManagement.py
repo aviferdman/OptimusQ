@@ -247,7 +247,9 @@ def create_new_ad_group(customer_id, campaign_id, name, status, cpc_bid):
     try:
         ad_group_response = ad_group_service.mutate_ad_groups(
             customer_id=customer_id, operations=[ad_group_operation])
-        return {"status": 200, "body": ad_group_response.results[0].resource_name}
+
+        ad_group_id = ad_group_response.results[0].resource_name.split("/")[3]
+        return {"status": 200, "body": "ad group with id " + ad_group_id + " created"}
 
     except GoogleAdsException as ex:
         return _handle_googleads_exception(ex)
@@ -263,10 +265,11 @@ def get_all_ad_groups(customer_id, campaign_id):
               ad_group.id,
               ad_group.name
             FROM ad_group
+            WHERE ad_group.status != \"REMOVED\"
             """
 
     if campaign_id:
-        query += f" WHERE campaign.id = {campaign_id} AND ad_group.status != \"REMOVED\""
+        query += f"AND campaign.id = {campaign_id}"
 
     search_request = client.get_type("SearchGoogleAdsRequest")
     search_request.customer_id = customer_id
@@ -279,15 +282,40 @@ def get_all_ad_groups(customer_id, campaign_id):
         ad_groups = []
         for row in results:
             ad_groups.append((row.ad_group.id, row.ad_group.name))
-            # print(
-            #     f"Ad group with ID {row.ad_group.id} and name "
-            #     f'"{row.ad_group.name}" was found in campaign with '
-            #     f"ID {row.campaign.id}.")
         return {"status": 200, "body": ad_groups}
 
     except GoogleAdsException as ex:
         return _handle_googleads_exception(ex)
 
+# returns a campaign by id
+def get_ad_group_by_id(customer_id, ad_group_id):
+    ga_service = client.get_service("GoogleAdsService")
+
+    query = """
+                SELECT
+                  ad_group.id,
+                  ad_group.name
+                FROM ad_group
+                """
+
+    if ad_group_id:
+        query += f" WHERE ad_group.id = {ad_group_id}"
+
+    search_request = client.get_type("SearchGoogleAdsRequest")
+    search_request.customer_id = customer_id
+    search_request.query = query
+    search_request.page_size = _DEFAULT_PAGE_SIZE
+
+    try:
+        results = ga_service.search(request=search_request)
+
+        ad_groups = []
+        for row in results:
+            ad_groups.append((row.ad_group.id, row.ad_group.name))
+        return {"status": 200, "body": ad_groups}
+
+    except GoogleAdsException as ex:
+        return _handle_googleads_exception(ex)
 
 # deletes an ad group
 def delete_ad_group(customer_id, ad_group_id):
@@ -303,7 +331,8 @@ def delete_ad_group(customer_id, ad_group_id):
         )
 
         # print(f"Removed ad group {ad_group_response.results[0].resource_name}.")
-        return {"status": 200, "data": ad_group_response.results[0].resource_name}
+        ad_group_id = ad_group_response.results[0].resource_name.split("/")[3]
+        return {"status": 200, "data": "ad group with id " + ad_group_id + " deleted"}
 
     except GoogleAdsException as ex:
         return _handle_googleads_exception(ex)
@@ -340,11 +369,8 @@ def add_keyword(customer_id, ad_group_id, keyword_text):
             customer_id=customer_id, operations=[ad_group_criterion_operation],
         )
 
-        # print(
-        #     "Created keyword "
-        #     f"{ad_group_criterion_response.results[0].resource_name}."
-        # )
-        return {"status": 200, "body": ad_group_criterion_response.results[0].resource_name}
+        keyword_id = ad_group_criterion_response.results[0].resource_name.split("/")[3].split("~")[1]
+        return {"status": 200, "body": "the keyword: " + keyword_text + ", with id " + keyword_id + " created"}
 
     except GoogleAdsException as ex:
         return _handle_googleads_exception(ex)
@@ -417,8 +443,9 @@ def delete_keyword(customer_id, ad_group_id, criterion_id):
             customer_id=customer_id, operations=[agc_operation]
         )
 
-        # print(f"Removed keyword {agc_response.results[0].resource_name}.")
-        return {"status": 200, "data": agc_response.results[0].resource_name}
+        keyword_id = agc_response.results[0].resource_name.split("/")[3].split("~")[1]
+
+        return {"status": 200, "body": "the keyword with id " + keyword_id + " deleted"}
 
     except GoogleAdsException as ex:
         return _handle_googleads_exception(ex)
@@ -472,14 +499,8 @@ def create_new_responsive_search_ad(customer_id, ad_group_id, headlines_texts, d
             customer_id=customer_id, operations=[ad_group_ad_operation]
         )
 
-        res = []
-        for result in ad_group_ad_response.results:
-            res.append(result.resource_name)
-            # print(
-            #     f"Created responsive search ad with resource name "
-            #     f'"{result.resource_name}".'
-            # )
-        return {"status": 200, "body": res}
+        ad_id = ad_group_ad_response.results[0].resource_name.split("/")[3].split("~")[1]
+        return {"status": 200, "body": "ad with id: " + ad_id + " created"}
 
     except GoogleAdsException as ex:
         return _handle_googleads_exception(ex)
@@ -560,8 +581,8 @@ def delete_ad(customer_id, ad_group_id, ad_id):
             customer_id=customer_id, operations=[ad_group_ad_operation]
         )
 
-        # print(f"Removed ad group ad {ad_group_ad_response.results[0].resource_name}.")
-        return {"status": 200, "data": ad_group_ad_response.results[0].resource_name}
+        ad_id = ad_group_ad_response.results[0].resource_name.split("/")[3].split("~")[1]
+        return {"status": 200, "data": "ad with id: " + ad_id + " deleted"}
 
     except GoogleAdsException as ex:
         return _handle_googleads_exception(ex)
@@ -651,7 +672,7 @@ def get_statistics_to_csv(customer_id, output_file, write_headers, period):
                         ]
                     )
                     output.append(f'descriptive name "{row.customer.descriptive_name}" with '
-                                  f'date "{row.segments.date}" and'
+                                  f'date "{row.segments.date}" and '
                                   f"campaign name {row.campaign.name}: "
                                   f'impressions "{row.metrics.impressions}", '
                                   f'clicks "{row.metrics.clicks}", '

@@ -595,7 +595,7 @@ def googleAds_api_create_new_ad_group():
         name = rq.get('name')
         cpc_bid = rq.get('cpc_bid')   # cost per click in IL shekels
         status = rq.get('status', 'ENABLED')
-        res = CampaignManagement.create_new_adgroup(customer_id, campaign_id, name, status, cpc_bid)
+        res = CampaignManagement.create_new_ad_group(customer_id, campaign_id, name, status, cpc_bid)
             # try:
             #     adset_id = res.get('body').get('id')
             #     db.addAdSet(adset_id, ad_account_id, campaign_id, ad_set_name, daily_budget, 'targeting')
@@ -611,6 +611,15 @@ def googleAds_api_get_all_ad_groups():
         customer_id = rq['customer_id']
         campaign_id = rq.get('campaign_id')
         return CampaignManagement.get_all_ad_groups(customer_id, campaign_id)
+
+# get_ad_group
+@app.route("/api/GoogleAds/get_ad_group", methods=['GET'])
+def googleAds_api_get_ad_group_by_id():
+    if request.method == "GET":
+        rq = request.get_json(force=True)
+        customer_id = rq['customer_id']
+        ad_group_id = rq.get('ad_group_id')
+        return CampaignManagement.get_ad_group_by_id(customer_id, ad_group_id)
 
 # delete_ad_group
 @app.route("/api/GoogleAds/delete_ad_group", methods=['DELETE'])
