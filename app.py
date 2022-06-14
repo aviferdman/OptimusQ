@@ -166,7 +166,7 @@ def fb_api_get_all_ad_accounts_in_business():
 #                                    "ad_preview": ad_preview})
     # return render_template("fb_logged_in.html", output=list_of_images)
 
-
+# create ad set automatically
 @app.route("/create_ad", methods=['POST', 'GET'])
 def create_ad_set_automatically():
     """
