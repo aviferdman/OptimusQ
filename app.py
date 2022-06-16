@@ -892,7 +892,6 @@ def googleAds_api_create_new_campaign():
         rq = request.get_json(force=True)
         customer_id = rq.get('customer_id')
         budget = rq.get('budget')
-        lifetime_budget = rq.get('lifetime_budget')
         name = rq.get('name')
         days_to_start = rq.get('days_to_start')
         weeks_to_end = rq.get('weeks_to_end')
@@ -900,20 +899,23 @@ def googleAds_api_create_new_campaign():
         delivery_method = rq.get('delivery_method', 'STANDARD')
         period = rq.get('period', 'DAILY')
         advertising_channel_type = rq.get('advertising_channel_type', 'SEARCH')
-        target_content_network = rq.get('target_content_network', False)
-        target_google_search = rq.get('target_google_search', True)
-        target_partner_search_network = rq.get('target_partner_search_network', False)
-        target_search_network = rq.get('target_search_network', True)
         payment_mode = rq.get('payment_mode')
-        priority = rq.get('priority')
-        res = CampaignManagement.create_new_campaign(customer_id, budget, name, days_to_start, weeks_to_end, status, delivery_method, period, lifetime_budget, advertising_channel_type,
-                                                     target_content_network, target_google_search, target_partner_search_network, target_search_network,
-                                                     payment_mode, priority)
+        targeting_locations = rq['targeting_locations']
+        targeting_gender = rq['targeting_gender']
+        targeting_device_type = rq['targeting_device_type']
+        targeting_min_age = rq['targeting_min_age']
+        targeting_max_age = rq['targeting_max_age']
+        targeting_interest = rq['targeting_interest']
+        res = CampaignManagement.create_new_campaign(customer_id, budget, name, days_to_start, weeks_to_end, status, delivery_method,
+                                                     period, advertising_channel_type, payment_mode,
+                                                     targeting_locations, targeting_gender, targeting_device_type, targeting_min_age,
+                                                     targeting_max_age, targeting_interest)
        # try:
        #      campaign_id = res.get('body').get('id')
        #      db.addCampaign(campaign_id, ad_account_id, campaign_name, objective, status)
        #  except Exception as e:
        #      print(str(e))
+        print(res)
         return res
 
 # get_all_campaigns
@@ -958,7 +960,7 @@ def googleAds_api_create_new_ad_group():
         name = rq.get('name')
         cpc_bid = rq.get('cpc_bid')   # cost per click in IL shekels
         status = rq.get('status', 'ENABLED')
-        res = CampaignManagement.create_new_adgroup(customer_id, campaign_id, name, status, cpc_bid)
+        res = CampaignManagement.create_new_ad_group(customer_id, campaign_id, name, status, cpc_bid)
             # try:
             #     adset_id = res.get('body').get('id')
             #     db.addAdSet(adset_id, ad_account_id, campaign_id, ad_set_name, daily_budget, 'targeting')
@@ -974,6 +976,15 @@ def googleAds_api_get_all_ad_groups():
         customer_id = rq['customer_id']
         campaign_id = rq.get('campaign_id')
         return CampaignManagement.get_all_ad_groups(customer_id, campaign_id)
+
+# get_ad_group
+@app.route("/api/GoogleAds/get_ad_group", methods=['GET'])
+def googleAds_api_get_ad_group_by_id():
+    if request.method == "GET":
+        rq = request.get_json(force=True)
+        customer_id = rq['customer_id']
+        ad_group_id = rq.get('ad_group_id')
+        return CampaignManagement.get_ad_group_by_id(customer_id, ad_group_id)
 
 # delete_ad_group
 @app.route("/api/GoogleAds/delete_ad_group", methods=['DELETE'])
@@ -1082,8 +1093,8 @@ def googleAds_api_get_campaign_statistics():
         rq = request.get_json(force=True)
         customer_id = rq['customer_id']
         output_file = rq['output_file']
-        write_headers = rq.get('write_headers', True)
-        period = rq.get('period', False)
+        write_headers = rq.get('write_headers')
+        period = rq.get('period')
         res = CampaignManagement.get_statistics_to_csv(customer_id, output_file, write_headers, period)
         # if res.get('status') == 200:
         #     try:
@@ -1099,7 +1110,7 @@ def googleAds_api_get_keyword_statistics():
         rq = request.get_json(force=True)
         customer_id = rq['customer_id']
         output_file = rq['output_file']
-        write_headers = rq.get('write_headers', True)
+        write_headers = rq.get('write_headers')
         res = CampaignManagement.get_keyword_stats(customer_id, output_file, write_headers)
         # if res.get('status') == 200:
         #     try:
@@ -1108,24 +1119,6 @@ def googleAds_api_get_keyword_statistics():
         #         print(str(e))
         return res
 
-# add_campaign_targeting_criteria
-@app.route("/api/GoogleAds/add_campaign_targeting_criteria", methods=['POST'])
-def add_campaign_targeting_criteria():
-    if request.method == "POST":
-        rq = request.get_json(force=True)
-        customer_id = rq['customer_id']
-        campaign_id = rq['campaign_id']
-        keyword_text = rq['keyword_text']
-        locations = rq['locations']
-        gender = rq['gender']
-        device_type = rq['device_type']
-        res = CampaignManagement.add_campaign_targeting_criteria(customer_id, campaign_id, keyword_text, locations, gender, device_type)
-        # if res.get('status') == 200:
-        #     try:
-        #         db.deleteFBAd(ad_id)
-        #     except Exception as e:
-        #         print(str(e))
-        return res
 
 
 # for running in local host with HTTP
