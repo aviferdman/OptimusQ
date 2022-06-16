@@ -2,6 +2,7 @@ import datetime
 import sys
 import uuid
 import os
+import csv
 
 from DataBaseService.main import dataBaseController
 
@@ -33,7 +34,9 @@ client = GoogleAdsClient.load_from_dict(token_dict)
 
 
 # creates a new campaign
-def create_new_campaign(customer_id, budget, name, days_to_start, weeks_to_end, status):
+def create_new_campaign(customer_id, budget, name, days_to_start, weeks_to_end, status, delivery_method, period, lifetime_budget, advertising_channel_type,
+                        target_content_network, target_google_search, target_partner_search_network, target_search_network,
+                        payment_mode, priority):
     campaign_budget_service = client.get_service("CampaignBudgetService")
     campaign_service = client.get_service("CampaignService")
 
@@ -42,10 +45,18 @@ def create_new_campaign(customer_id, budget, name, days_to_start, weeks_to_end, 
     campaign_budget_operation = client.get_type("CampaignBudgetOperation")
     campaign_budget = campaign_budget_operation.create
     campaign_budget.name = f"Interplanetary Budget {uuid.uuid4()}"
-    campaign_budget.delivery_method = client.get_type(
-        "BudgetDeliveryMethodEnum"
-    ).BudgetDeliveryMethod.STANDARD
+    if delivery_method == "STANDARD":
+        campaign_budget.delivery_method = client.get_type(
+            "BudgetDeliveryMethodEnum"
+        ).BudgetDeliveryMethod.STANDARD
+    elif delivery_method == "ACCELERATED":
+        campaign_budget.delivery_method = client.get_type(
+            "BudgetDeliveryMethodEnum"
+        ).BudgetDeliveryMethod.ACCELERATED
     campaign_budget.amount_micros = 1000000 * budget
+    campaign_budget.period = period
+    if period != "DAILY":
+        campaign_budget.total_amount_micros = lifetime_budget
 
     # Add budget.
     try:
@@ -61,9 +72,22 @@ def create_new_campaign(customer_id, budget, name, days_to_start, weeks_to_end, 
     campaign_operation = client.get_type("CampaignOperation")
     campaign = campaign_operation.create
     campaign.name = name
-    campaign.advertising_channel_type = client.get_type(
-        "AdvertisingChannelTypeEnum"
-    ).AdvertisingChannelType.SEARCH
+    # todo add more types
+    if advertising_channel_type == 'SEARCH':
+        campaign.advertising_channel_type = client.get_type(
+            "AdvertisingChannelTypeEnum"
+        ).AdvertisingChannelType.SEARCH
+    # todo check if working
+    if payment_mode == "CLICKS":
+        client.get_type("PaymentModeEnum").PaymentMode.CLICKS
+    elif payment_mode == "CONVERSIONS":
+        client.get_type("PaymentModeEnum").PaymentMode.CONVERSIONS
+    elif payment_mode == "CONVERSION_VALUE":
+        client.get_type("PaymentModeEnum").PaymentMode.CONVERSION_VALUE
+    elif payment_mode == "GUEST_STAY":
+        client.get_type("PaymentModeEnum").PaymentMode.GUEST_STAY
+    if priority:
+        campaign.priority = priority
 
     # Recommendation: Set the campaign to PAUSED when creating it to prevent
     # the ads from immediately serving. Set to ENABLED once you've added
@@ -78,10 +102,10 @@ def create_new_campaign(customer_id, budget, name, days_to_start, weeks_to_end, 
     campaign.campaign_budget = campaign_budget_response.results[0].resource_name
 
     # Set the campaign network options.
-    campaign.network_settings.target_google_search = True
-    campaign.network_settings.target_search_network = True
-    campaign.network_settings.target_content_network = False
-    campaign.network_settings.target_partner_search_network = False
+    campaign.network_settings.target_google_search = target_google_search
+    campaign.network_settings.target_search_network = target_search_network
+    campaign.network_settings.target_content_network = target_content_network
+    campaign.network_settings.target_partner_search_network = target_partner_search_network
     # [END add_campaigns_1]
 
     # Optional: Set the start date.
@@ -109,21 +133,26 @@ def get_all_campaigns(customer_id):
     query = """
             SELECT
               campaign.id,
-              campaign.name
+              campaign.name,
+              campaign.advertising_channel_type
             FROM campaign
             WHERE campaign.status != \"REMOVED\"
             ORDER BY campaign.id"""
 
     # Issues a search request using streaming.
-    response = ga_service.search_stream(customer_id=customer_id, query=query)
+    try:
+        response = ga_service.search_stream(customer_id=customer_id, query=query)
 
-    campaigns = []
-    for batch in response:
-        for row in batch.results:
-            campaigns.append((row.campaign.id,row.campaign.name))
-            # print(f"Campaign with ID {row.campaign.id} and name "
-            #       f'"{row.campaign.name}" was found.')
-    return {"body": campaigns}
+        campaigns = []
+        for batch in response:
+            for row in batch.results:
+                campaigns.append((row.campaign.id,row.campaign.name,row.campaign.advertising_channel_type))
+                # print(f"Campaign with ID {row.campaign.id} and name "
+                #       f'"{row.campaign.name}" was found.')
+        return {"body": campaigns}
+
+    except GoogleAdsException as ex:
+        _handle_googleads_exception(ex)
 
 # returns a campaign by id
 def get_campaign_by_id(customer_id, campaign_id):
@@ -138,13 +167,17 @@ def get_campaign_by_id(customer_id, campaign_id):
                 ORDER BY campaign.id"""
 
     # Issues a search request using streaming.
-    response = ga_service.search_stream(customer_id=customer_id, query=query)
+    try:
+        response = ga_service.search_stream(customer_id=customer_id, query=query)
 
-    campaigns = []
-    for batch in response:
-        for row in batch.results:
-            campaigns.append((row.campaign.id, row.campaign.name))
-    return {"body": campaigns}
+        campaigns = []
+        for batch in response:
+            for row in batch.results:
+                campaigns.append((row.campaign.id, row.campaign.name))
+        return {"body": campaigns}
+
+    except GoogleAdsException as ex:
+        _handle_googleads_exception(ex)
 
 # deletes a campaign
 def delete_campaign(customer_id, campaign_id):
@@ -154,12 +187,16 @@ def delete_campaign(customer_id, campaign_id):
     resource_name = campaign_service.campaign_path(customer_id, campaign_id)
     campaign_operation.remove = resource_name
 
-    campaign_response = campaign_service.mutate_campaigns(
-        customer_id=customer_id, operations=[campaign_operation]
-    )
+    try:
+        campaign_response = campaign_service.mutate_campaigns(
+            customer_id=customer_id, operations=[campaign_operation]
+        )
 
-    # print(f"Removed campaign {campaign_response.results[0].resource_name}.")
-    return {"data": campaign_response.results[0].resource_name}
+        # print(f"Removed campaign {campaign_response.results[0].resource_name}.")
+        return {"data": campaign_response.results[0].resource_name}
+
+    except GoogleAdsException as ex:
+        _handle_googleads_exception(ex)
 
 # creates a new ad group
 def create_new_ad_group(customer_id, campaign_id, name, status, cpc_bid):
@@ -181,10 +218,13 @@ def create_new_ad_group(customer_id, campaign_id, name, status, cpc_bid):
     ad_group.cpc_bid_micros = cpc_bid * 1000000
 
     # Add the ad group.
-    ad_group_response = ad_group_service.mutate_ad_groups(
-        customer_id=customer_id, operations=[ad_group_operation])
-    return {"body": ad_group_response.results[0].resource_name}
-    # print(f"Created ad group {ad_group_response.results[0].resource_name}.")
+    try:
+        ad_group_response = ad_group_service.mutate_ad_groups(
+            customer_id=customer_id, operations=[ad_group_operation])
+        return {"body": ad_group_response.results[0].resource_name}
+
+    except GoogleAdsException as ex:
+        _handle_googleads_exception(ex)
 
 # returns all ad groups belongs to campaign_id
 def get_all_ad_groups(customer_id, campaign_id):
@@ -206,16 +246,20 @@ def get_all_ad_groups(customer_id, campaign_id):
     search_request.query = query
     search_request.page_size = _DEFAULT_PAGE_SIZE
 
-    results = ga_service.search(request=search_request)
+    try:
+        results = ga_service.search(request=search_request)
 
-    ad_groups = []
-    for row in results:
-        ad_groups.append((row.ad_group.id, row.ad_group.name))
-        # print(
-        #     f"Ad group with ID {row.ad_group.id} and name "
-        #     f'"{row.ad_group.name}" was found in campaign with '
-        #     f"ID {row.campaign.id}.")
-    return {"body": ad_groups}
+        ad_groups = []
+        for row in results:
+            ad_groups.append((row.ad_group.id, row.ad_group.name))
+            # print(
+            #     f"Ad group with ID {row.ad_group.id} and name "
+            #     f'"{row.ad_group.name}" was found in campaign with '
+            #     f"ID {row.campaign.id}.")
+        return {"body": ad_groups}
+
+    except GoogleAdsException as ex:
+        _handle_googleads_exception(ex)
 
 # deletes an ad group
 def delete_ad_group(customer_id, ad_group_id):
@@ -225,12 +269,16 @@ def delete_ad_group(customer_id, ad_group_id):
     resource_name = ad_group_service.ad_group_path(customer_id, ad_group_id)
     ad_group_operation.remove = resource_name
 
-    ad_group_response = ad_group_service.mutate_ad_groups(
-        customer_id=customer_id, operations=[ad_group_operation]
-    )
+    try:
+        ad_group_response = ad_group_service.mutate_ad_groups(
+            customer_id=customer_id, operations=[ad_group_operation]
+        )
 
-    # print(f"Removed ad group {ad_group_response.results[0].resource_name}.")
-    return {"data":ad_group_response.results[0].resource_name}
+        # print(f"Removed ad group {ad_group_response.results[0].resource_name}.")
+        return {"data": ad_group_response.results[0].resource_name}
+
+    except GoogleAdsException as ex:
+        _handle_googleads_exception(ex)
 
 # adds a keyword to an ad group
 def add_keyword(customer_id, ad_group_id, keyword_text):
@@ -241,15 +289,12 @@ def add_keyword(customer_id, ad_group_id, keyword_text):
     ad_group_criterion_operation = client.get_type("AdGroupCriterionOperation")
     ad_group_criterion = ad_group_criterion_operation.create
     ad_group_criterion.ad_group = ad_group_service.ad_group_path(
-        customer_id, ad_group_id
-    )
+        customer_id, ad_group_id)
     ad_group_criterion.status = client.get_type(
-        "AdGroupCriterionStatusEnum"
-    ).AdGroupCriterionStatus.ENABLED
+        "AdGroupCriterionStatusEnum").AdGroupCriterionStatus.ENABLED
     ad_group_criterion.keyword.text = keyword_text
     ad_group_criterion.keyword.match_type = client.get_type(
-        "KeywordMatchTypeEnum"
-    ).KeywordMatchType.EXACT
+        "KeywordMatchTypeEnum").KeywordMatchType.EXACT
 
     # Optional field
     # All fields can be referenced from the protos directly.
@@ -261,15 +306,19 @@ def add_keyword(customer_id, ad_group_id, keyword_text):
     # ad_group_criterion.final_urls.append('https://www.example.com')
 
     # Add keyword
-    ad_group_criterion_response = ad_group_criterion_service.mutate_ad_group_criteria(
-        customer_id=customer_id, operations=[ad_group_criterion_operation],
-    )
+    try:
+        ad_group_criterion_response = ad_group_criterion_service.mutate_ad_group_criteria(
+            customer_id=customer_id, operations=[ad_group_criterion_operation],
+        )
 
-    # print(
-    #     "Created keyword "
-    #     f"{ad_group_criterion_response.results[0].resource_name}."
-    # )
-    return {"body": ad_group_criterion_response.results[0].resource_name}
+        # print(
+        #     "Created keyword "
+        #     f"{ad_group_criterion_response.results[0].resource_name}."
+        # )
+        return {"body": ad_group_criterion_response.results[0].resource_name}
+
+    except GoogleAdsException as ex:
+        _handle_googleads_exception(ex)
 
 # gets the keywords of an ad group
 def get_keywords(customer_id, ad_group_id):
@@ -278,12 +327,18 @@ def get_keywords(customer_id, ad_group_id):
     query = """
             SELECT
               ad_group.id,
+              ad_group.status,
               ad_group_criterion.type,
               ad_group_criterion.criterion_id,
               ad_group_criterion.keyword.text,
+              ad_group_criterion.status,
               ad_group_criterion.keyword.match_type
             FROM ad_group_criterion
-            WHERE ad_group_criterion.type = KEYWORD"""
+            WHERE ad_group_criterion.type = KEYWORD
+            AND ad_group.status = 'ENABLED'
+            AND ad_group_criterion.status IN ('ENABLED', 'PAUSED')
+            """
+
 
     if ad_group_id:
         query += f" AND ad_group.id = {ad_group_id}"
@@ -293,24 +348,28 @@ def get_keywords(customer_id, ad_group_id):
     search_request.query = query
     search_request.page_size = _DEFAULT_PAGE_SIZE
 
-    results = ga_service.search(request=search_request)
+    try:
+        results = ga_service.search(request=search_request)
 
-    keywords = []
-    for row in results:
-        ad_group = row.ad_group
-        ad_group_criterion = row.ad_group_criterion
-        keyword = row.ad_group_criterion.keyword
+        keywords = []
+        for row in results:
+            ad_group = row.ad_group
+            ad_group_criterion = row.ad_group_criterion
+            keyword = row.ad_group_criterion.keyword
 
-        keywords.append((keyword.text, ad_group_criterion.criterion_id))
-        # print(
-        #     f'Keyword with text "{keyword.text}", match type '
-        #     f"{keyword.match_type}, criteria type "
-        #     f"{ad_group_criterion.type_}, and ID "
-        #     f"{ad_group_criterion.criterion_id} was found in ad group "
-        #     f"with ID {ad_group.id}."
-        # )
+            keywords.append((keyword.text, ad_group_criterion.criterion_id))
+            # print(
+            #     f'Keyword with text "{keyword.text}", match type '
+            #     f"{keyword.match_type}, criteria type "
+            #     f"{ad_group_criterion.type_}, and ID "
+            #     f"{ad_group_criterion.criterion_id} was found in ad group "
+            #     f"with ID {ad_group.id}."
+            # )
 
-    return {"data": keywords}
+        return {"data": keywords}
+
+    except GoogleAdsException as ex:
+        _handle_googleads_exception(ex)
 
 # deletes a keyword
 def delete_keyword(customer_id, ad_group_id, criterion_id):
@@ -322,12 +381,16 @@ def delete_keyword(customer_id, ad_group_id, criterion_id):
     )
     agc_operation.remove = resource_name
 
-    agc_response = agc_service.mutate_ad_group_criteria(
-        customer_id=customer_id, operations=[agc_operation]
-    )
+    try:
+        agc_response = agc_service.mutate_ad_group_criteria(
+            customer_id=customer_id, operations=[agc_operation]
+        )
 
-    # print(f"Removed keyword {agc_response.results[0].resource_name}.")
-    return {"data": agc_response.results[0].resource_name}
+        # print(f"Removed keyword {agc_response.results[0].resource_name}.")
+        return {"data": agc_response.results[0].resource_name}
+
+    except GoogleAdsException as ex:
+        _handle_googleads_exception(ex)
 
 # todo throw exception if the headings is less than 3and descriptions is less than 2
 # creates a responsive search ad
@@ -354,11 +417,9 @@ def create_new_responsive_search_ad(customer_id, ad_group_id, headlines_texts, d
     headlines = []
     if pinned_text:
         served_asset_enum = client.get_type(
-            "ServedAssetFieldTypeEnum"
-        ).ServedAssetFieldType.HEADLINE_1
+            "ServedAssetFieldTypeEnum").ServedAssetFieldType.HEADLINE_1
         pinned_headline = _create_ad_text_asset(
-            pinned_text, served_asset_enum
-        )
+            pinned_text, served_asset_enum)
         headlines.append(pinned_headline)
 
 
@@ -375,18 +436,23 @@ def create_new_responsive_search_ad(customer_id, ad_group_id, headlines_texts, d
     ad_group_ad.ad.responsive_search_ad.path2 = "deals"
 
     # Send a request to the server to add a responsive search ad.
-    ad_group_ad_response = ad_group_ad_service.mutate_ad_group_ads(
-        customer_id=customer_id, operations=[ad_group_ad_operation]
-    )
+    try:
+        ad_group_ad_response = ad_group_ad_service.mutate_ad_group_ads(
+            customer_id=customer_id, operations=[ad_group_ad_operation]
+        )
 
-    res = []
-    for result in ad_group_ad_response.results:
-        res.append(result.resource_name)
-        # print(
-        #     f"Created responsive search ad with resource name "
-        #     f'"{result.resource_name}".'
-        # )
-    return {"body": res}
+        res = []
+        for result in ad_group_ad_response.results:
+            res.append(result.resource_name)
+            # print(
+            #     f"Created responsive search ad with resource name "
+            #     f'"{result.resource_name}".'
+            # )
+        return {"body": res}
+
+    except GoogleAdsException as ex:
+        _handle_googleads_exception(ex)
+
 
 def _create_ad_text_asset(text, pinned_field=None):
     """Create an AdTextAsset."""
@@ -396,7 +462,6 @@ def _create_ad_text_asset(text, pinned_field=None):
         ad_text_asset.pinned_field = pinned_field
     return ad_text_asset
 
-# todo fix all returns objects to return json
 # returns all responsive search ads belongs to ad_group_id
 def get_all_responsive_search_ads(customer_id, ad_group_id):
     ga_service = client.get_service("GoogleAdsService")
@@ -418,29 +483,34 @@ def get_all_responsive_search_ads(customer_id, ad_group_id):
     ga_search_request.customer_id = customer_id
     ga_search_request.query = query
     ga_search_request.page_size = _DEFAULT_PAGE_SIZE
-    results = ga_service.search(request=ga_search_request)
 
-    one_found = False
+    try:
+        results = ga_service.search(request=ga_search_request)
 
-    ads = []
-    for row in results:
-        one_found = True
-        ad = row.ad_group_ad.ad
-        # print(
-        #     "Responsive search ad with resource name "
-        #     f'"{ad.resource_name}", status {row.ad_group_ad.status.name} '
-        #     "was found.")
-        headlines = "\n".join(
-            _ad_text_assets_to_strs(ad.responsive_search_ad.headlines))
-        descriptions = "\n".join(
-            _ad_text_assets_to_strs(ad.responsive_search_ad.descriptions))
-        ads.append((ad.id, row.ad_group_ad.status.name, headlines, descriptions))
-        # print(f"Headlines:\n{headlines}\nDescriptions:\n{descriptions}\n")
+        one_found = False
 
-    if not one_found:
-        return {"data": "No responsive search ads were found."}
-        # print("No responsive search ads were found.")
-    return {"data": ads}
+        ads = []
+        for row in results:
+            one_found = True
+            ad = row.ad_group_ad.ad
+            # print(
+            #     "Responsive search ad with resource name "
+            #     f'"{ad.resource_name}", status {row.ad_group_ad.status.name} '
+            #     "was found.")
+            headlines = "\n".join(
+                _ad_text_assets_to_strs(ad.responsive_search_ad.headlines))
+            descriptions = "\n".join(
+                _ad_text_assets_to_strs(ad.responsive_search_ad.descriptions))
+            ads.append((ad.id, row.ad_group_ad.status.name, headlines, descriptions))
+            # print(f"Headlines:\n{headlines}\nDescriptions:\n{descriptions}\n")
+
+        if not one_found:
+            return {"data": "No responsive search ads were found."}
+            # print("No responsive search ads were found.")
+        return {"data": ads}
+
+    except GoogleAdsException as ex:
+        _handle_googleads_exception(ex)
 
 # deletes a keyword
 def delete_ad(customer_id, ad_group_id, ad_id):
@@ -452,12 +522,17 @@ def delete_ad(customer_id, ad_group_id, ad_id):
     )
     ad_group_ad_operation.remove = resource_name
 
-    ad_group_ad_response = ad_group_ad_service.mutate_ad_group_ads(
-        customer_id=customer_id, operations=[ad_group_ad_operation]
-    )
+    try:
+        ad_group_ad_response = ad_group_ad_service.mutate_ad_group_ads(
+            customer_id=customer_id, operations=[ad_group_ad_operation]
+        )
 
-    # print(f"Removed ad group ad {ad_group_ad_response.results[0].resource_name}.")
-    return {"data": ad_group_ad_response.results[0].resource_name}
+        # print(f"Removed ad group ad {ad_group_ad_response.results[0].resource_name}.")
+        return {"data": ad_group_ad_response.results[0].resource_name}
+
+    except GoogleAdsException as ex:
+        _handle_googleads_exception(ex)
+
 
 def _ad_text_assets_to_strs(assets):
     """Converts a list of AdTextAssets to a list of user-friendly strings."""
@@ -465,6 +540,371 @@ def _ad_text_assets_to_strs(assets):
     for asset in assets:
         s.append(f"\t {asset.text} pinned to {asset.pinned_field.name}")
     return s
+
+
+def get_statistics_to_csv(customer_id, output_file, write_headers, period):
+    """Writes rows returned from a search_stream request to a CSV file.
+        Args:
+            customer_id (str): The client customer ID string.
+            output_file (str): Filename of the file to write the report data to.
+            write_headers (bool): True if arg is not provided.
+            period (bool): False if arg is not provided. If True - the statistics of the campaigns from the last 30 days in given
+        """
+    ga_service = client.get_service("GoogleAdsService")
+    output = []
+
+    if period:
+        query = """
+                SELECT
+                  customer.descriptive_name,
+                  segments.date,
+                  campaign.name,
+                  metrics.impressions,
+                  metrics.clicks,
+                  metrics.cost_micros
+                FROM campaign
+                WHERE
+                  segments.date DURING LAST_30_DAYS
+                ORDER BY metrics.impressions DESC
+                LIMIT 25"""
+    else:
+        query = """
+                SELECT
+                  customer.descriptive_name,
+                  campaign.name,
+                  metrics.impressions,
+                  metrics.clicks,
+                  metrics.cost_micros
+                FROM campaign
+                ORDER BY metrics.impressions DESC
+                LIMIT 25"""
+
+
+    # Issues a search request using streaming.
+    search_request = client.get_type("SearchGoogleAdsStreamRequest")
+    search_request.customer_id = customer_id
+    search_request.query = query
+    response = ga_service.search_stream(search_request)
+    try:
+        with open(output_file, "w", newline="") as f:
+            writer = csv.writer(f)
+
+            # Define a list of headers for the first row.
+            headers = [
+                "Account",
+                "Date",
+                "Campaign",
+                "Impressions",
+                "Clicks",
+                "Cost",
+            ]
+
+            # If the write_headers flag was passed, write header row to the CSV
+            if write_headers:
+                writer.writerow(headers)
+
+            for batch in response:
+                for row in batch.results:
+                    # Use the CSV writer to write the individual GoogleAdsRow
+                    # fields returned in the SearchGoogleAdsStreamResponse.
+                    writer.writerow(
+                        [
+                            row.customer.descriptive_name,
+                            row.segments.date,
+                            row.campaign.name,
+                            row.metrics.impressions,
+                            row.metrics.clicks,
+                            row.metrics.cost_micros,
+                        ]
+                    )
+                    output.append(f'descriptive name "{row.customer.descriptive_name}" with '
+                                  f'date "{row.segments.date}" and'
+                                  f"campaign name {row.campaign.name}: "
+                                  f'impressions "{row.metrics.impressions}", '
+                                  f'clicks "{row.metrics.clicks}", '
+                                  f'cost (micros) "{row.metrics.cost_micros}"')
+
+    except GoogleAdsException as ex:
+        _handle_googleads_exception(ex)
+
+    return {"data": output}
+
+
+def get_keyword_stats(customer_id, output_file, write_headers):
+    # the statistics are from the last 7 days
+    ga_service = client.get_service("GoogleAdsService")
+    output = []
+
+    query = """
+            SELECT
+              campaign.id,
+              campaign.name,
+              ad_group.id,
+              ad_group.name,
+              ad_group_criterion.criterion_id,
+              ad_group_criterion.keyword.text,
+              ad_group_criterion.keyword.match_type,
+              metrics.impressions,
+              metrics.clicks,
+              metrics.cost_micros
+            FROM keyword_view WHERE segments.date DURING LAST_30_DAYS
+            AND campaign.advertising_channel_type = 'SEARCH'
+            AND ad_group.status = 'ENABLED'
+            AND ad_group_criterion.status IN ('ENABLED', 'PAUSED')
+            ORDER BY metrics.impressions DESC
+            LIMIT 50"""
+
+    # Issues a search request using streaming.
+    search_request = client.get_type("SearchGoogleAdsStreamRequest")
+    search_request.customer_id = customer_id
+    search_request.query = query
+    response = ga_service.search_stream(search_request)
+    try:
+        with open(output_file, "w", newline="") as f:
+            writer = csv.writer(f)
+
+            # Define a list of headers for the first row.
+            headers = [
+                "Keyword text",
+                "match type",
+                "Keyword ID",
+                "ad group name",
+                "ad group ID",
+                "campaign name",
+                "campaign ID",
+                "impression(s)",
+                "click(s)",
+                "cost (in micros)",
+            ]
+
+            # If the write_headers flag was passed, write header row to the CSV
+            if write_headers:
+                writer.writerow(headers)
+
+
+            for batch in response:
+                for row in batch.results:
+                    # Use the CSV writer to write the individual GoogleAdsRow
+                    # fields returned in the SearchGoogleAdsStreamResponse.
+                    campaign = row.campaign
+                    ad_group = row.ad_group
+                    criterion = row.ad_group_criterion
+                    metrics = row.metrics
+                    writer.writerow(
+                        [
+                            criterion.keyword.text,
+                            criterion.keyword.match_type.name,
+                            criterion.criterion_id,
+                            ad_group.name,
+                            ad_group.id,
+                            campaign.name,
+                            campaign.id,
+                            metrics.impressions,
+                            metrics.clicks,
+                            metrics.cost_micros,
+                        ]
+                    )
+                    output.append(f'Keyword text "{criterion.keyword.text}" with '
+                                  f'match type "{criterion.keyword.match_type.name}" '
+                                  f"and ID {criterion.criterion_id} in "
+                                  f'ad group "{ad_group.name}" '
+                                  f'with ID "{ad_group.id}" '
+                                  f'in campaign "{campaign.name}" '
+                                  f"with ID {campaign.id} "
+                                  f"had {metrics.impressions} impression(s), "
+                                  f"{metrics.clicks} click(s), and "
+                                  f"{metrics.cost_micros} cost (in micros) during "
+                                  "the last 7 days.")
+
+    except GoogleAdsException as ex:
+        _handle_googleads_exception(ex)
+
+    return {"data": output}
+
+
+def add_campaign_targeting_criteria(customer_id, campaign_id, keyword_text, locations, gender, device_type):
+    campaign_criterion_service = client.get_service("CampaignCriterionService")
+
+    operations = [
+        _create_location_op(client, customer_id, campaign_id, locations),
+        # _create_negative_keyword_op(client, customer_id, campaign_id, keyword_text),
+        # _create_proximity_op(client, customer_id, campaign_id),
+        _create_age_op(client, customer_id, campaign_id),
+        _create_gender_op(client, customer_id, campaign_id, gender),
+        _create_device_op(client, customer_id, campaign_id, device_type),
+        # _create_operating_system_op(client, customer_id, campaign_id),
+    ]
+
+    campaign_criterion_response = campaign_criterion_service.mutate_campaign_criteria(
+        customer_id=customer_id, operations=operations
+    )
+
+    for result in campaign_criterion_response.results:
+        print(f'Added campaign criterion "{result.resource_name}".')
+
+
+# [START add_campaign_targeting_criteria_1]
+def _create_location_op(client, customer_id, campaign_id, locations):
+    campaign_service = client.get_service("CampaignService")
+    geo_target_constant_service = client.get_service("GeoTargetConstantService")
+
+    gtc_request = client.get_type("SuggestGeoTargetConstantsRequest")
+
+    gtc_request.locale = "en"
+    gtc_request.country_code = "ES"
+
+    # The location names to get suggested geo target constants.
+    gtc_request.location_names.names.extend(locations)
+
+    results = geo_target_constant_service.suggest_geo_target_constants(gtc_request)
+
+    location_id = 0
+
+    for suggestion in results.geo_target_constant_suggestions:
+        geo_target_constant = suggestion.geo_target_constant
+        location_id = geo_target_constant.id
+        print(
+            f"{geo_target_constant.resource_name} "
+            f"{geo_target_constant.id} "
+            f"({geo_target_constant.name}, "
+            f"{geo_target_constant.country_code}, "
+            f"{geo_target_constant.target_type}, "
+            f"{geo_target_constant.status.name}) "
+            f"is found in locale ({suggestion.locale}) "
+            f"with reach ({suggestion.reach}) "
+            f"from search term ({suggestion.search_term})."
+        )
+
+    # Create the campaign criterion.
+    campaign_criterion_operation = client.get_type("CampaignCriterionOperation")
+    campaign_criterion = campaign_criterion_operation.create
+    campaign_criterion.campaign = campaign_service.campaign_path(
+        customer_id, campaign_id
+    )
+
+    # Besides using location_id, you can also search by location names from
+    # GeoTargetConstantService.suggest_geo_target_constants() and directly
+    # apply GeoTargetConstant.resource_name here. An example can be found
+    # in get_geo_target_constant_by_names.py.
+    campaign_criterion.location.geo_target_constant = geo_target_constant_service.geo_target_constant_path(
+        location_id
+    )
+
+    return campaign_criterion_operation
+    # [END add_campaign_targeting_criteria_1]
+
+
+# [START add_campaign_targeting_criteria_2]
+def _create_negative_keyword_op(client, customer_id, campaign_id, keyword_text):
+    campaign_service = client.get_service("CampaignService")
+
+    # Create the campaign criterion.
+    campaign_criterion_operation = client.get_type("CampaignCriterionOperation")
+    campaign_criterion = campaign_criterion_operation.create
+    campaign_criterion.campaign = campaign_service.campaign_path(
+        customer_id, campaign_id
+    )
+    campaign_criterion.negative = True
+    criterion_keyword = campaign_criterion.keyword
+    criterion_keyword.text = keyword_text
+    criterion_keyword.match_type = client.get_type(
+        "KeywordMatchTypeEnum"
+    ).KeywordMatchType.BROAD
+
+    return campaign_criterion_operation
+    # [END add_campaign_targeting_criteria_2]
+
+
+# [START add_campaign_targeting_criteria_3]
+def _create_proximity_op(client, customer_id, campaign_id):
+    campaign_service = client.get_service("CampaignService")
+
+    # Create the campaign criterion.
+    campaign_criterion_operation = client.get_type("CampaignCriterionOperation")
+    campaign_criterion = campaign_criterion_operation.create
+    campaign_criterion.campaign = campaign_service.campaign_path(
+        customer_id, campaign_id
+    )
+    campaign_criterion.proximity.address.street_address = "38 avenue de l'Opera"
+    campaign_criterion.proximity.address.city_name = "Paris"
+    campaign_criterion.proximity.address.postal_code = "75002"
+    campaign_criterion.proximity.address.country_code = "FR"
+    campaign_criterion.proximity.radius = 10
+    # Default is kilometers.
+    campaign_criterion.proximity.radius_units = client.get_type(
+        "ProximityRadiusUnitsEnum"
+    ).ProximityRadiusUnits.MILES
+
+    return campaign_criterion_operation
+    # [END add_campaign_targeting_criteria_3]
+
+
+# [START add_campaign_targeting_criteria_4]
+def _create_age_op(client, customer_id, campaign_id):
+    campaign_service = client.get_service("CampaignService")
+
+    # Create the campaign criterion.
+    campaign_criterion_operation = client.get_type("CampaignCriterionOperation")
+    campaign_criterion = campaign_criterion_operation.create
+    campaign_criterion.campaign = campaign_service.campaign_path(
+        customer_id, campaign_id
+    )
+
+    campaign_criterion.negative = True
+    campaign_criterion.age_range.type_ = client.get_type("AgeRangeTypeEnum").AgeRangeType.AGE_RANGE_25_34
+    return campaign_criterion_operation
+    # [END add_campaign_targeting_criteria_4]
+
+
+# [START add_campaign_targeting_criteria_5]
+def _create_gender_op(client, customer_id, campaign_id, gender):
+    campaign_service = client.get_service("CampaignService")
+
+    # Create the campaign criterion.
+    campaign_criterion_operation = client.get_type("CampaignCriterionOperation")
+    campaign_criterion = campaign_criterion_operation.create
+    campaign_criterion.campaign = campaign_service.campaign_path(
+        customer_id, campaign_id
+    )
+
+    campaign_criterion.negative = True
+    campaign_criterion.gender.type_ = client.get_type("GenderTypeEnum").GenderType.FEMALE
+    return campaign_criterion_operation
+    # [END add_campaign_targeting_criteria_5]
+
+
+# [START add_campaign_targeting_criteria_6]
+def _create_device_op(client, customer_id, campaign_id, device_type):
+    campaign_service = client.get_service("CampaignService")
+
+    # Create the campaign criterion.
+    campaign_criterion_operation = client.get_type("CampaignCriterionOperation")
+    campaign_criterion = campaign_criterion_operation.create
+    campaign_criterion.campaign = campaign_service.campaign_path(
+        customer_id, campaign_id
+    )
+
+    campaign_criterion.device.type_ = client.get_type("DeviceEnum").Device.DESKTOP
+    return campaign_criterion_operation
+    # [END add_campaign_targeting_criteria_6]
+
+
+# [START add_campaign_targeting_criteria_7]
+def _create_operating_system_op(client, customer_id, campaign_id):
+    campaign_service = client.get_service("CampaignService")
+
+    # Create the campaign criterion.
+    campaign_criterion_operation = client.get_type("CampaignCriterionOperation")
+    campaign_criterion = campaign_criterion_operation.create
+    campaign_criterion.campaign = campaign_service.campaign_path(
+        customer_id, campaign_id
+    )
+
+    campaign_criterion.operating_system_version.operating_system_version_constant = "operatingSystemVersionConstants/Android4.2.2"
+    return campaign_criterion_operation
+    # [END add_campaign_targeting_criteria_7]
+
+
 
 
 
