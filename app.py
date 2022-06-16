@@ -291,7 +291,7 @@ def fb_api_get_all_campaigns():
             #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
             token = admin_token[0][1]
         else:
-            token = sandbox_token
+            token = sandbox_token[0][1]
         ad_account = rq['ad_account']
         return MarketingManagement.get_all_campaigns(token, ad_account)
 
@@ -329,7 +329,7 @@ def upload_img_from_url():
             #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
             token = admin_token[0][1]
         else:
-            token = sandbox_token
+            token = sandbox_token[0][1]
 
         oq_user_id = rq.get('oq_user_id')
         BM_id = rq.get('BM_id')
@@ -357,7 +357,7 @@ def fb_api_get_all_ad_sets_by_campaign():
             #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
             token = admin_token[0][1]
         else:
-            token = sandbox_token;
+            token = sandbox_token[0][1]
         campaign_id = rq['campaign_id']
         return MarketingManagement.get_all_ad_sets_by_campaign(token, campaign_id)
 
@@ -372,7 +372,7 @@ def fb_api_upload_image_by_path():
             #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
             token = admin_token[0][1]
         else:
-            token = sandbox_token;
+            token = sandbox_token[0][1]
         ad_account_id = rq['ad_account']
         img_url = rq['img_url']
         return MarketingManagement.upload_image_by_url(ad_account_id, token, img_url)
@@ -388,7 +388,7 @@ def create_adCreative():
             #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
             token = admin_token[0][1]
         else:
-            token = sandbox_token
+            token = sandbox_token[0][1]
 
         oq_user_id = rq.get('oq_user_id')
         BM_id = rq.get('BM_id')
@@ -425,7 +425,7 @@ def create_ad():
             #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
             token = admin_token[0][1]
         else:
-            token = sandbox_token
+            token = sandbox_token[0][1]
 
         oq_user_id = rq.get('oq_user_id')
         BM_id = rq.get('BM_id')
@@ -461,7 +461,7 @@ def create_new_adset():
             #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
             token = admin_token[0][1]
         else:
-            token = sandbox_token
+            token = sandbox_token[0][1]
 
         oq_user_id = rq.get('oq_user_id')
         BM_id = rq.get('BM_id')
@@ -590,7 +590,7 @@ def fb_api_create_new_campaign():
             #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
             token = admin_token[0][1]
         else:
-            token = sandbox_token
+            token = sandbox_token[0][1]
 
         oq_user_id = rq.get('oq_user_id')
         BM_id = rq.get('BM_id')
@@ -637,7 +637,7 @@ def fb_api_get_ad_preview():
             #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
             token = admin_token[0][1]
         else:
-            token = sandbox_token
+            token = sandbox_token[0][1]
 
         oq_user_id = rq.get('oq_user_id')
         BM_id = rq.get('BM_id')
@@ -664,7 +664,7 @@ def fb_api_get_all_ads_by_adSet_id():
             #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
             token = admin_token[0][1]
         else:
-            token = sandbox_token
+            token = sandbox_token[0][1]
         adset_id = rq['adset_id']
         return MarketingManagement.get_all_ads_by_adSet_id(token, adset_id)
 
@@ -680,7 +680,7 @@ def fb_api_get_insights():
             #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
             token = admin_token[0][1]
         else:
-            token = sandbox_token
+            token = sandbox_token[0][1]
         marketing_object_id = rq['marketing_object_id']
         date_preset = rq.get('date_preset')
         if (date_preset is None) or (date_preset == ''):
@@ -699,7 +699,7 @@ def fb_api_delete_campaign():
             #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
             token = admin_token[0][1]
         else:
-            token = sandbox_token
+            token = sandbox_token[0][1]
         campaign_id = rq.get('campaign_id', '-1')
         res = MarketingManagement.delete_campaign(token, campaign_id)
         if res.get('status') == 200:
@@ -721,7 +721,7 @@ def fb_api_delete_adSet():
             #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
             token = admin_token[0][1]
         else:
-            token = sandbox_token
+            token = sandbox_token[0][1]
         adset_id = rq.get('adset_id', '-1')
         res = MarketingManagement.delete_adSet(token, adset_id)
         if res.get('status') == 200:
@@ -743,7 +743,7 @@ def fb_api_delete_ad_creative():
             #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
             token = admin_token[0][1]
         else:
-            token = sandbox_token
+            token = sandbox_token[0][1]
         creative_id = rq.get('creative_id', '-1')
         res = MarketingManagement.delete_ad_creative(token, creative_id)
         if res.get('status') == 200:
@@ -765,7 +765,7 @@ def fb_api_delete_ad():
             #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
             token = admin_token[0][1]
         else:
-            token = sandbox_token
+            token = sandbox_token[0][1]
         ad_id = rq.get('ad_id', '-1')
         res = MarketingManagement.delete_ad(token, ad_id)
         if res.get('status') == 200:
@@ -788,7 +788,7 @@ def fb_api_search_interests():
             #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
             token = admin_token[0][1]
         else:
-            token = sandbox_token
+            token = sandbox_token[0][1]
         res = MarketingManagement.search_for_possible_interests(token, rq.get("to_search", ""))
         return res
 
