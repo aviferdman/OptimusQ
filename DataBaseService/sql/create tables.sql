@@ -113,16 +113,6 @@ CREATE TABLE "FB_Targeting_Behaviors"
 	PRIMARY KEY("id")
 );
 
-CREATE TABLE "GoogleAds_Tokens"
-(
-	"client_id" VARCHAR(512),
-	"login_customer_id" VARCHAR(512),
-	"developer_token" VARCHAR(512),
-	"client_secret" VARCHAR(512),
-	"refresh_token" VARCHAR(512),
-	PRIMARY KEY("client_id","login_customer_id")
-);
-
 CREATE TABLE "FB_CLIENT_BM_SU_ACCESS_TOKEN" (
     "OQ_user_id" VARCHAR(512),
     "FB_client_BM_id" VARCHAR(512),
@@ -142,4 +132,24 @@ CREATE TABLE "FB_CLIENT_PAGES_BY_BM_ID" (
     "FB_client_BM_id" VARCHAR(512),
     "Page_Id" VARCHAR(512),
 	PRIMARY KEY("FB_client_BM_id","Page_Id")
+);
+
+CREATE TABLE "GoogleAds_Tokens"
+(
+	"client_id" VARCHAR(512),
+	"login_customer_id" VARCHAR(512),
+	"developer_token" VARCHAR(512),
+	"client_secret" VARCHAR(512),
+	"refresh_token" VARCHAR(512),
+	PRIMARY KEY("client_id","login_customer_id")
+);
+
+CREATE TABLE "GoogleAds_Campaigns"
+(
+	"customer_id" VARCHAR(40),
+	"budget" INTEGER,
+	"lifetime_budget" INTEGER,
+	"client_secret" VARCHAR(512),
+	"refresh_token" VARCHAR(512),
+	PRIMARY KEY("client_id","login_customer_id")
 );
