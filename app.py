@@ -76,8 +76,6 @@ def fb_login_handler():
     return render_template("fb_logged_in.html")
 
 
-
-
 @app.route("/fb_logged_in", methods=['POST', 'GET'])
 def fb_logged_in():
     res_preview = ""
@@ -103,6 +101,7 @@ def fb_api_get_all_businesses_by_user_id():
         print("access_token: " + access_token)
         return MarketingManagement.get_all_businesses_by_user_id(access_token, user_id)
 
+
 @app.route("/api/fb/get_all_ad_accounts_in_business", methods=['GET'])
 def fb_api_get_all_ad_accounts_in_business():
     if request.method == "GET":
@@ -110,9 +109,6 @@ def fb_api_get_all_ad_accounts_in_business():
         business_id = rq["business_id"]
         access_token = rq["access_token"]
         return MarketingManagement.get_all_ad_accounts_in_business(access_token, business_id)
-
-
-
 
 
 # @app.route("/fb_logged_in", methods=['POST', 'GET'])
@@ -164,7 +160,7 @@ def fb_api_get_all_ad_accounts_in_business():
 #     return render_template("fb_logged_in.html",
 #                            output={"ad_accounts": ad_accounts, "campaigns": campaigns, "ad_sets": ad_sets, "ads": ads,
 #                                    "ad_preview": ad_preview})
-    # return render_template("fb_logged_in.html", output=list_of_images)
+# return render_template("fb_logged_in.html", output=list_of_images)
 
 # create ad set automatically
 @app.route("/create_ad", methods=['POST', 'GET'])
@@ -298,6 +294,7 @@ def fb_api_get_all_campaigns():
         ad_account = rq['ad_account']
         return MarketingManagement.get_all_campaigns(token, ad_account)
 
+
 # get_all_campaigns
 @app.route("/api/fb/get_all_campaigns_for_client", methods=['GET'])
 def fb_api_get_all_campaigns_for_client():
@@ -306,6 +303,7 @@ def fb_api_get_all_campaigns_for_client():
         token = rq["token"]
         ad_account = rq["ad_account"]
         return MarketingManagement.get_all_campaigns(token, ad_account)
+
 
 # uploads an image to DB
 def upload_img_from_url_to_db(res, token, ad_account_id):
@@ -316,6 +314,7 @@ def upload_img_from_url_to_db(res, token, ad_account_id):
         db.addFBImage(img_hash, img_permalink_url)
     except Exception as e:
         print(str(e))
+
 
 # upload_img_from_url
 @app.route("/api/fb/upload_img_from_url", methods=['POST'])
@@ -329,7 +328,7 @@ def upload_img_from_url():
             return {'status': 400, 'body': 'currently working in sandbox mode only.'}
         else:
             token = sandbox_token
-        
+
         oq_user_id = rq.get('oq_user_id')
         BM_id = rq.get('BM_id')
         if (oq_user_id is not None) and (oq_user_id != "") and (BM_id is not None) and (BM_id != ""):
@@ -404,7 +403,8 @@ def create_adCreative():
         res = MarketingManagement.create_ad_creative(token, name, img_hash, ad_account_id, link, msg, page_id)
         if res.get('status') == 200:
             try:
-                threading.Thread(target=db.addFBAdCreative, args=(res.get('body').get('id'), name, page_id, msg, img_hash)).start()
+                threading.Thread(target=db.addFBAdCreative,
+                                 args=(res.get('body').get('id'), name, page_id, msg, img_hash)).start()
             except Exception as e:
                 print(str(e))
         return res
@@ -467,7 +467,6 @@ def create_new_adset():
         if promoted_object == "":
             promoted_object = None
 
-
         ad_account_id = rq.get('ad_account', '-1')
         ad_set_name = rq.get('ad_set_name', '-1')
         campaign_id = rq.get('campaign_id', '-1')
@@ -502,7 +501,6 @@ def create_new_adset():
             end_time = rq['end_time']
             if (end_time is None) or (end_time == ""):
                 end_time = "NONE"
-
 
         status = 'PAUSED'
         if status in rq:
@@ -561,12 +559,14 @@ def create_new_adset():
                                                     optimization_goal, billing_event, bid_amount, start_time, status,
                                                     targeting_min_age, targeting_max_age,
                                                     targeting_countries, end_time, targeting_gender,
-                                                    targeting_relationships, targeting_interests_lst, targeting_behaviors_lst,
+                                                    targeting_relationships, targeting_interests_lst,
+                                                    targeting_behaviors_lst,
                                                     promoted_object)
         if res.get('status') == 200:
             try:
                 adset_id = res.get('body').get('id')
-                threading.Thread(target=db.addAdSet, args=(adset_id, ad_account_id, campaign_id, ad_set_name, daily_budget, 'targeting')).start()
+                threading.Thread(target=db.addAdSet, args=(
+                adset_id, ad_account_id, campaign_id, ad_set_name, daily_budget, 'targeting')).start()
             except Exception as e:
                 print(str(e))
         return res
@@ -611,7 +611,8 @@ def fb_api_create_new_campaign():
         if res.get('status') == 200:
             try:
                 campaign_id = res.get('body').get('id')
-                threading.Thread(target=db.addCampaign, args=(campaign_id, ad_account_id, campaign_name, objective, status)).start()
+                threading.Thread(target=db.addCampaign,
+                                 args=(campaign_id, ad_account_id, campaign_name, objective, status)).start()
             except Exception as e:
                 print(str(e))
         return res
@@ -635,7 +636,7 @@ def fb_api_get_ad_preview():
             token = MarketingManagement.get_token_for_client_by_oq_user_id_and_business_id(oq_user_id, BM_id)
             if token == -1:
                 return {"status": 400, "body": "error: OptimusQ userid or Client's Business Manager id not found"}
-        
+
         ad_id = rq['ad_id']
         ad_format = rq.get('ad_format')
         if (ad_format is None) or (ad_format == ''):
@@ -724,7 +725,7 @@ def fb_api_delete_ad_creative():
     if request.method == "DELETE":
         rq = request.get_json()
         is_sandbox_mode = rq['sandbox_mode']
-        token =""
+        token = ""
         if is_sandbox_mode == "no":
             return {'status': 400, 'body': 'currently working in sandbox mode only.'}
         else:
@@ -759,6 +760,7 @@ def fb_api_delete_ad():
                 print(str(e))
         return res
 
+
 # search possible interests for ad targeting
 @app.route("/api/fb/search_interests", methods=['GET'])
 def fb_api_search_interests():
@@ -775,6 +777,7 @@ def fb_api_search_interests():
         res = MarketingManagement.search_for_possible_interests(token, rq.get("to_search", ""))
         return res
 
+
 # search for behaviors in DB
 @app.route("/api/fb/search_behaviors", methods=['GET'])
 def fb_api_search_behaviors():
@@ -787,11 +790,13 @@ def fb_api_search_behaviors():
             return {"status": 400, "body": {str(e)}}
         return {"status": 200, "body": {"data": res}}
 
+
 # get all possible campaign objectives
 @app.route("/api/fb/campaign_objectives", methods=['GET'])
 def fb_api_get_all_possible_campaign_objectives():
     if request.method == "GET":
         return MarketingManagement.get_all_possible_campaign_objectives()
+
 
 # get all optimization goals for objective
 @app.route("/api/fb/optimization_goals_for_objective", methods=['GET'])
@@ -804,6 +809,7 @@ def fb_api_get_all_optimization_goals_for_objective():
         if objective not in MarketingManagement.all_possible_campaign_objectives_lst:
             return {"status": 400, "body": "error: objective is not valid"}
         return MarketingManagement.get_all_optimization_goals_for_objective(objective)
+
 
 # get all possible billing events for opt goal
 @app.route("/api/fb/billing_events_for_opt_goal", methods=['GET'])
@@ -831,6 +837,7 @@ def fb_api_get_all_client_BMs_by_oq_user_id():
             return {"status": 400, "body": "error: oq_user_id cannot be null or empty string"}
         return MarketingManagement.get_all_client_BMs_by_oq_user_id(oq_user_id)
 
+
 # get all client ad accounts by Business Manager id
 @app.route("/api/fb/get_all_client_ad_accounts_by_BM_id", methods=['GET'])
 def fb_api_get_all_client_ad_accounts_by_BM_id():
@@ -841,6 +848,7 @@ def fb_api_get_all_client_ad_accounts_by_BM_id():
             return {"status": 400, "body": "error: BM_id cannot be null or empty string"}
         return MarketingManagement.get_all_client_ad_accounts_by_BM_id(BM_id)
 
+
 # get all client pages by Business Manager id
 @app.route("/api/fb/get_all_client_pages_by_BM_id", methods=['GET'])
 def fb_api_get_all_client_pages_by_BM_id():
@@ -850,6 +858,7 @@ def fb_api_get_all_client_pages_by_BM_id():
         if (BM_id is None) or (BM_id == ""):
             return {"status": 400, "body": "error: BM_id cannot be null or empty string"}
         return MarketingManagement.get_all_client_pages_by_BM_id(BM_id)
+
 
 # get all pixels for ad account
 @app.route("/api/fb/get_all_ad_account_pixels", methods=['GET'])
