@@ -452,7 +452,8 @@ def create_new_adset():
         is_sandbox_mode = rq['sandbox_mode']
         token = ""
         if is_sandbox_mode == "no":
-            return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+            #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+            token = admin_token
         else:
             token = sandbox_token
 
