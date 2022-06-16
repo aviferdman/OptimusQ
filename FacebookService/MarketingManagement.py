@@ -275,7 +275,7 @@ def upload_image_by_url(access_token, AD_ACCOUNT_ID, image_url):
         image_file = open("local-img.jpg", "rb")
 
         file_obj = {'filename': image_file}
-        payload = {"access_token": access_token[0][1]}
+        payload = {"access_token": access_token}
         res = requests.post(url, data=payload, files=file_obj)
         if res.status_code == 200:
             img_hash = res.json().get('images').get('local-img.jpg').get('hash')
