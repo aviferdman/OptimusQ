@@ -148,8 +148,19 @@ CREATE TABLE "GoogleAds_Campaigns"
 (
 	"customer_id" VARCHAR(40),
 	"budget" INTEGER,
-	"lifetime_budget" INTEGER,
-	"client_secret" VARCHAR(512),
-	"refresh_token" VARCHAR(512),
+	"name" VARCHAR(250),
+	"start_date" VARCHAR(250),
+	"end_date" VARCHAR(250),
+    "status" VARCHAR(250),
+    "delivery_method" VARCHAR(250),
+    "period" VARCHAR(250),
+    "advertising_channel_type" VARCHAR(250),
+    "payment_mode" VARCHAR(250),
+    "targeting_locations" VARCHAR(520),
+    "targeting_gender" VARCHAR(250),
+    "targeting_device_type" VARCHAR(250),
+    "targeting_min_age" VARCHAR(250),
+    "targeting_max_age" VARCHAR(250),
+    "targeting_interest" VARCHAR(250),
 	PRIMARY KEY("client_id","login_customer_id")
 );
