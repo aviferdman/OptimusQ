@@ -289,7 +289,7 @@ def fb_api_get_all_campaigns():
         token = ""
         if is_sandbox_mode == "no":
             #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
-            token = admin_token
+            token = admin_token[0][1]
         else:
             token = sandbox_token
         ad_account = rq['ad_account']
@@ -327,7 +327,7 @@ def upload_img_from_url():
         token = ""
         if is_sandbox_mode == "no":
             #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
-            token = admin_token
+            token = admin_token[0][1]
         else:
             token = sandbox_token
 
@@ -355,7 +355,7 @@ def fb_api_get_all_ad_sets_by_campaign():
         token = ""
         if is_sandbox_mode == "no":
             #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
-            token = admin_token
+            token = admin_token[0][1]
         else:
             token = sandbox_token;
         campaign_id = rq['campaign_id']
@@ -370,7 +370,7 @@ def fb_api_upload_image_by_path():
         token = ""
         if is_sandbox_mode == "no":
             #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
-            token = admin_token
+            token = admin_token[0][1]
         else:
             token = sandbox_token;
         ad_account_id = rq['ad_account']
@@ -386,7 +386,7 @@ def create_adCreative():
         token = ""
         if is_sandbox_mode == "no":
             #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
-            token = admin_token
+            token = admin_token[0][1]
         else:
             token = sandbox_token
 
@@ -423,7 +423,7 @@ def create_ad():
         token = ""
         if is_sandbox_mode == "no":
             #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
-            token = admin_token
+            token = admin_token[0][1]
         else:
             token = sandbox_token
 
@@ -459,7 +459,7 @@ def create_new_adset():
         token = ""
         if is_sandbox_mode == "no":
             #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
-            token = admin_token
+            token = admin_token[0][1]
         else:
             token = sandbox_token
 
@@ -588,7 +588,7 @@ def fb_api_create_new_campaign():
         token = ""
         if is_sandbox_mode == "no":
             #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
-            token = admin_token
+            token = admin_token[0][1]
         else:
             token = sandbox_token
 
@@ -635,7 +635,7 @@ def fb_api_get_ad_preview():
         token = ""
         if is_sandbox_mode == "no":
             #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
-            token = admin_token
+            token = admin_token[0][1]
         else:
             token = sandbox_token
 
@@ -662,7 +662,7 @@ def fb_api_get_all_ads_by_adSet_id():
         token = ""
         if is_sandbox_mode == "no":
             #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
-            token = admin_token
+            token = admin_token[0][1]
         else:
             token = sandbox_token
         adset_id = rq['adset_id']
@@ -678,7 +678,7 @@ def fb_api_get_insights():
         token = ""
         if is_sandbox_mode == "no":
             #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
-            token = admin_token
+            token = admin_token[0][1]
         else:
             token = sandbox_token
         marketing_object_id = rq['marketing_object_id']
@@ -697,7 +697,7 @@ def fb_api_delete_campaign():
         token = ""
         if is_sandbox_mode == "no":
             #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
-            token = admin_token
+            token = admin_token[0][1]
         else:
             token = sandbox_token
         campaign_id = rq.get('campaign_id', '-1')
@@ -719,7 +719,7 @@ def fb_api_delete_adSet():
         token = ""
         if is_sandbox_mode == "no":
             #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
-            token = admin_token
+            token = admin_token[0][1]
         else:
             token = sandbox_token
         adset_id = rq.get('adset_id', '-1')
@@ -741,7 +741,7 @@ def fb_api_delete_ad_creative():
         token = ""
         if is_sandbox_mode == "no":
             #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
-            token = admin_token
+            token = admin_token[0][1]
         else:
             token = sandbox_token
         creative_id = rq.get('creative_id', '-1')
@@ -763,7 +763,7 @@ def fb_api_delete_ad():
         token = ""
         if is_sandbox_mode == "no":
             #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
-            token = admin_token
+            token = admin_token[0][1]
         else:
             token = sandbox_token
         ad_id = rq.get('ad_id', '-1')
@@ -786,7 +786,7 @@ def fb_api_search_interests():
             return {'status': 400, 'body': 'to_search param cannot be null or empty string.'}
         if is_sandbox_mode == "no":
             #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
-            token = admin_token
+            token = admin_token[0][1]
         else:
             token = sandbox_token
         res = MarketingManagement.search_for_possible_interests(token, rq.get("to_search", ""))
