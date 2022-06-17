@@ -155,8 +155,13 @@ def get_all_campaigns(customer_id):
     query = """
             SELECT
               campaign.id,
+              campaign.campaign_budget,
               campaign.name,
-              campaign.advertising_channel_type
+              campaign.start_date,
+              campaign.end_date,
+              campaign.status,
+              campaign.advertising_channel_type,
+              campaign.payment_mode
             FROM campaign
             WHERE campaign.status != \"REMOVED\"
             ORDER BY campaign.id"""
@@ -514,6 +519,45 @@ def _create_ad_text_asset(text, pinned_field=None):
         ad_text_asset.pinned_field = pinned_field
     return ad_text_asset
 
+
+# returns responsive search ad by ad id
+def get_responsive_search_ad_by_id(customer_id, ad_id):
+    ga_service = client.get_service("GoogleAdsService")
+
+    query = f'''
+                SELECT ad_group.id, ad_group_ad.ad.id,
+                ad_group_ad.ad.responsive_search_ad.headlines,
+                ad_group_ad.ad.responsive_search_ad.descriptions,
+                ad_group_ad.status FROM ad_group_ad
+                WHERE ad_group_ad.ad.type = RESPONSIVE_SEARCH_AD and ad_group.id ={ad_id} 
+                AND ad_group_ad.status != "REMOVED"'''
+
+    ga_search_request = client.get_type("SearchGoogleAdsRequest")
+    ga_search_request.customer_id = customer_id
+    ga_search_request.query = query
+    ga_search_request.page_size = _DEFAULT_PAGE_SIZE
+
+    try:
+        results = ga_service.search(request=ga_search_request)
+
+        one_found = False
+
+        ads = []
+        for row in results:
+            one_found = True
+            ad = row.ad_group_ad.ad
+            headlines = "\n".join(
+                _ad_text_assets_to_strs(ad.responsive_search_ad.headlines))
+            descriptions = "\n".join(
+                _ad_text_assets_to_strs(ad.responsive_search_ad.descriptions))
+            ads.append((ad.id, row.ad_group_ad.status.name, headlines, descriptions))
+
+        if not one_found:
+            return {"data": "No responsive search ads were found."}
+        return {"status": 200, "data": ads}
+
+    except GoogleAdsException as ex:
+        return _handle_googleads_exception(ex)
 
 # returns all responsive search ads belongs to ad_group_id
 def get_all_responsive_search_ads(customer_id, ad_group_id):
