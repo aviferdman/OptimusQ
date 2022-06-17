@@ -899,8 +899,7 @@ def fb_api_get_all_ad_account_pixels():
 
 
 ################################################## Google-Ads ##########################################################
-
-#todo add try and catch
+#todo: DB
 # create_new_campaign
 @app.route("/api/GoogleAds/create_new_campaign", methods=['GET', 'POST'])
 def googleAds_api_create_new_campaign():
@@ -927,8 +926,12 @@ def googleAds_api_create_new_campaign():
                                                      targeting_locations, targeting_gender, targeting_device_type, targeting_min_age,
                                                      targeting_max_age, targeting_interest)
        # try:
+       #  if (res.status_code == 200):
        #      campaign_id = res.get('body').get('id')
        #      db.addCampaign(campaign_id, ad_account_id, campaign_name, objective, status)
+       #      return {"status": 200, "body": res.json() / tes.get('body')}
+       #  else:
+       #      return {"status": 400, "body": res.json()/tes.get('body')}
        #  except Exception as e:
        #      print(str(e))
         print(res)
@@ -951,6 +954,7 @@ def googleAds_api_get_campaign_by_id():
         campaign_id = rq['campaign_id']
         return CampaignManagement.get_campaign_by_id(customer_id, campaign_id)
 
+#todo: DB
 # delete_campaign
 @app.route("/api/GoogleAds/delete_campaign", methods=['DELETE'])
 def googleAds_api_delete_campaign():
@@ -966,6 +970,7 @@ def googleAds_api_delete_campaign():
         #         print(str(e))
         return res
 
+#todo: DB
 # create_new_ad_group
 @app.route("/api/GoogleAds/create_new_ad_group", methods=['POST'])
 def googleAds_api_create_new_ad_group():
@@ -1002,6 +1007,7 @@ def googleAds_api_get_ad_group_by_id():
         ad_group_id = rq.get('ad_group_id')
         return CampaignManagement.get_ad_group_by_id(customer_id, ad_group_id)
 
+#todo: DB
 # delete_ad_group
 @app.route("/api/GoogleAds/delete_ad_group", methods=['DELETE'])
 def googleAds_api_delete_ad_group():
@@ -1017,6 +1023,7 @@ def googleAds_api_delete_ad_group():
         #         print(str(e))
         return res
 
+#todo: DB
 # add a keyword to ad group
 @app.route("/api/GoogleAds/add_keyword", methods=['POST'])
 def googleAds_api_add_keyword():
@@ -1042,6 +1049,7 @@ def googleAds_api_get_keywords():
         ad_group_id = rq.get('ad_group_id')
         return CampaignManagement.get_keywords(customer_id, ad_group_id)
 
+#todo: DB
 # delete_keyword
 @app.route("/api/GoogleAds/delete_keyword", methods=['DELETE'])
 def googleAds_api_delete_keyword():
@@ -1058,6 +1066,7 @@ def googleAds_api_delete_keyword():
         #         print(str(e))
         return res
 
+#todo: DB
 # create_new_responsive_search_ad
 @app.route("/api/GoogleAds/create_new_RS_ad", methods=['POST'])
 def googleAds_api_create_new_RS_ad():
@@ -1086,6 +1095,7 @@ def googleAds_api_get_all_RS_ads():
         ad_group_id = rq.get('ad_group_id')
         return CampaignManagement.get_all_responsive_search_ads(customer_id, ad_group_id)
 
+#todo: DB
 # delete_ad
 @app.route("/api/GoogleAds/delete_ad", methods=['DELETE'])
 def googleAds_api_delete_ad():
