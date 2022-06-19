@@ -9,6 +9,9 @@ import json
 from flask import Flask, render_template, request, flash, Markup, jsonify, redirect, session
 import time
 import requests
+import datetime
+
+_DATE_FORMAT = "%Y%m%d"
 
 from DataBaseService.main import DataBaseController, dataBaseController
 # deleteAccessTokenByUserId, writeAccessToken2db, getAccessTokenByUserId
@@ -288,7 +291,7 @@ def fb_api_get_all_campaigns():
         is_sandbox_mode = rq['sandbox_mode']
         token = ""
         if is_sandbox_mode == "no":
-            #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+            # return {'status': 400, 'body': 'currently working in sandbox mode only.'}
             token = admin_token[0][1]
         else:
             token = sandbox_token[0][1]
@@ -326,7 +329,7 @@ def upload_img_from_url():
         is_sandbox_mode = rq['sandbox_mode']
         token = ""
         if is_sandbox_mode == "no":
-            #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+            # return {'status': 400, 'body': 'currently working in sandbox mode only.'}
             token = admin_token[0][1]
         else:
             token = sandbox_token[0][1]
@@ -354,7 +357,7 @@ def fb_api_get_all_ad_sets_by_campaign():
         is_sandbox_mode = rq['sandbox_mode']
         token = ""
         if is_sandbox_mode == "no":
-            #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+            # return {'status': 400, 'body': 'currently working in sandbox mode only.'}
             token = admin_token[0][1]
         else:
             token = sandbox_token[0][1]
@@ -369,7 +372,7 @@ def fb_api_upload_image_by_path():
         is_sandbox_mode = rq['sandbox_mode']
         token = ""
         if is_sandbox_mode == "no":
-            #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+            # return {'status': 400, 'body': 'currently working in sandbox mode only.'}
             token = admin_token[0][1]
         else:
             token = sandbox_token[0][1]
@@ -385,7 +388,7 @@ def create_adCreative():
         is_sandbox_mode = rq['sandbox_mode']
         token = ""
         if is_sandbox_mode == "no":
-            #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+            # return {'status': 400, 'body': 'currently working in sandbox mode only.'}
             token = admin_token[0][1]
         else:
             token = sandbox_token[0][1]
@@ -422,7 +425,7 @@ def create_ad():
         is_sandbox_mode = rq['sandbox_mode']
         token = ""
         if is_sandbox_mode == "no":
-            #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+            # return {'status': 400, 'body': 'currently working in sandbox mode only.'}
             token = admin_token[0][1]
         else:
             token = sandbox_token[0][1]
@@ -458,7 +461,7 @@ def create_new_adset():
         is_sandbox_mode = rq['sandbox_mode']
         token = ""
         if is_sandbox_mode == "no":
-            #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+            # return {'status': 400, 'body': 'currently working in sandbox mode only.'}
             token = admin_token[0][1]
         else:
             token = sandbox_token[0][1]
@@ -573,7 +576,7 @@ def create_new_adset():
             try:
                 adset_id = res.get('body').get('id')
                 threading.Thread(target=db.addAdSet, args=(
-                adset_id, ad_account_id, campaign_id, ad_set_name, daily_budget, 'targeting')).start()
+                    adset_id, ad_account_id, campaign_id, ad_set_name, daily_budget, 'targeting')).start()
             except Exception as e:
                 print(str(e))
         return res
@@ -587,7 +590,7 @@ def fb_api_create_new_campaign():
         is_sandbox_mode = rq['sandbox_mode']
         token = ""
         if is_sandbox_mode == "no":
-            #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+            # return {'status': 400, 'body': 'currently working in sandbox mode only.'}
             token = admin_token[0][1]
         else:
             token = sandbox_token[0][1]
@@ -634,7 +637,7 @@ def fb_api_get_ad_preview():
         is_sandbox_mode = rq['sandbox_mode']
         token = ""
         if is_sandbox_mode == "no":
-            #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+            # return {'status': 400, 'body': 'currently working in sandbox mode only.'}
             token = admin_token[0][1]
         else:
             token = sandbox_token[0][1]
@@ -661,7 +664,7 @@ def fb_api_get_all_ads_by_adSet_id():
         is_sandbox_mode = rq['sandbox_mode']
         token = ""
         if is_sandbox_mode == "no":
-            #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+            # return {'status': 400, 'body': 'currently working in sandbox mode only.'}
             token = admin_token[0][1]
         else:
             token = sandbox_token[0][1]
@@ -677,7 +680,7 @@ def fb_api_get_insights():
         is_sandbox_mode = rq['sandbox_mode']
         token = ""
         if is_sandbox_mode == "no":
-            #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+            # return {'status': 400, 'body': 'currently working in sandbox mode only.'}
             token = admin_token[0][1]
         else:
             token = sandbox_token[0][1]
@@ -696,7 +699,7 @@ def fb_api_delete_campaign():
         is_sandbox_mode = rq['sandbox_mode']
         token = ""
         if is_sandbox_mode == "no":
-            #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+            # return {'status': 400, 'body': 'currently working in sandbox mode only.'}
             token = admin_token[0][1]
         else:
             token = sandbox_token[0][1]
@@ -718,7 +721,7 @@ def fb_api_delete_adSet():
         is_sandbox_mode = rq['sandbox_mode']
         token = ""
         if is_sandbox_mode == "no":
-            #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+            # return {'status': 400, 'body': 'currently working in sandbox mode only.'}
             token = admin_token[0][1]
         else:
             token = sandbox_token[0][1]
@@ -740,7 +743,7 @@ def fb_api_delete_ad_creative():
         is_sandbox_mode = rq['sandbox_mode']
         token = ""
         if is_sandbox_mode == "no":
-            #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+            # return {'status': 400, 'body': 'currently working in sandbox mode only.'}
             token = admin_token[0][1]
         else:
             token = sandbox_token[0][1]
@@ -762,7 +765,7 @@ def fb_api_delete_ad():
         is_sandbox_mode = rq['sandbox_mode']
         token = ""
         if is_sandbox_mode == "no":
-            #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+            # return {'status': 400, 'body': 'currently working in sandbox mode only.'}
             token = admin_token[0][1]
         else:
             token = sandbox_token[0][1]
@@ -775,6 +778,7 @@ def fb_api_delete_ad():
                 print(str(e))
         return res
 
+
 # search possible interests for ad targeting
 @app.route("/api/fb/search_interests", methods=['GET'])
 def fb_api_search_interests():
@@ -785,7 +789,7 @@ def fb_api_search_interests():
         if (rq.get("to_search") is None) or (rq.get("to_search") == ""):
             return {'status': 400, 'body': 'to_search param cannot be null or empty string.'}
         if is_sandbox_mode == "no":
-            #return {'status': 400, 'body': 'currently working in sandbox mode only.'}
+            # return {'status': 400, 'body': 'currently working in sandbox mode only.'}
             token = admin_token[0][1]
         else:
             token = sandbox_token[0][1]
@@ -895,11 +899,8 @@ def fb_api_get_all_ad_account_pixels():
         return MarketingManagement.get_all_ad_account_pixels(token, ad_account)
 
 
-
-
-
 ################################################## Google-Ads ##########################################################
-#todo: DB
+# todo: DB
 # create_new_campaign
 @app.route("/api/GoogleAds/create_new_campaign", methods=['GET', 'POST'])
 def googleAds_api_create_new_campaign():
@@ -921,21 +922,32 @@ def googleAds_api_create_new_campaign():
         targeting_min_age = rq['targeting_min_age']
         targeting_max_age = rq['targeting_max_age']
         targeting_interest = rq['targeting_interest']
-        res = CampaignManagement.create_new_campaign(customer_id, budget, name, days_to_start, weeks_to_end, status, delivery_method,
+
+        start_time = datetime.date.today() + datetime.timedelta(days=days_to_start)
+        end_time = start_time + datetime.timedelta(weeks=weeks_to_end)
+        str_locations = ""
+        for l in targeting_locations:
+            str_locations = str_locations + l + ","
+        str_locations = str_locations[:-1]
+
+        res = CampaignManagement.create_new_campaign(customer_id, budget, name, days_to_start, weeks_to_end, status,
+                                                     delivery_method,
                                                      period, advertising_channel_type, payment_mode,
-                                                     targeting_locations, targeting_gender, targeting_device_type, targeting_min_age,
+                                                     targeting_locations, targeting_gender, targeting_device_type,
+                                                     targeting_min_age,
                                                      targeting_max_age, targeting_interest)
-       # try:
-       #  if (res.status_code == 200):
-       #      campaign_id = res.get('body').get('id')
-       #      db.addCampaign(campaign_id, ad_account_id, campaign_name, objective, status)
-       #      return {"status": 200, "body": res.json() / tes.get('body')}
-       #  else:
-       #      return {"status": 400, "body": res.json()/tes.get('body')}
-       #  except Exception as e:
-       #      print(str(e))
-        print(res)
-        return res
+        try:
+            if res["status"] == 200:
+                campaign_id = res.get('body').get('id')
+                db.addGoogleAds_Campaign(customer_id, campaign_id, budget, name, str(start_time), str(end_time), status,
+                                         delivery_method, period, advertising_channel_type,
+                                         payment_mode, str_locations, targeting_gender, targeting_device_type,
+                                         targeting_min_age, targeting_max_age, targeting_interest)
+            return res
+
+        except Exception as e:
+            print(str(e))
+
 
 # get_all_campaigns
 @app.route("/api/GoogleAds/get_all_campaigns", methods=['GET'])
@@ -944,6 +956,7 @@ def googleAds_api_get_all_campaigns():
         rq = request.get_json(force=True)
         customer_id = rq['customer_id']
         return CampaignManagement.get_all_campaigns(customer_id)
+
 
 # get_campaign_by_id
 @app.route("/api/GoogleAds/get_campaign", methods=['GET'])
@@ -954,7 +967,8 @@ def googleAds_api_get_campaign_by_id():
         campaign_id = rq['campaign_id']
         return CampaignManagement.get_campaign_by_id(customer_id, campaign_id)
 
-#todo: DB
+
+# todo: DB
 # delete_campaign
 @app.route("/api/GoogleAds/delete_campaign", methods=['DELETE'])
 def googleAds_api_delete_campaign():
@@ -970,7 +984,8 @@ def googleAds_api_delete_campaign():
         #         print(str(e))
         return res
 
-#todo: DB
+
+# todo: DB
 # create_new_ad_group
 @app.route("/api/GoogleAds/create_new_ad_group", methods=['POST'])
 def googleAds_api_create_new_ad_group():
@@ -979,15 +994,16 @@ def googleAds_api_create_new_ad_group():
         customer_id = rq.get('customer_id')
         campaign_id = rq.get('campaign_id')
         name = rq.get('name')
-        cpc_bid = rq.get('cpc_bid')   # cost per click in IL shekels
+        cpc_bid = rq.get('cpc_bid')  # cost per click in IL shekels
         status = rq.get('status', 'ENABLED')
         res = CampaignManagement.create_new_ad_group(customer_id, campaign_id, name, status, cpc_bid)
-            # try:
-            #     adset_id = res.get('body').get('id')
-            #     db.addAdSet(adset_id, ad_account_id, campaign_id, ad_set_name, daily_budget, 'targeting')
-            # except Exception as e:
-            #     print(str(e))
+        # try:
+        #     adset_id = res.get('body').get('id')
+        #     db.addAdSet(adset_id, ad_account_id, campaign_id, ad_set_name, daily_budget, 'targeting')
+        # except Exception as e:
+        #     print(str(e))
         return res
+
 
 # get_all_ad_groups
 @app.route("/api/GoogleAds/get_all_ad_groups", methods=['GET'])
@@ -998,6 +1014,7 @@ def googleAds_api_get_all_ad_groups():
         campaign_id = rq.get('campaign_id')
         return CampaignManagement.get_all_ad_groups(customer_id, campaign_id)
 
+
 # get_ad_group
 @app.route("/api/GoogleAds/get_ad_group", methods=['GET'])
 def googleAds_api_get_ad_group_by_id():
@@ -1007,7 +1024,8 @@ def googleAds_api_get_ad_group_by_id():
         ad_group_id = rq.get('ad_group_id')
         return CampaignManagement.get_ad_group_by_id(customer_id, ad_group_id)
 
-#todo: DB
+
+# todo: DB
 # delete_ad_group
 @app.route("/api/GoogleAds/delete_ad_group", methods=['DELETE'])
 def googleAds_api_delete_ad_group():
@@ -1023,7 +1041,8 @@ def googleAds_api_delete_ad_group():
         #         print(str(e))
         return res
 
-#todo: DB
+
+# todo: DB
 # add a keyword to ad group
 @app.route("/api/GoogleAds/add_keyword", methods=['POST'])
 def googleAds_api_add_keyword():
@@ -1033,12 +1052,13 @@ def googleAds_api_add_keyword():
         ad_group_id = rq.get('ad_group_id')
         keyword_text = rq.get('keyword_text')
         res = CampaignManagement.add_keyword(customer_id, ad_group_id, keyword_text)
-            # try:
-            #     adset_id = res.get('body').get('id')
-            #     db.addAdSet(adset_id, ad_account_id, campaign_id, ad_set_name, daily_budget, 'targeting')
-            # except Exception as e:
-            #     print(str(e))
+        # try:
+        #     adset_id = res.get('body').get('id')
+        #     db.addAdSet(adset_id, ad_account_id, campaign_id, ad_set_name, daily_budget, 'targeting')
+        # except Exception as e:
+        #     print(str(e))
         return res
+
 
 # get_keywords
 @app.route("/api/GoogleAds/get_keywords", methods=['GET'])
@@ -1049,7 +1069,8 @@ def googleAds_api_get_keywords():
         ad_group_id = rq.get('ad_group_id')
         return CampaignManagement.get_keywords(customer_id, ad_group_id)
 
-#todo: DB
+
+# todo: DB
 # delete_keyword
 @app.route("/api/GoogleAds/delete_keyword", methods=['DELETE'])
 def googleAds_api_delete_keyword():
@@ -1066,7 +1087,8 @@ def googleAds_api_delete_keyword():
         #         print(str(e))
         return res
 
-#todo: DB
+
+# todo: DB
 # create_new_responsive_search_ad
 @app.route("/api/GoogleAds/create_new_RS_ad", methods=['POST'])
 def googleAds_api_create_new_RS_ad():
@@ -1078,13 +1100,15 @@ def googleAds_api_create_new_RS_ad():
         descriptions_texts = rq.get('descriptions_texts')
         final_url = rq.get('final_url')
         pinned_text = rq.get('pinned_text', None)
-        res = CampaignManagement.create_new_responsive_search_ad(customer_id, ad_group_id, headlines_texts, descriptions_texts, final_url, pinned_text)
-       # try:
-       #      campaign_id = res.get('body').get('id')
-       #      db.addCampaign(campaign_id, ad_account_id, campaign_name, objective, status)
-       #  except Exception as e:
-       #      print(str(e))
+        res = CampaignManagement.create_new_responsive_search_ad(customer_id, ad_group_id, headlines_texts,
+                                                                 descriptions_texts, final_url, pinned_text)
+        # try:
+        #      campaign_id = res.get('body').get('id')
+        #      db.addCampaign(campaign_id, ad_account_id, campaign_name, objective, status)
+        #  except Exception as e:
+        #      print(str(e))
         return res
+
 
 # get_all_responsive_search_ads
 @app.route("/api/GoogleAds/get_all_RS_ads", methods=['GET'])
@@ -1095,7 +1119,18 @@ def googleAds_api_get_all_RS_ads():
         ad_group_id = rq.get('ad_group_id')
         return CampaignManagement.get_all_responsive_search_ads(customer_id, ad_group_id)
 
-#todo: DB
+
+# get_all_responsive_search_ads
+@app.route("/api/GoogleAds/get_ad", methods=['GET'])
+def googleAds_api_get_ad_by_id():
+    if request.method == "GET":
+        rq = request.get_json(force=True)
+        customer_id = rq['customer_id']
+        ad_id = rq.get('ad_id')
+        return CampaignManagement.get_responsive_search_ad_by_id(customer_id, ad_id)
+
+
+# todo: DB
 # delete_ad
 @app.route("/api/GoogleAds/delete_ad", methods=['DELETE'])
 def googleAds_api_delete_ad():
@@ -1111,6 +1146,7 @@ def googleAds_api_delete_ad():
         #     except Exception as e:
         #         print(str(e))
         return res
+
 
 # get_campaign_statistics
 @app.route("/api/GoogleAds/get_campaign_statistics", methods=['GET'])
@@ -1129,6 +1165,7 @@ def googleAds_api_get_campaign_statistics():
         #         print(str(e))
         return res
 
+
 # get_keyword_statistics
 @app.route("/api/GoogleAds/get_keyword_statistics", methods=['GET'])
 def googleAds_api_get_keyword_statistics():
@@ -1144,7 +1181,6 @@ def googleAds_api_get_keyword_statistics():
         #     except Exception as e:
         #         print(str(e))
         return res
-
 
 
 # for running in local host with HTTP

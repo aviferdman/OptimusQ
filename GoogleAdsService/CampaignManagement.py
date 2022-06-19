@@ -529,7 +529,7 @@ def get_responsive_search_ad_by_id(customer_id, ad_id):
                 ad_group_ad.ad.responsive_search_ad.headlines,
                 ad_group_ad.ad.responsive_search_ad.descriptions,
                 ad_group_ad.status FROM ad_group_ad
-                WHERE ad_group_ad.ad.type = RESPONSIVE_SEARCH_AD and ad_group.id ={ad_id} 
+                WHERE ad_group_ad.ad.type = RESPONSIVE_SEARCH_AD and ad_group_ad.ad.id ={ad_id} 
                 AND ad_group_ad.status != "REMOVED"'''
 
     ga_search_request = client.get_type("SearchGoogleAdsRequest")
