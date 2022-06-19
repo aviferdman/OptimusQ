@@ -282,7 +282,7 @@ def get_all_ad_groups(customer_id, campaign_id):
         ad_groups = []
         for row in results:
             ad_groups.append((row.ad_group.id, row.ad_group.name))
-        return {"status": 200, "body": ad_groups}
+        return {"status": 200, "body": {"data":ad_groups}}
 
     except GoogleAdsException as ex:
         return _handle_googleads_exception(ex)
@@ -391,10 +391,9 @@ def get_keywords(customer_id, ad_group_id):
               ad_group_criterion.keyword.match_type
             FROM ad_group_criterion
             WHERE ad_group_criterion.type = KEYWORD
-            AND ad_group.status = 'ENABLED'
+            AND ad_group.status  IN ('ENABLED', 'PAUSED')
             AND ad_group_criterion.status IN ('ENABLED', 'PAUSED')
             """
-
 
     if ad_group_id:
         query += f" AND ad_group.id = {ad_group_id}"
@@ -422,7 +421,7 @@ def get_keywords(customer_id, ad_group_id):
             #     f"with ID {ad_group.id}."
             # )
 
-        return {"status": 200, "data": keywords}
+        return {"status": 200, "body":{"data":keywords} }
 
     except GoogleAdsException as ex:
         return _handle_googleads_exception(ex)
@@ -557,8 +556,8 @@ def get_all_responsive_search_ads(customer_id, ad_group_id):
             ads.append((ad.id, row.ad_group_ad.status.name, headlines, descriptions))
             # print(f"Headlines:\n{headlines}\nDescriptions:\n{descriptions}\n")
 
-        if not one_found:
-            return {"data": "No responsive search ads were found."}
+        # if not one_found:
+        #     return {"status": 200, "body": "No responsive search ads were found."}
             # print("No responsive search ads were found.")
         return {"status": 200, "body": {"data": ads}}
 
