@@ -477,7 +477,7 @@ def create_new_adset():
             promoted_object = None
 
         ad_account_id = rq.get('ad_account', '-1')
-        ad_set_name = rq.get('ad_set_name', '-1')
+        ad_set_name = rq.get('name', '-1')
         campaign_id = rq.get('campaign_id', '-1')
         daily_budget = '1000'
         if 'daily_budget' in rq:
@@ -601,7 +601,7 @@ def fb_api_create_new_campaign():
             if token == -1:
                 return {"status": 400, "body": "error: OptimusQ userid or Client's Business Manager id not found"}
         ad_account_id = rq['ad_account']
-        campaign_name = rq.get('campaign_name')
+        campaign_name = rq.get('name')
         objective = rq.get('objective')
         if (objective is None) or (objective == ""):
             objective = "LINK_CLICKS"
@@ -1158,4 +1158,4 @@ if __name__ == '__main__':
 # openssl req -x509 -newkey rsa:4096 -nodes -out cert.pem -keyout key.pem -days 365
 # run with cmd command: python app.py
 # if __name__ == '__main__':
-#     app.run(ssl_context=('cert.pem', 'key.pem'), debug=True)
+    # app.run(ssl_context=('cert.pem', 'key.pem'), debug=True)
