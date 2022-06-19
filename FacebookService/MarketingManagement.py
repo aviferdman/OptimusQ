@@ -153,13 +153,23 @@ def get_campaign_by_id(access_token, campaign_id):
 
 # returns all campaign belongs to AD_ACCOUNT_ID
 def get_all_campaigns(access_token, ad_account_id):
+    fields = 'fields=campaigns{budget_remaining,can_create_brand_lift_study,configured_status,created_time,name,objective,special_ad_categories,start_time,status,updated_time}'
     params = {
         'access_token': access_token
     }
     res = requests.get(
-        'https://graph.facebook.com/v13.0/act_' + ad_account_id + '?fields=campaigns{id,name,budget_remaining,daily_budget}',
-        params)
-    return {"status": res.status_code, "body": res.json()}
+        'https://graph.facebook.com/v13.0/act_' + ad_account_id + '?' + fields, params)
+    if res.status_code != 200:
+        return {"status": 400, "body": res.json()}
+    myRes=''
+    if (res.json() is not None) and (res.json().get('campaigns') is not None) and (
+            res.json().get('campaigns').get('data') is not None):
+        myRes = {"status": res.status_code, "body": {"data": res.json().get('campaigns').get('data')}}
+    if (res.json() is not None) and (res.json().get('campaigns') is not None) and (res.json().get('campaigns').get('paging') is not None):
+        myRes["body"]["paging"] = res.json().get('campaigns').get('paging')
+
+    return myRes
+    # return {"status": res.status_code, "body": {""}res.json()}
 
 
 # creates a new ad set
