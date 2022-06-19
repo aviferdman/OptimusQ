@@ -902,7 +902,6 @@ def fb_api_get_all_ad_account_pixels():
 
 
 ################################################## Google-Ads ##########################################################
-# todo: DB
 # create_new_campaign
 @app.route("/api/GoogleAds/create_new_campaign", methods=['GET', 'POST'])
 def googleAds_api_create_new_campaign():
@@ -970,7 +969,6 @@ def googleAds_api_get_campaign_by_id():
         return CampaignManagement.get_campaign_by_id(customer_id, campaign_id)
 
 
-# todo: DB
 # delete_campaign
 @app.route("/api/GoogleAds/delete_campaign", methods=['DELETE'])
 def googleAds_api_delete_campaign():
@@ -979,15 +977,14 @@ def googleAds_api_delete_campaign():
         customer_id = rq['customer_id']
         campaign_id = rq['campaign_id']
         res = CampaignManagement.delete_campaign(customer_id, campaign_id)
-        # if res.get('status') == 200:
-        #     try:
-        #         db.deleteFBAd(ad_id)
-        #     except Exception as e:
-        #         print(str(e))
+        if res.get('status') == 200:
+            try:
+                db.deleteGoogleAds_Campaign(customer_id, campaign_id)
+            except Exception as e:
+                print(str(e))
         return res
 
 
-# todo: DB
 # create_new_ad_group
 @app.route("/api/GoogleAds/create_new_ad_group", methods=['POST'])
 def googleAds_api_create_new_ad_group():
@@ -999,11 +996,11 @@ def googleAds_api_create_new_ad_group():
         cpc_bid = rq.get('cpc_bid')  # cost per click in IL shekels
         status = rq.get('status', 'ENABLED')
         res = CampaignManagement.create_new_ad_group(customer_id, campaign_id, name, status, cpc_bid)
-        # try:
-        #     adset_id = res.get('body').get('id')
-        #     db.addAdSet(adset_id, ad_account_id, campaign_id, ad_set_name, daily_budget, 'targeting')
-        # except Exception as e:
-        #     print(str(e))
+        try:
+            ad_group_id = res.get('body').get('ad_group_id')
+            db.addGoogleAd_Group(customer_id, ad_group_id, campaign_id, name, cpc_bid, status)
+        except Exception as e:
+            print(str(e))
         return res
 
 
@@ -1027,7 +1024,6 @@ def googleAds_api_get_ad_group_by_id():
         return CampaignManagement.get_ad_group_by_id(customer_id, ad_group_id)
 
 
-# todo: DB
 # delete_ad_group
 @app.route("/api/GoogleAds/delete_ad_group", methods=['DELETE'])
 def googleAds_api_delete_ad_group():
@@ -1036,15 +1032,14 @@ def googleAds_api_delete_ad_group():
         customer_id = rq['customer_id']
         ad_group_id = rq['ad_group_id']
         res = CampaignManagement.delete_ad_group(customer_id, ad_group_id)
-        # if res.get('status') == 200:
-        #     try:
-        #         db.deleteFBAd(ad_id)
-        #     except Exception as e:
-        #         print(str(e))
+        if res.get('status') == 200:
+            try:
+                db.deleteGoogleAd_Group(customer_id,ad_group_id)
+            except Exception as e:
+                print(str(e))
         return res
 
 
-# todo: DB
 # add a keyword to ad group
 @app.route("/api/GoogleAds/add_keyword", methods=['POST'])
 def googleAds_api_add_keyword():
@@ -1054,11 +1049,11 @@ def googleAds_api_add_keyword():
         ad_group_id = rq.get('ad_group_id')
         keyword_text = rq.get('keyword_text')
         res = CampaignManagement.add_keyword(customer_id, ad_group_id, keyword_text)
-        # try:
-        #     adset_id = res.get('body').get('id')
-        #     db.addAdSet(adset_id, ad_account_id, campaign_id, ad_set_name, daily_budget, 'targeting')
-        # except Exception as e:
-        #     print(str(e))
+        try:
+            criteria_id = res.get('body').get('keyword_id')
+            db.addGoogleAds_Keywords(customer_id,ad_group_id, criteria_id, keyword_text)
+        except Exception as e:
+            print(str(e))
         return res
 
 
@@ -1072,7 +1067,6 @@ def googleAds_api_get_keywords():
         return CampaignManagement.get_keywords(customer_id, ad_group_id)
 
 
-# todo: DB
 # delete_keyword
 @app.route("/api/GoogleAds/delete_keyword", methods=['DELETE'])
 def googleAds_api_delete_keyword():
@@ -1082,15 +1076,14 @@ def googleAds_api_delete_keyword():
         ad_group_id = rq['ad_group_id']
         criterion_id = rq['criterion_id']
         res = CampaignManagement.delete_keyword(customer_id, ad_group_id, criterion_id)
-        # if res.get('status') == 200:
-        #     try:
-        #         db.deleteFBAd(ad_id)
-        #     except Exception as e:
-        #         print(str(e))
+        if res.get('status') == 200:
+            try:
+                db.deleteGoogleAds_Keyword(customer_id,ad_group_id,criterion_id)
+            except Exception as e:
+                print(str(e))
         return res
 
 
-# todo: DB
 # create_new_responsive_search_ad
 @app.route("/api/GoogleAds/create_new_RS_ad", methods=['POST'])
 def googleAds_api_create_new_RS_ad():
@@ -1102,13 +1095,25 @@ def googleAds_api_create_new_RS_ad():
         descriptions_texts = rq.get('descriptions_texts')
         final_url = rq.get('final_url')
         pinned_text = rq.get('pinned_text', None)
+
+        str_headlines = ""
+        for l in headlines_texts:
+            str_headlines = str_headlines + l + ","
+        str_headlines = str_headlines[:-1]
+
+        str_descriptions = ""
+        for l in descriptions_texts:
+            str_descriptions = str_descriptions + l + ","
+        str_descriptions = str_descriptions[:-1]
+
         res = CampaignManagement.create_new_responsive_search_ad(customer_id, ad_group_id, headlines_texts,
                                                                  descriptions_texts, final_url, pinned_text)
-        # try:
-        #      campaign_id = res.get('body').get('id')
-        #      db.addCampaign(campaign_id, ad_account_id, campaign_name, objective, status)
-        #  except Exception as e:
-        #      print(str(e))
+        try:
+            ad_id = res.get('body').get('ad_id')
+            db.addGoogleAds_RS_Ad(customer_id, ad_group_id, ad_id,str_headlines, str_descriptions, final_url, pinned_text)
+
+        except Exception as e:
+            print(str(e))
         return res
 
 
@@ -1132,7 +1137,6 @@ def googleAds_api_get_ad_by_id():
         return CampaignManagement.get_responsive_search_ad_by_id(customer_id, ad_id)
 
 
-# todo: DB
 # delete_ad
 @app.route("/api/GoogleAds/delete_ad", methods=['DELETE'])
 def googleAds_api_delete_ad():
@@ -1142,11 +1146,11 @@ def googleAds_api_delete_ad():
         ad_group_id = rq['ad_group_id']
         ad_id = rq['ad_id']
         res = CampaignManagement.delete_ad(customer_id, ad_group_id, ad_id)
-        # if res.get('status') == 200:
-        #     try:
-        #         db.deleteFBAd(ad_id)
-        #     except Exception as e:
-        #         print(str(e))
+        if res.get('status') == 200:
+            try:
+                db.deleteGoogleAds_RS_Ad(customer_id,ad_group_id,ad_id)
+            except Exception as e:
+                print(str(e))
         return res
 
 
@@ -1160,11 +1164,6 @@ def googleAds_api_get_campaign_statistics():
         write_headers = rq.get('write_headers')
         period = rq.get('period')
         res = CampaignManagement.get_statistics_to_csv(customer_id, output_file, write_headers, period)
-        # if res.get('status') == 200:
-        #     try:
-        #         db.deleteFBAd(ad_id)
-        #     except Exception as e:
-        #         print(str(e))
         return res
 
 
@@ -1177,11 +1176,6 @@ def googleAds_api_get_keyword_statistics():
         output_file = rq['output_file']
         write_headers = rq.get('write_headers')
         res = CampaignManagement.get_keyword_stats(customer_id, output_file, write_headers)
-        # if res.get('status') == 200:
-        #     try:
-        #         db.deleteFBAd(ad_id)
-        #     except Exception as e:
-        #         print(str(e))
         return res
 
 

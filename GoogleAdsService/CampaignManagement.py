@@ -223,7 +223,7 @@ def delete_campaign(customer_id, campaign_id):
 
         campaign_id = campaign_response.results[0].resource_name.split("/")[3]
         # print(f"Removed campaign {campaign_response.results[0].resource_name}.")
-        return {"status": 200, "data": "campaign with id " + campaign_id + " deleted"}
+        return {"status": 200, "data": {"id": campaign_id}}
 
     except GoogleAdsException as ex:
         return _handle_googleads_exception(ex)
@@ -337,7 +337,7 @@ def delete_ad_group(customer_id, ad_group_id):
 
         # print(f"Removed ad group {ad_group_response.results[0].resource_name}.")
         ad_group_id = ad_group_response.results[0].resource_name.split("/")[3]
-        return {"status": 200, "data": "ad group with id " + ad_group_id + " deleted"}
+        return {"status": 200, "data": {"ad_group_id":ad_group_id}}
 
     except GoogleAdsException as ex:
         return _handle_googleads_exception(ex)
@@ -450,7 +450,7 @@ def delete_keyword(customer_id, ad_group_id, criterion_id):
 
         keyword_id = agc_response.results[0].resource_name.split("/")[3].split("~")[1]
 
-        return {"status": 200, "body": "the keyword with id " + keyword_id + " deleted"}
+        return {"status": 200, "body": {"keyword_id":keyword_id}}
 
     except GoogleAdsException as ex:
         return _handle_googleads_exception(ex)
