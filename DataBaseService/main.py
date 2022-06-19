@@ -645,6 +645,182 @@ class DataBaseController:
                 return res
 
 
+    ######################################################################
+    #  GoogleAds_Campaigns
+    ######################################################################
+    def addGoogleAds_Campaign(self, customer_id, campaign_id, budget, name, start_date,
+                               end_date,status,delivery_method,period,advertising_channel_type,
+                               payment_mode,targeting_locations,targeting_gender,targeting_device_type,
+                               targeting_min_age,targeting_max_age,targeting_interest):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                    INSERT INTO [dbo].[GoogleAds_Campaigns] (customer_id, campaign_id, budget, name, start_date,
+                               end_date,status,delivery_method,period,advertising_channel_type,
+                               payment_mode,targeting_locations,targeting_gender,targeting_device_type,
+                               targeting_min_age,targeting_max_age,targeting_interest)
+                    VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{10}', '{11}', '{12}', '{13}','{14}','{15}', '{16}');
+                    """.format(customer_id, campaign_id, budget, name, start_date,
+                               end_date,status,delivery_method,period,advertising_channel_type,
+                               payment_mode,targeting_locations,targeting_gender,targeting_device_type,
+                               targeting_min_age,targeting_max_age,targeting_interest))
+
+    def getGoogleAds_Campaign(self, customer_id, campaign_id):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                                SELECT * FROM GoogleAds_Campaigns
+                                WHERE "customer_id"='{0}' and "campaign_id"='{1}';
+                                """.format(customer_id, campaign_id))
+                myresult = cursor.fetchall()
+                return myresult
+
+    def getAllGoogleAds_Campaigns_By_Customer_Id(self, customer_id):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                SELECT * FROM GoogleAds_Campaigns
+                WHERE "customer_id"='{0}';""".format(customer_id))
+                myresult = cursor.fetchall()
+                return myresult
+
+    def deleteGoogleAds_Campaign(self, customer_id, campaign_id):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                SELECT * FROM GoogleAds_Campaigns
+                WHERE "customer_id"='{0}' and "campaign_id"='{1}';
+                """.format(customer_id, campaign_id))
+                theResult = cursor.fetchall()
+                if (len(theResult) > 0):
+                    cursor.execute("""
+                        DELETE FROM GoogleAds_Campaigns WHERE "customer_id"='{0}' and "campaign_id"='{1}';
+                        """.format(customer_id, campaign_id))
+
+
+    ######################################################################
+    #  GoogleAd_Groups
+    ######################################################################
+    def addGoogleAd_Group(self, customer_id, ad_group_id, campaign_id, name, cpc_bid, status):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                    INSERT INTO [dbo].[GoogleAd_Groups] (customer_id, ad_group_id, campaign_id, name, cpc_bid, status)
+                    VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}');
+                    """.format(customer_id, ad_group_id, campaign_id, name, cpc_bid, status))
+
+    def getGoogleAd_Group(self, customer_id, ad_group_id, campaign_id):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                                SELECT * FROM GoogleAd_Groups
+                                WHERE "customer_id"='{0}' and "ad_group_id"='{1}' and "campaign_id"='{2}';
+                                """.format(customer_id, ad_group_id, campaign_id))
+                myresult = cursor.fetchall()
+                return myresult
+
+    def getAllGoogleAd_Groups(self, customer_id, campaign_id):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                SELECT * FROM GoogleAd_Groups
+                WHERE "customer_id"='{0}' and "campaign_id"='{1}';""".format(customer_id, campaign_id))
+                myresult = cursor.fetchall()
+                return myresult
+
+    def deleteGoogleAd_Group(self, customer_id, ad_group_id):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                SELECT * FROM GoogleAd_Groups
+                WHERE "customer_id"='{0}' and "ad_group_id"='{1}';
+                """.format(customer_id, ad_group_id))
+                theResult = cursor.fetchall()
+                if (len(theResult) > 0):
+                    cursor.execute("""
+                        DELETE FROM GoogleAd_Groups WHERE "customer_id"='{0}' and "ad_group_id"='{1}';
+                        """.format(customer_id, ad_group_id))
+
+    ######################################################################
+    #  GoogleAds_Keywords
+    ######################################################################
+    def addGoogleAds_Keywords(self, customer_id, ad_group_id, criterion_id, keyword_text):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                    INSERT INTO [dbo].[GoogleAds_Keywords] (customer_id, ad_group_id, criterion_id, keyword_text)
+                    VALUES ('{0}', '{1}', '{2}', '{3}');
+                    """.format(customer_id, ad_group_id, criterion_id, keyword_text))
+
+    def getAllGoogleAds_Keywords(self, customer_id, ad_group_id):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                SELECT * FROM GoogleAds_Keywords
+                WHERE "customer_id"='{0}' and "ad_group_id"='{1}';""".format(customer_id, ad_group_id))
+                myresult = cursor.fetchall()
+                return myresult
+
+    def deleteGoogleAds_Keyword(self, customer_id, ad_group_id, criterion_id):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                SELECT * FROM GoogleAds_Keywords
+                WHERE "customer_id"='{0}' and "ad_group_id"='{1}' and "criterion_id"='{2}';
+                """.format(customer_id, ad_group_id, criterion_id))
+                theResult = cursor.fetchall()
+                if (len(theResult) > 0):
+                    cursor.execute("""
+                        DELETE FROM GoogleAds_Keywords WHERE "customer_id"='{0}' and "ad_group_id"='{1}' and "criterion_id"='{2}';
+                        """.format(customer_id, ad_group_id, criterion_id))
+
+    ######################################################################
+    #  GoogleAds_RS_Ads
+    ######################################################################
+    def addGoogleAds_RS_Ad(self, customer_id, ad_group_id, ad_id, headlines_texts, descriptions_texts,
+                           final_url, pinned_text):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                    INSERT INTO [dbo].[GoogleAds_RS_Ads] (customer_id, ad_group_id, ad_id, headlines_texts, descriptions_texts,
+                           final_url, pinned_text)
+                    VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}');
+                    """.format(customer_id, ad_group_id, ad_id, headlines_texts, descriptions_texts,
+                           final_url, pinned_text))
+
+    def getGoogleAds_RS_Ad(self, customer_id, ad_group_id, ad_id):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                                SELECT * FROM GoogleAds_RS_Ads
+                                WHERE "customer_id"='{0}' and "ad_group_id"='{1}' and "ad_id"='{2}';
+                                """.format(customer_id, ad_group_id, ad_id))
+                myresult = cursor.fetchall()
+                return myresult
+
+    def getAllGoogleAds_RS_Ads(self, customer_id, ad_group_id):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                SELECT * FROM GoogleAds_RS_Ads
+                WHERE "customer_id"='{0}' and "ad_group_id"='{1}';""".format(customer_id, ad_group_id))
+                myresult = cursor.fetchall()
+                return myresult
+
+    def deleteGoogleAds_RS_Ad(self, customer_id, ad_group_id, ad_id):
+        with pyodbc.connect(self.connectionString) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                SELECT * FROM GoogleAds_RS_Ads
+                WHERE "customer_id"='{0}' and "ad_group_id"='{1}' and "ad_id"='{2}';
+                """.format(customer_id, ad_group_id, ad_id))
+                theResult = cursor.fetchall()
+                if (len(theResult) > 0):
+                    cursor.execute("""
+                        DELETE FROM GoogleAds_RS_Ads WHERE "customer_id"='{0}' and "ad_group_id"='{1}' and "ad_id"='{2}';
+                        """.format(customer_id, ad_group_id, ad_id))
+
+
 dataBaseController=DataBaseController()
 
 def main_trigger(request: azure.functions.HttpRequest):

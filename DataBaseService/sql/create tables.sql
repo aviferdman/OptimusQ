@@ -147,6 +147,7 @@ CREATE TABLE "GoogleAds_Tokens"
 CREATE TABLE "GoogleAds_Campaigns"
 (
 	"customer_id" VARCHAR(40),
+	"campaign_id" VARCHAR(250),
 	"budget" INTEGER,
 	"name" VARCHAR(250),
 	"start_date" VARCHAR(250),
@@ -162,5 +163,37 @@ CREATE TABLE "GoogleAds_Campaigns"
     "targeting_min_age" VARCHAR(250),
     "targeting_max_age" VARCHAR(250),
     "targeting_interest" VARCHAR(250),
-	PRIMARY KEY("client_id","login_customer_id")
+	PRIMARY KEY("customer_id","campaign_id")
+);
+
+CREATE TABLE "GoogleAd_Groups"
+(
+	"customer_id" VARCHAR(40),
+	"ad_group_id" VARCHAR(250),
+	"campaign_id" VARCHAR(250),
+	"name" VARCHAR(250),
+	"cpc_bid" INTEGER,
+	"status" VARCHAR(250),
+	PRIMARY KEY("customer_id","ad_group_id")
+);
+
+CREATE TABLE "GoogleAds_Keywords"
+(
+	"customer_id" VARCHAR(40),
+	"ad_group_id" VARCHAR(250),
+	"criterion_id" VARCHAR(250),
+	"keyword_text" VARCHAR(500),
+	PRIMARY KEY("customer_id","ad_group_id", "criterion_id")
+);
+
+CREATE TABLE "GoogleAds_RS_Ads"
+(
+	"customer_id" VARCHAR(40),
+	"ad_group_id" VARCHAR(250),
+	"ad_id" VARCHAR(250),
+	"headlines_texts" VARCHAR(250),
+	"descriptions_texts" VARCHAR(500),
+	"final_url" VARCHAR(500),
+	"pinned_text" VARCHAR(500),
+	PRIMARY KEY("customer_id","ad_group_id", "ad_id")
 );

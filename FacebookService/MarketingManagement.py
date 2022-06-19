@@ -6,7 +6,6 @@ import base64
 from DataBaseService.main import dataBaseController
 import io
 
-
 # This interface allows the user to create and manage all the marketing fields,
 # using Facebook APIs.
 
@@ -52,8 +51,8 @@ map_opt_goal_to_possible_billing_events = {
     "LANDING_PAGE_VIEWS": "IMPRESSIONS"
 }
 
-all_possible_campaign_objectives = "APP_INSTALLS,BRAND_AWARENESS,CONVERSIONS,EVENT_RESPONSES,LEAD_GENERATION,"\
-                                   "LINK_CLICKS,MESSAGES,PAGE_LIKES,POST_ENGAGEMENT,PRODUCT_CATALOG_SALES,REACH,"\
+all_possible_campaign_objectives = "APP_INSTALLS,BRAND_AWARENESS,CONVERSIONS,EVENT_RESPONSES,LEAD_GENERATION," \
+                                   "LINK_CLICKS,MESSAGES,PAGE_LIKES,POST_ENGAGEMENT,PRODUCT_CATALOG_SALES,REACH," \
                                    "VIDEO_VIEWS"
 all_possible_campaign_objectives_lst = all_possible_campaign_objectives.split(",")
 
@@ -62,13 +61,16 @@ for objective in all_possible_campaign_objectives_lst:
     for opt_goal in map_objective_to_possible_opt_goal[objective].split(","):
         all_possible_opt_goals.add(opt_goal)
 
+
 # get all possible campaign objectives
 def get_all_possible_campaign_objectives():
     return {"status": 200, "body": all_possible_campaign_objectives}
 
+
 # get all optimization goals for objective
 def get_all_optimization_goals_for_objective(objective):
     return {"status": 200, "body": map_objective_to_possible_opt_goal[objective]}
+
 
 # get all possible billing events for opt goal
 def get_all_possible_billing_events_for_opt_goal(opt_goal):
@@ -127,7 +129,6 @@ def get_all_ad_accounts_in_business(access_token, business_id):
 # returns: new campaign's id
 def create_new_campaign(access_token, ad_account_id, campaign_name, objective="LINK_CLICKS",
                         status="PAUSED", special_ad_categories="[]"):
-    
     if "act_" not in ad_account_id:
         ad_account_id = "act_" + ad_account_id
     url = 'https://graph.facebook.com/v13.0/' + ad_account_id + '/campaigns'
@@ -153,13 +154,22 @@ def get_campaign_by_id(access_token, campaign_id):
 
 # returns all campaign belongs to AD_ACCOUNT_ID
 def get_all_campaigns(access_token, ad_account_id):
+    fields = 'fields=campaigns{budget_remaining,can_create_brand_lift_study,configured_status,created_time,name,objective,special_ad_categories,start_time,status,updated_time}'
     params = {
         'access_token': access_token
     }
     res = requests.get(
-        'https://graph.facebook.com/v13.0/act_' + ad_account_id + '?fields=campaigns{id,name,budget_remaining,daily_budget}',
-        params)
-    return {"status": res.status_code, "body": res.json()}
+        'https://graph.facebook.com/v13.0/act_' + ad_account_id + '?' + fields, params)
+    if res.status_code != 200:
+        return {"status": 400, "body": res.json()}
+    myRes = {"status": res.status_code, "body": {"data": []}}
+    if (res.json() is not None) and (res.json().get('campaigns') is not None) and (
+            res.json().get('campaigns').get('data') is not None):
+        myRes["body"]["data"] = res.json().get('campaigns').get('data')
+    if (res.json() is not None) and (res.json().get('campaigns') is not None) and (
+            res.json().get('campaigns').get('paging') is not None):
+        myRes["body"]["paging"] = res.json().get('campaigns').get('paging')
+    return myRes
 
 
 # creates a new ad set
@@ -170,7 +180,6 @@ def create_new_ad_set(access_token, AD_ACCOUNT_ID, ad_set_name, campaign_id, dai
                       targeting_min_age='NONE', targeting_max_age='NONE', targeting_countries=["IL"], end_time='NONE',
                       targeting_gender="NONE", targeting_relationship_statuses="NONE",
                       targeting_interests=[], targeting_behaviors=[], promoted_object=None):
-
     if "act_" not in AD_ACCOUNT_ID:
         AD_ACCOUNT_ID = "act_" + AD_ACCOUNT_ID
     url = 'https://graph.facebook.com/v13.0/' + AD_ACCOUNT_ID + '/adsets'
@@ -223,15 +232,56 @@ def get_all_ad_sets_by_ad_account(access_token, ad_account_id, with_status="['AC
     return {"status": res.status_code, "body": res.json()}
 
 
-# 120330000357827313/adsets
 # returns all ad sets belongs to campaign with campaign_id
 def get_all_ad_sets_by_campaign(access_token, campaign_id):
-    fields = 'fields=daily_budget,name,targeting,created_time,billing_event,start_time,end_time,optimization_goal,status,updated_time'
+    fields = 'fields=daily_budget,name,targeting,created_time,billing_event,start_time,end_time,optimization_goal,status,updated_time,campaign_id,promoted_object,bid_amount'
     params = {
         'access_token': access_token
     }
     res = requests.get('https://graph.facebook.com/v13.0/' + campaign_id + '/adsets?' + fields, params)
-    return {"status": res.status_code, "body": res.json()}
+    if res.status_code != 200:
+        return {"status": res.status_code, "body": res.json()}
+    myRes = {"status": res.status_code, "body": {"data": []}}
+    if res.json().get("paging", None) is not None:
+        myRes["body"]["paging"] = res.json().get("paging")
+    res_list = list()
+    if (res.json() is not None) and (res.json().get('data') is not None):
+        for adset in res.json().get('data'):
+            if adset.get("targeting", None) is None:
+                res_list.append(adset)
+                continue
+            adset["targeting_min_age"] = adset.get("targeting").get("age_min", None)
+            adset["targeting_max_age"] = adset.get("targeting").get("age_max", None)
+            targeting_countries_str = ''
+            if (adset.get("targeting").get("geo_locations", None) is not None) and (
+                    adset.get("targeting").get("geo_locations").get("countries") is not None):
+                for country in adset.get("targeting").get("geo_locations").get("countries"):
+                    targeting_countries_str += country + ','
+            if len(targeting_countries_str) == 0:
+                targeting_countries_str = None
+            adset["targeting_countries"] = targeting_countries_str
+            adset["targeting_interests"] = adset.get("targeting").get("interests", None)
+            adset["targeting_behaviors"] = adset.get("targeting").get("behaviors", None)
+            if adset.get("targeting").get("genders", None) is not None:
+                if len(adset.get("targeting").get("genders")) == 0:
+                    adset["targeting_gender"] = None
+                else:
+                    if (1 in adset.get("targeting").get("genders")) or ('1' in adset.get("targeting").get("genders")):
+                        adset["targeting_gender"] = 1
+                    else:
+                        adset["targeting_gender"] = 2
+
+            targeting_relationship_statuses_str = ''
+            if adset.get("targeting").get("relationship_statuses", None) is not None:
+                for status in adset.get("targeting").get("relationship_statuses"):
+                    targeting_relationship_statuses_str += str(status) + ','
+            if len(targeting_relationship_statuses_str) == 0:
+                targeting_relationship_statuses_str = None
+            adset["targeting_relationship_statuses"] = targeting_relationship_statuses_str
+            adset.pop('targeting', None)  # delete targeting for formatting the json
+            res_list.append(adset)
+    myRes["body"]["data"] = res_list
+    return myRes
 
 
 # returns all ad creatives belongs to ad account
@@ -568,6 +618,7 @@ def get_all_client_BMs_by_oq_user_id(oq_user_id):
     except Exception as e:
         return {"status": 400, "body": str(e)}
 
+
 def get_all_client_ad_accounts_by_BM_id(BM_id):
     ad_accounts_ids = list()
     try:
@@ -576,6 +627,7 @@ def get_all_client_ad_accounts_by_BM_id(BM_id):
         return {"status": 200, "body": {"data": ad_accounts_ids}}
     except Exception as e:
         return {"status": 400, "body": str(e)}
+
 
 def get_all_client_pages_by_BM_id(BM_id):
     pages_ids = list()
@@ -586,13 +638,13 @@ def get_all_client_pages_by_BM_id(BM_id):
     except Exception as e:
         return {"status": 400, "body": str(e)}
 
+
 # get token for client by oq user id
 def get_token_for_client_by_oq_user_id_and_business_id(oq_user_id, BM_id):
     try:
         return db.getFB_CLIENT_TOKEN_BY_OQ_USER_ID_AND_BM_ID(oq_user_id, BM_id)[0][4]
     except Exception as e:
         return -1
-
 
 
 # returns all businesses by user id: id and name
@@ -604,6 +656,7 @@ def get_all_businesses_by_user_id(access_token, user_id):
     res = requests.get('https://graph.facebook.com/v14.0/' + user_id + '?' + fields, params)
     return {"status": res.status_code, "body": res.json()}
 
+
 # returns all business asset groups
 def get_all_business_asset_groups(access_token, business_id):
     params = {
@@ -611,6 +664,7 @@ def get_all_business_asset_groups(access_token, business_id):
     }
     res = requests.get('https://graph.facebook.com/v13.0/' + business_id + '/business_asset_groups', params)
     return {"status": res.status_code, "body": res.json()}
+
 
 # returns all ASSETS_IDS for a business, for use in function create_on_behalf_of_relationship
 def get_all_business_assets(access_token, business_id):
@@ -621,6 +675,7 @@ def get_all_business_assets(access_token, business_id):
     res = requests.get('https://graph.facebook.com/v13.0/' + business_id + '?' + fields, params)
     return {"status": res.status_code, "body": res.json()}
 
+
 # returns all pixels ids for business
 def get_all_business_pixels(access_token, business_id):
     fields = 'fields=owned_pixels{id,name}'
@@ -628,6 +683,7 @@ def get_all_business_pixels(access_token, business_id):
         'access_token': access_token
     }
     return requests.get('https://graph.facebook.com/v13.0/' + business_id + '?' + fields, params)
+
 
 # returns all pixels for ad account
 def get_all_ad_account_pixels(access_token, ad_account_id):
@@ -638,11 +694,10 @@ def get_all_ad_account_pixels(access_token, ad_account_id):
         'access_token': access_token
     }
     res = requests.get('https://graph.facebook.com/v13.0/' + ad_account_id + '?' + fields, params)
-    if (res.json() is not None) and (res.json().get('adspixels') is not None) and (res.json().get('adspixels').get('data') is not None):
+    if (res.json() is not None) and (res.json().get('adspixels') is not None) and (
+            res.json().get('adspixels').get('data') is not None):
         return {"status": res.status_code, "body": {"data": res.json().get('adspixels').get('data')}}
     return {"status": res.status_code, "body": {"data": []}}
-
-
 
 
 # Create the On Behalf Of relationship between the partner and client's Business Manager.
@@ -651,7 +706,7 @@ def get_all_ad_account_pixels(access_token, ad_account_id):
 # https://developers.facebook.com/docs/marketing-api/business-manager/guides/on-behalf-of
 # ASSETS_IDS is a list, containing assets ids for assigning from client BM to partner BM
 def create_on_behalf_of_relationship(client_admin_access_token, client_user_id, oq_user_id):
-    PARTNER_BM_ID = business_id # OQ business id
+    PARTNER_BM_ID = business_id  # OQ business id
     res = get_all_businesses_by_user_id(client_admin_access_token, client_user_id)
     if res.get('status') != 200:
         return res
@@ -661,7 +716,7 @@ def create_on_behalf_of_relationship(client_admin_access_token, client_user_id, 
     for BM_record in db.getFB_CLIENT_BM_IDS_BY_OQ_USER_ID(oq_user_id):
         BMs_in_DB.append(BM_record[1])
 
-    for BM in res.get('body').get('businesses').get('data'): #get all businesses belong to user
+    for BM in res.get('body').get('businesses').get('data'):  # get all businesses belong to user
         if BM.get('id') == str(PARTNER_BM_ID):
             continue
         BMs_id_list.append(BM.get('id'))
@@ -671,12 +726,13 @@ def create_on_behalf_of_relationship(client_admin_access_token, client_user_id, 
 
     for CLIENT_BM_ID in BMs_id_list:
         # *** GET ALL BUSINESS ASSETS ***
-        ASSETS_IDS = list() # todo: allow client user to choose assets that belong to his business.
+        ASSETS_IDS = list()  # todo: allow client user to choose assets that belong to his business.
         res = get_all_business_assets(client_admin_access_token, CLIENT_BM_ID)
         if res.get('status') != 200:
             return res
         owned_ad_accounts_ids = list()
-        if (res.get('body') is None) or (res.get('body').get('owned_ad_accounts') is None ) or (res.get('body').get('owned_ad_accounts').get('data') is None):
+        if (res.get('body') is None) or (res.get('body').get('owned_ad_accounts') is None) or (
+                res.get('body').get('owned_ad_accounts').get('data') is None):
             continue
 
         for ad_account in res.get('body').get('owned_ad_accounts').get('data'):
@@ -702,7 +758,7 @@ def create_on_behalf_of_relationship(client_admin_access_token, client_user_id, 
 
         # *** STEP 2 ***
         # Fetch the access token of system user under the client's Business Manager
-        PARTNER_BM_ADMIN_SYSTEM_USER_ACCESS_TOKEN = client_admin_access_token # fixed! todo: fetch PARTNER_BM_ADMIN_SYSTEM_USER_ACCESS_TOKEN
+        PARTNER_BM_ADMIN_SYSTEM_USER_ACCESS_TOKEN = client_admin_access_token  # fixed! todo: fetch PARTNER_BM_ADMIN_SYSTEM_USER_ACCESS_TOKEN
 
         params = {
             'scope': "ads_management,pages_read_engagement,ads_read,business_management",
@@ -714,7 +770,7 @@ def create_on_behalf_of_relationship(client_admin_access_token, client_user_id, 
             return {"status": res.status_code, "body": res.json()}
 
         # The response contains the token for the system user who is linked to the On Behalf Of relationships.
-        CLIENT_BM_SU_ACCESS_TOKEN = res.json().get('access_token') # fixed! todo: get this system user token
+        CLIENT_BM_SU_ACCESS_TOKEN = res.json().get('access_token')  # fixed! todo: get this system user token
 
         # *** STEP 3 ***
         # Get the ID of the system user.
@@ -769,7 +825,8 @@ def create_on_behalf_of_relationship(client_admin_access_token, client_user_id, 
 
         print("pixels_res: " + str(pixels_res.json()))
 
-        if (pixels_res.json() is not None) and (pixels_res.json().get('owned_pixels') is not None) and (pixels_res.json().get('owned_pixels').get('data') is not None):
+        if (pixels_res.json() is not None) and (pixels_res.json().get('owned_pixels') is not None) and (
+                pixels_res.json().get('owned_pixels').get('data') is not None):
             for pixel in pixels_res.json().get('owned_pixels').get('data'):
                 owned_pixels_ids.append(pixel.get('id'))
                 ASSETS_IDS.append(pixel.get('id'))
@@ -787,12 +844,10 @@ def create_on_behalf_of_relationship(client_admin_access_token, client_user_id, 
             # if asset not in pages_in_DB: #todo
             #     db.addFB_CLIENT_PAGES_BY_BM_ID(CLIENT_BM_ID, asset)
 
-
         if CLIENT_BM_ID not in BMs_in_DB:
-            db.addFB_CLIENT_BM_SU_ACCESS_TOKEN(oq_user_id, CLIENT_BM_ID, str(PARTNER_BM_ID), client_user_id, CLIENT_BM_SU_ACCESS_TOKEN)
+            db.addFB_CLIENT_BM_SU_ACCESS_TOKEN(oq_user_id, CLIENT_BM_ID, str(PARTNER_BM_ID), client_user_id,
+                                               CLIENT_BM_SU_ACCESS_TOKEN)
         succeeded_BMs_id_list += CLIENT_BM_ID + ","
-
-
 
     # ** DONE: **
     # todo: save CLIENT_BM_SU_ACCESS_TOKEN in DB
