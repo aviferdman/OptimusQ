@@ -80,7 +80,6 @@ def fb_login_handler():
 def fb_logged_in():
     res_preview = ""
     if request.method == "POST":
-        print("POST!!!: ")
         rq = request.get_json()
         user_id = rq["user_id"]
         access_token = rq["access_token"]
@@ -88,7 +87,10 @@ def fb_logged_in():
         print("user_id: " + user_id)
         print("access_token: " + access_token)
         print("oq_user_id:" + oq_user_id)
-        return MarketingManagement.create_on_behalf_of_relationship(access_token, user_id, oq_user_id)
+        res = MarketingManagement.create_on_behalf_of_relationship(access_token, user_id, oq_user_id)
+        if res.get('status') == 200:
+            return render_template("add_client_success.html")
+        return render_template("add_client_failure.html")
 
 
 @app.route("/api/fb/get_all_businesses_by_user_id", methods=['GET'])
