@@ -242,6 +242,8 @@ def get_all_ad_sets_by_campaign(access_token, campaign_id):
     if res.status_code != 200:
         return {"status": res.status_code, "body": res.json()}
     myRes = {"status": res.status_code, "body": {"data": []}}
+    if res.json().get("paging", None) is not None:
+        myRes["body"]["paging"] = res.json().get("paging")
     res_list = list()
     if (res.json() is not None) and (res.json().get('data') is not None):
         for adset in res.json().get('data'):
