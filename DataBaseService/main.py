@@ -650,19 +650,19 @@ class DataBaseController:
     ######################################################################
     def addGoogleAds_Campaign(self, customer_id, campaign_id, budget, name, start_date,
                                end_date,status,delivery_method,period,advertising_channel_type,
-                               payment_mode,targeting_locations,targeting_gender,targeting_device_type,
+                               payment_mode,targeting_locations,targeting_country_codes,targeting_gender,targeting_device_type,
                                targeting_min_age,targeting_max_age,targeting_interest):
         with pyodbc.connect(self.connectionString) as conn:
             with conn.cursor() as cursor:
                 cursor.execute("""
                     INSERT INTO [dbo].[GoogleAds_Campaigns] (customer_id, campaign_id, budget, name, start_date,
                                end_date,status,delivery_method,period,advertising_channel_type,
-                               payment_mode,targeting_locations,targeting_gender,targeting_device_type,
+                               payment_mode,targeting_locations,targeting_country_codes,targeting_gender,targeting_device_type,
                                targeting_min_age,targeting_max_age,targeting_interest)
-                    VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{10}', '{11}', '{12}', '{13}','{14}','{15}', '{16}');
+                    VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{10}', '{11}', '{12}', '{13}','{14}','{15}', '{16}', '{17}');
                     """.format(customer_id, campaign_id, budget, name, start_date,
                                end_date,status,delivery_method,period,advertising_channel_type,
-                               payment_mode,targeting_locations,targeting_gender,targeting_device_type,
+                               payment_mode,targeting_locations,targeting_country_codes,targeting_gender,targeting_device_type,
                                targeting_min_age,targeting_max_age,targeting_interest))
 
     def getGoogleAds_Campaign(self, customer_id, campaign_id):
