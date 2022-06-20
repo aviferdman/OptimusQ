@@ -918,6 +918,7 @@ def googleAds_api_create_new_campaign():
         advertising_channel_type = rq.get('advertising_channel_type', 'SEARCH')
         payment_mode = rq.get('payment_mode')
         targeting_locations = rq['targeting_locations']
+        targeting_country_codes = rq['targeting_country_codes']
         targeting_gender = rq['targeting_gender']
         targeting_device_type = rq['targeting_device_type']
         targeting_min_age = rq['targeting_min_age']
@@ -931,18 +932,22 @@ def googleAds_api_create_new_campaign():
             str_locations = str_locations + l + ","
         str_locations = str_locations[:-1]
 
+        str_country_codes = ""
+        for c in targeting_country_codes:
+            str_country_codes = str_country_codes + c + ","
+        str_country_codes = str_country_codes[:-1]
+
         res = CampaignManagement.create_new_campaign(customer_id, budget, name, days_to_start, weeks_to_end, status,
                                                      delivery_method,
                                                      period, advertising_channel_type, payment_mode,
-                                                     targeting_locations, targeting_gender, targeting_device_type,
-                                                     targeting_min_age,
-                                                     targeting_max_age, targeting_interest)
+                                                     targeting_locations, targeting_country_codes, targeting_gender, targeting_device_type,
+                                                     targeting_min_age, targeting_max_age, targeting_interest)
         try:
             if res["status"] == 200:
                 campaign_id = res.get('body').get('id')
                 db.addGoogleAds_Campaign(customer_id, campaign_id, budget, name, str(start_time), str(end_time), status,
                                          delivery_method, period, advertising_channel_type,
-                                         payment_mode, str_locations, targeting_gender, targeting_device_type,
+                                         payment_mode, str_locations, str_country_codes, targeting_gender, targeting_device_type,
                                          targeting_min_age, targeting_max_age, targeting_interest)
             return res
 

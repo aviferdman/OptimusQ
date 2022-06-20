@@ -46,7 +46,7 @@ client = GoogleAdsClient.load_from_dict(token_dict, version="v10")
 # creates a new campaign
 def create_new_campaign(customer_id, budget, name, days_to_start, weeks_to_end, status, delivery_method, period,
                         advertising_channel_type, payment_mode,
-                        targeting_locations, targeting_gender, targeting_device_type, targeting_min_age,
+                        targeting_locations, targeting_country_codes, targeting_gender, targeting_device_type, targeting_min_age,
                         targeting_max_age, targeting_interest
                         ):
     campaign_budget_service = client.get_service("CampaignBudgetService")
@@ -128,20 +128,32 @@ def create_new_campaign(customer_id, budget, name, days_to_start, weeks_to_end, 
         # Add the targeting
         campaign_criterion_service = client.get_service("CampaignCriterionService")
 
+        if len(targeting_country_codes) != len(targeting_locations):
+            return {"status": 400, "body": "There is a problem with locations and country codes"}
+
+
+        location_operation = []
+        for i in range(len(targeting_country_codes)):
+            operation = _create_location_op(customer_id, campaign_id, [targeting_locations[i]], targeting_country_codes[i])
+            location_operation.append(operation)
+
+
         operations = [
-            _create_location_op(customer_id, campaign_id, targeting_locations),
+            # _create_location_op(customer_id, campaign_id, targeting_locations, targeting_country_codes),
             _create_age_op(customer_id, campaign_id, targeting_min_age, targeting_max_age),
             _create_gender_op(customer_id, campaign_id, targeting_gender),
             _create_device_op(customer_id, campaign_id, targeting_device_type),
             _create_user_interest_op(customer_id, campaign_id, targeting_interest),
         ]
 
+        operations = operations + location_operation
+
         campaign_criterion_response = campaign_criterion_service.mutate_campaign_criteria(
             customer_id=customer_id, operations=operations
         )
 
-        for result in campaign_criterion_response.results:
-            print(f'Added campaign criterion "{result.resource_name}".')
+        # for result in campaign_criterion_response.results:
+        #     print(f'Added campaign criterion "{result.resource_name}".')
 
         return {"status": 200, "body": {"id": campaign_id}}
     except GoogleAdsException as ex:
@@ -292,6 +304,7 @@ def get_all_ad_groups(customer_id, campaign_id):
     except GoogleAdsException as ex:
         return _handle_googleads_exception(ex)
 
+
 # returns a campaign by id
 def get_ad_group_by_id(customer_id, ad_group_id):
     ga_service = client.get_service("GoogleAdsService")
@@ -321,6 +334,7 @@ def get_ad_group_by_id(customer_id, ad_group_id):
 
     except GoogleAdsException as ex:
         return _handle_googleads_exception(ex)
+
 
 # deletes an ad group
 def delete_ad_group(customer_id, ad_group_id):
@@ -558,6 +572,7 @@ def get_responsive_search_ad_by_id(customer_id, ad_id):
 
     except GoogleAdsException as ex:
         return _handle_googleads_exception(ex)
+
 
 # returns all responsive search ads belongs to ad_group_id
 def get_all_responsive_search_ads(customer_id, ad_group_id):
@@ -821,39 +836,37 @@ def get_keyword_stats(customer_id, output_file, write_headers):
 
 
 # [START add_campaign_targeting_criteria_1]
-def _create_location_op(customer_id, campaign_id, locations):
+def _create_location_op(customer_id, campaign_id, location, country_code):
     campaign_service = client.get_service("CampaignService")
     geo_target_constant_service = client.get_service("GeoTargetConstantService")
 
     gtc_request = client.get_type("SuggestGeoTargetConstantsRequest")
 
     gtc_request.locale = "en"
-    gtc_request.country_code = "US"
+    gtc_request.country_code = country_code
 
     # The location names to get suggested geo target constants.
-    gtc_request.location_names.names.extend(locations)
+    gtc_request.location_names.names.extend(location)
 
     results = geo_target_constant_service.suggest_geo_target_constants(gtc_request)
 
     location_id = 0
 
-    # if not results.geo_target_constant_suggestions:
-    #     return {"status": 400, "body": "There is no locations that match your request"}
-
     for suggestion in results.geo_target_constant_suggestions:
         geo_target_constant = suggestion.geo_target_constant
-        location_id = geo_target_constant.id
-        print(
-            f"{geo_target_constant.resource_name} "
-            f"{geo_target_constant.id} "
-            f"({geo_target_constant.name}, "
-            f"{geo_target_constant.country_code}, "
-            f"{geo_target_constant.target_type}, "
-            f"{geo_target_constant.status.name}) "
-            f"is found in locale ({suggestion.locale}) "
-            f"with reach ({suggestion.reach}) "
-            f"from search term ({suggestion.search_term})."
-        )
+        if geo_target_constant.target_type == "Country":
+            location_id = geo_target_constant.id
+            # print(
+            #     f"{geo_target_constant.resource_name} "
+            #     f"{geo_target_constant.id} "
+            #     f"({geo_target_constant.name}, "
+            #     f"{geo_target_constant.country_code}, "
+            #     f"{geo_target_constant.target_type}, "
+            #     f"{geo_target_constant.status.name}) "
+            #     f"is found in locale ({suggestion.locale}) "
+            #     f"with reach ({suggestion.reach}) "
+            #     f"from search term ({suggestion.search_term})."
+            # )
 
     # Create the campaign criterion.
     campaign_criterion_operation = client.get_type("CampaignCriterionOperation")
@@ -871,7 +884,6 @@ def _create_location_op(customer_id, campaign_id, locations):
     )
 
     return campaign_criterion_operation
-    #todo json?, add?
     #[END add_campaign_targeting_criteria_1]
 
 
@@ -983,11 +995,11 @@ def _create_user_interest_op(customer_id, campaign_id, interest):
 
     for batch in response:
         for row in batch.results:
-            print(
-                f"User interest with ID {row.user_interest.user_interest_id}, "
-                f"category '{row.user_interest.name}'"
-                f"resource name '{row.user_interest.resource_name}' "
-            )
+            # print(
+            #     f"User interest with ID {row.user_interest.user_interest_id}, "
+            #     f"category '{row.user_interest.name}'"
+            #     f"resource name '{row.user_interest.resource_name}' "
+            # )
             resource_name = row.user_interest.resource_name
 
     # Create the campaign criterion.
