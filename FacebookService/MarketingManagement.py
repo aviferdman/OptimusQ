@@ -740,9 +740,11 @@ def create_on_behalf_of_relationship(client_admin_access_token, client_user_id, 
             ASSETS_IDS.append(ad_account.get('id'))
 
         owned_pages_ids = list()
-        for page in res.get('body').get('owned_pages').get('data'):
-            owned_pages_ids.append(page.get('id'))
-            ASSETS_IDS.append(page.get('id'))
+        if (res.get('body') is not None) and (res.get('body').get('owned_pages') is not None) and (
+                res.get('body').get('owned_pages').get('data') is not None):
+            for page in res.get('body').get('owned_pages').get('data'):
+                owned_pages_ids.append(page.get('id'))
+                ASSETS_IDS.append(page.get('id'))
 
         # *** STEP 1 ***
         # This creates an relationship edge between partner's Business Manager and client's Business Manager.
