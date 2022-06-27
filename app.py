@@ -294,6 +294,13 @@ def fb_api_get_all_campaigns():
             token = admin_token[0][1]
         else:
             token = sandbox_token[0][1]
+        oq_user_id = rq.get('oq_user_id')
+        BM_id = rq.get('BM_id')
+        if (oq_user_id is not None) and (oq_user_id != "") and (BM_id is not None) and (BM_id != ""):
+            token = MarketingManagement.get_token_for_client_by_oq_user_id_and_business_id(oq_user_id, BM_id)
+            if token == -1:
+                return {"status": 400, "body": "error: OptimusQ userid or Client's Business Manager id not found"}
+
         ad_account = rq['ad_account']
         return MarketingManagement.get_all_campaigns(token, ad_account)
 
@@ -360,6 +367,12 @@ def fb_api_get_all_ad_sets_by_campaign():
             token = admin_token[0][1]
         else:
             token = sandbox_token[0][1]
+        oq_user_id = rq.get('oq_user_id')
+        BM_id = rq.get('BM_id')
+        if (oq_user_id is not None) and (oq_user_id != "") and (BM_id is not None) and (BM_id != ""):
+            token = MarketingManagement.get_token_for_client_by_oq_user_id_and_business_id(oq_user_id, BM_id)
+            if token == -1:
+                return {"status": 400, "body": "error: OptimusQ userid or Client's Business Manager id not found"}
         campaign_id = rq['campaign_id']
         return MarketingManagement.get_all_ad_sets_by_campaign(token, campaign_id)
 
@@ -375,6 +388,12 @@ def fb_api_upload_image_by_path():
             token = admin_token[0][1]
         else:
             token = sandbox_token[0][1]
+        oq_user_id = rq.get('oq_user_id')
+        BM_id = rq.get('BM_id')
+        if (oq_user_id is not None) and (oq_user_id != "") and (BM_id is not None) and (BM_id != ""):
+            token = MarketingManagement.get_token_for_client_by_oq_user_id_and_business_id(oq_user_id, BM_id)
+            if token == -1:
+                return {"status": 400, "body": "error: OptimusQ userid or Client's Business Manager id not found"}
         ad_account_id = rq['ad_account']
         img_url = rq['img_url']
         return MarketingManagement.upload_image_by_url(ad_account_id, token, img_url)
@@ -667,6 +686,13 @@ def fb_api_get_all_ads_by_adSet_id():
             token = admin_token[0][1]
         else:
             token = sandbox_token[0][1]
+        oq_user_id = rq.get('oq_user_id')
+        BM_id = rq.get('BM_id')
+        if (oq_user_id is not None) and (oq_user_id != "") and (BM_id is not None) and (BM_id != ""):
+            token = MarketingManagement.get_token_for_client_by_oq_user_id_and_business_id(oq_user_id, BM_id)
+            if token == -1:
+                return {"status": 400, "body": "error: OptimusQ userid or Client's Business Manager id not found"}
+
         adset_id = rq['adset_id']
         return MarketingManagement.get_all_ads_by_adSet_id(token, adset_id)
 
@@ -683,6 +709,13 @@ def fb_api_get_insights():
             token = admin_token[0][1]
         else:
             token = sandbox_token[0][1]
+        oq_user_id = rq.get('oq_user_id')
+        BM_id = rq.get('BM_id')
+        if (oq_user_id is not None) and (oq_user_id != "") and (BM_id is not None) and (BM_id != ""):
+            token = MarketingManagement.get_token_for_client_by_oq_user_id_and_business_id(oq_user_id, BM_id)
+            if token == -1:
+                return {"status": 400, "body": "error: OptimusQ userid or Client's Business Manager id not found"}
+
         marketing_object_id = rq['marketing_object_id']
         date_preset = rq.get('date_preset')
         if (date_preset is None) or (date_preset == ''):
@@ -702,6 +735,13 @@ def fb_api_delete_campaign():
             token = admin_token[0][1]
         else:
             token = sandbox_token[0][1]
+        oq_user_id = rq.get('oq_user_id')
+        BM_id = rq.get('BM_id')
+        if (oq_user_id is not None) and (oq_user_id != "") and (BM_id is not None) and (BM_id != ""):
+            token = MarketingManagement.get_token_for_client_by_oq_user_id_and_business_id(oq_user_id, BM_id)
+            if token == -1:
+                return {"status": 400, "body": "error: OptimusQ userid or Client's Business Manager id not found"}
+
         campaign_id = rq.get('campaign_id', '-1')
         res = MarketingManagement.delete_campaign(token, campaign_id)
         if res.get('status') == 200:
@@ -724,6 +764,13 @@ def fb_api_delete_adSet():
             token = admin_token[0][1]
         else:
             token = sandbox_token[0][1]
+        oq_user_id = rq.get('oq_user_id')
+        BM_id = rq.get('BM_id')
+        if (oq_user_id is not None) and (oq_user_id != "") and (BM_id is not None) and (BM_id != ""):
+            token = MarketingManagement.get_token_for_client_by_oq_user_id_and_business_id(oq_user_id, BM_id)
+            if token == -1:
+                return {"status": 400, "body": "error: OptimusQ userid or Client's Business Manager id not found"}
+
         adset_id = rq.get('adset_id', '-1')
         res = MarketingManagement.delete_adSet(token, adset_id)
         if res.get('status') == 200:
@@ -746,6 +793,13 @@ def fb_api_delete_ad_creative():
             token = admin_token[0][1]
         else:
             token = sandbox_token[0][1]
+        oq_user_id = rq.get('oq_user_id')
+        BM_id = rq.get('BM_id')
+        if (oq_user_id is not None) and (oq_user_id != "") and (BM_id is not None) and (BM_id != ""):
+            token = MarketingManagement.get_token_for_client_by_oq_user_id_and_business_id(oq_user_id, BM_id)
+            if token == -1:
+                return {"status": 400, "body": "error: OptimusQ userid or Client's Business Manager id not found"}
+
         creative_id = rq.get('creative_id', '-1')
         res = MarketingManagement.delete_ad_creative(token, creative_id)
         if res.get('status') == 200:
@@ -768,6 +822,14 @@ def fb_api_delete_ad():
             token = admin_token[0][1]
         else:
             token = sandbox_token[0][1]
+
+        oq_user_id = rq.get('oq_user_id')
+        BM_id = rq.get('BM_id')
+        if (oq_user_id is not None) and (oq_user_id != "") and (BM_id is not None) and (BM_id != ""):
+            token = MarketingManagement.get_token_for_client_by_oq_user_id_and_business_id(oq_user_id, BM_id)
+            if token == -1:
+                return {"status": 400, "body": "error: OptimusQ userid or Client's Business Manager id not found"}
+
         ad_id = rq.get('ad_id', '-1')
         res = MarketingManagement.delete_ad(token, ad_id)
         if res.get('status') == 200:
@@ -791,6 +853,13 @@ def fb_api_search_interests():
             token = admin_token[0][1]
         else:
             token = sandbox_token[0][1]
+        oq_user_id = rq.get('oq_user_id')
+        BM_id = rq.get('BM_id')
+        if (oq_user_id is not None) and (oq_user_id != "") and (BM_id is not None) and (BM_id != ""):
+            token = MarketingManagement.get_token_for_client_by_oq_user_id_and_business_id(oq_user_id, BM_id)
+            if token == -1:
+                return {"status": 400, "body": "error: OptimusQ userid or Client's Business Manager id not found"}
+
         res = MarketingManagement.search_for_possible_interests(token, rq.get("to_search", ""))
         return res
 
