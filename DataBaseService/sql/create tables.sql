@@ -158,6 +158,7 @@ CREATE TABLE "GoogleAds_Campaigns"
     "advertising_channel_type" VARCHAR(250),
     "payment_mode" VARCHAR(250),
     "targeting_locations" VARCHAR(520),
+    "targeting_country_codes" VARCHAR(520),
     "targeting_gender" VARCHAR(250),
     "targeting_device_type" VARCHAR(250),
     "targeting_min_age" VARCHAR(250),
