@@ -1254,12 +1254,12 @@ def googleAds_api_get_keyword_statistics():
 
 
 # for running in local host with HTTP
-# if __name__ == '__main__':
-#     app.run()
+if __name__ == '__main__':
+    app.run()
 
 # for running in local host with HTTPS
 # first, create cert.pem and key.pem with the following cmd command:
 # openssl req -x509 -newkey rsa:4096 -nodes -out cert.pem -keyout key.pem -days 365
 # run with cmd command: python app.py
-if __name__ == '__main__':
-    app.run(ssl_context=('cert.pem', 'key.pem'), debug=True)
+# if __name__ == '__main__':
+#     app.apprun(ssl_context=('cert.pem', 'key.pem'), debug=True)

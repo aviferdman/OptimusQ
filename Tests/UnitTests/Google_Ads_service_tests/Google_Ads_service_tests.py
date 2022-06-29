@@ -9,9 +9,10 @@ class Test(TestCase):
         self.campaign_id = "17538158096"
         self.ad_group_id = "134777639741"
 
+
     def test_create_new_campaign_valid(self):
         res = cm.create_new_campaign(self.customer_id, 10, "test_new_campaign", 2, 4, "PAUSED", "STANDARD", "DAILY", "SEARCH", "CLICKS",
-                                     ["New York"], "FEMALE", "DESKTOP", 25, 34, "Subaru")
+                                     ["Israel", "Brazil"],["IL", "BR"], "FEMALE", "DESKTOP", 25, 34, "Subaru")
         status = res.get('status')
         id = res.get('body').get('id')
         cm.delete_campaign(self.customer_id,id)
@@ -56,7 +57,7 @@ class Test(TestCase):
 
     def test_delete_campaign_valid(self):
         res_1 = cm.create_new_campaign(self.customer_id, 10, "test del", 2, 4, "PAUSED", "STANDARD", "DAILY", "SEARCH",
-                                     "CLICKS",["New York"], "FEMALE", "DESKTOP", 25, 34, "Subaru")
+                                     "CLICKS",["Israel", "Brazil"],["IL", "BR"], "FEMALE", "DESKTOP", 25, 34, "Subaru")
         id_to_del = res_1.get('body').get('id')
         res = cm.delete_campaign(self.customer_id, id_to_del)
         status = res.get('status')
