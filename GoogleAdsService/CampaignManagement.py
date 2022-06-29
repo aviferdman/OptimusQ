@@ -43,7 +43,7 @@ client = GoogleAdsClient.load_from_dict(token_dict, version="v10")
 # client = GoogleAdsClient.load_from_storage(path=curr_path, version="v10")
 
 
-# creates a new campaign
+# creates a new campaign_
 def create_new_campaign(customer_id, budget, name, days_to_start, weeks_to_end, status, delivery_method, period,
                         advertising_channel_type, payment_mode,
                         targeting_locations, targeting_country_codes, targeting_gender, targeting_device_type, targeting_min_age,
@@ -299,7 +299,7 @@ def get_all_ad_groups(customer_id, campaign_id):
         ad_groups = []
         for row in results:
             ad_groups.append((row.ad_group.id, row.ad_group.name))
-        return {"status": 200, "body": ad_groups}
+        return {"status": 200, "body": {"data": ad_groups}}
 
     except GoogleAdsException as ex:
         return _handle_googleads_exception(ex)
@@ -410,10 +410,9 @@ def get_keywords(customer_id, ad_group_id):
               ad_group_criterion.keyword.match_type
             FROM ad_group_criterion
             WHERE ad_group_criterion.type = KEYWORD
-            AND ad_group.status = 'ENABLED'
+            AND ad_group.status  IN ('ENABLED', 'PAUSED')
             AND ad_group_criterion.status IN ('ENABLED', 'PAUSED')
             """
-
 
     if ad_group_id:
         query += f" AND ad_group.id = {ad_group_id}"
@@ -441,7 +440,7 @@ def get_keywords(customer_id, ad_group_id):
             #     f"with ID {ad_group.id}."
             # )
 
-        return {"status": 200, "data": keywords}
+        return {"status": 200, "body":{"data":keywords} }
 
     except GoogleAdsException as ex:
         return _handle_googleads_exception(ex)
@@ -566,9 +565,10 @@ def get_responsive_search_ad_by_id(customer_id, ad_id):
                 _ad_text_assets_to_strs(ad.responsive_search_ad.descriptions))
             ads.append((ad.id, row.ad_group_ad.status.name, headlines, descriptions))
 
+        #todo check if cancel!!
         if not one_found:
-            return {"data": "No responsive search ads were found."}
-        return {"status": 200, "data": ads}
+            return {"status": 400, "body": {"data": "No responsive search ads were found."}}
+        return {"status": 200, "body": {"data": ads}}
 
     except GoogleAdsException as ex:
         return _handle_googleads_exception(ex)
@@ -616,8 +616,8 @@ def get_all_responsive_search_ads(customer_id, ad_group_id):
             ads.append((ad.id, row.ad_group_ad.status.name, headlines, descriptions))
             # print(f"Headlines:\n{headlines}\nDescriptions:\n{descriptions}\n")
 
-        if not one_found:
-            return {"data": "No responsive search ads were found."}
+        # if not one_found:
+        #     return {"status": 200, "body": "No responsive search ads were found."}
             # print("No responsive search ads were found.")
         return {"status": 200, "body": {"data": ads}}
 
@@ -641,7 +641,7 @@ def delete_ad(customer_id, ad_group_id, ad_id):
         )
 
         ad_id = ad_group_ad_response.results[0].resource_name.split("/")[3].split("~")[1]
-        return {"status": 200, "data": "ad with id: " + ad_id + " deleted"}
+        return {"status": 200, "body":{"ad_id": ad_id}}
 
     except GoogleAdsException as ex:
         return _handle_googleads_exception(ex)
