@@ -84,12 +84,10 @@ def create_new_campaign(customer_id, budget, name, days_to_start, weeks_to_end, 
     campaign = campaign_operation.create
     campaign.name = name
 
-    # todo not working more types
     campaign.advertising_channel_type = client.get_type("AdvertisingChannelTypeEnum").AdvertisingChannelType.SEARCH
 
     if payment_mode in Enum.Payments.keys():
         campaign.payment_mode = Enum.Payments[payment_mode]()
-    # todo check if working
     elif payment_mode == "" or payment_mode is None:
         campaign.payment_mode = client.get_type("PaymentModeEnum").PaymentMode.CLICKS
 
@@ -234,7 +232,6 @@ def delete_campaign(customer_id, campaign_id):
         )
 
         campaign_id = campaign_response.results[0].resource_name.split("/")[3]
-        # print(f"Removed campaign {campaign_response.results[0].resource_name}.")
         return {"status": 200, "data": {"id": campaign_id}}
 
     except GoogleAdsException as ex:

@@ -1262,4 +1262,4 @@ if __name__ == '__main__':
 # openssl req -x509 -newkey rsa:4096 -nodes -out cert.pem -keyout key.pem -days 365
 # run with cmd command: python app.py
 # if __name__ == '__main__':
-#     app.apprun(ssl_context=('cert.pem', 'key.pem'), debug=True)
+#     app.run(ssl_context=('cert.pem', 'key.pem'), debug=True)
